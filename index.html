@@ -2787,6 +2787,7 @@
             localStorage.setItem("wasapedro_modo", modoTema);
             const meta = document.getElementById('meta-theme');
             if (meta) meta.setAttribute('content', modoTema === 'claro' ? '#f1f5f9' : '#09090b');
+            aplicarFondo();
             actualizarControlesApariencia();
         }
 
@@ -2800,16 +2801,18 @@
             const tipo = localStorage.getItem('wasapedro_fondo_tipo') || 'patron';
             const color = localStorage.getItem('wasapedro_fondo_color') || '#0f172a';
             const img = localStorage.getItem('wasapedro_fondo_img') || '';
+            const base = document.body.classList.contains('modo-claro') ? '#f1f5f9' : '#09090b';
             cont.style.backgroundImage = '';
-            cont.style.backgroundColor = '';
             cont.style.backgroundSize = 'cover';
             cont.style.backgroundPosition = 'center';
             cont.style.backgroundRepeat = 'no-repeat';
             if (tipo === 'color') {
                 cont.style.backgroundColor = color;
             } else if (tipo === 'imagen' && img) {
+                cont.style.backgroundColor = base;
                 cont.style.backgroundImage = "url('" + img + "')";
             } else {
+                cont.style.backgroundColor = base;
                 cont.style.backgroundImage = "url('https://www.transparenttextures.com/patterns/cubes.png')";
             }
             actualizarControlesApariencia();
