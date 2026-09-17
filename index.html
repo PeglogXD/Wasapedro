@@ -568,6 +568,7 @@
         let serviceWorkerListo = false;
         let eventosArchivosInicializados = false;
         const MAX_TAMANO_ARCHIVO = 5 * 1024 * 1024;
+        const LIMITE_AVISO_EMBEBIDO = 400 * 1024;
         const REGEX_IDENTIFICADOR = /^[a-z0-9](?:[a-z0-9_-]{1,31})$/;
 
         function leerJSONLocal(clave, valorPredeterminado) {
@@ -981,9 +982,9 @@
 
             // Aviso de multimedia para el destinatario (persiste aunque esté offline)
             if (esGrupo) {
-                publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false, tipoMedia);
+                publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false, tipoMedia, payload);
             } else {
-                publicarAvisoEnvio([chatActivo], 'media', '', '', false, tipoMedia);
+                publicarAvisoEnvio([chatActivo], 'media', '', '', false, tipoMedia, payload);
             }
 
             const objetoHistorial = { ...payload, enviado: false };
@@ -1834,6 +1835,7 @@
                                         nombreGrupo: aviso.nombreGrupo || '',
                                         ts: aviso.ts || Date.now()
                                     };
+                                    recuperarMensajeDesdeAviso(aviso, emisorAviso);
                                 }
                             } catch(e) {}
                         }
@@ -2061,10 +2063,12 @@
                     }
 
                     data.enviado = true;
+                    let mensajeNuevo = false;
                     if (!historialesDeChats[idChat]) historialesDeChats[idChat] = [];
                     if (!historialesDeChats[idChat].some(m => m.idMsg === data.idMsg)) {
                         historialesDeChats[idChat].push(data);
                         localStorage.setItem("wasapedro_historiales", JSON.stringify(historialesDeChats));
+                        mensajeNuevo = true;
                     }
 
                     moverChatAlPrincipio(idChat);
@@ -2077,7 +2081,8 @@
 
                     if (chatActivo === idChat) {
                         renderizarMensajes();
-                    } else {
+                    } else if (mensajeNuevo) {
+                        // Solo contar/notificar si de verdad es nuevo y no lo recuperó ya el aviso
                         notificacionesPendientes[idChat] = (notificacionesPendientes[idChat] || 0) + 1;
                         localStorage.setItem("wasapedro_notif_pendientes", JSON.stringify(notificacionesPendientes));
                         actualizarBuzonNotificacionesUI();
@@ -2144,9 +2149,18 @@
             abrirChat(nom);
         }
 
-        function publicarAvisoEnvio(destinatarios, tipo, idGrupo, nombreGrupo, esArchivo, tipoMedia) {
+        function publicarAvisoEnvio(destinatarios, tipo, idGrupo, nombreGrupo, esArchivo, tipoMedia, mensaje) {
             if (!clienteMqtt || !clienteMqtt.connected || !miNombre) return;
             const aviso = { de: miNombre, tipo: tipo, esArchivo: !!esArchivo, tipoMedia: tipoMedia || '', idGrupo: idGrupo || '', nombreGrupo: nombreGrupo || '', ts: Date.now() };
+            // El mensaje real no se retiene en el tópico del chat, así que lo adjuntamos
+            // al aviso (que sí es retained) para poder recuperarlo al reconectar estando offline.
+            if (mensaje && typeof mensaje === 'object' && mensaje.idMsg) {
+                const copia = { ...mensaje };
+                const esDataGrande = v => typeof v === 'string' && v.startsWith('data:') && v.length > LIMITE_AVISO_EMBEBIDO;
+                if (esDataGrande(copia.urlMedia)) { delete copia.urlMedia; copia.contenidoPerdido = true; }
+                if (esDataGrande(copia.urlArchivo)) { delete copia.urlArchivo; copia.contenidoPerdido = true; }
+                aviso.msg = copia;
+            }
             const textoAviso = JSON.stringify(aviso);
             (Array.isArray(destinatarios) ? destinatarios : []).forEach(dest => {
                 if (!dest || dest === miNombre) return;
@@ -2154,6 +2168,53 @@
                     clienteMqtt.publish(`wasapedro/v3/avisos/${dest}/${miNombre}`, textoAviso, { qos: 1, retain: true });
                 } catch(e) {}
             });
+        }
+
+        // Reconstruye el mensaje que viaja embebido en el aviso retained.
+        // Sin esto, al reconectar tras estar offline solo se veía "te escribió" con el chat vacío.
+        function recuperarMensajeDesdeAviso(aviso, emisorAviso) {
+            const msg = aviso && aviso.msg;
+            if (!msg || !msg.idMsg) return;
+            const emisor = aviso.de || emisorAviso;
+            if (!emisor || emisor === miNombre) return;
+            if (listaBloqueados.includes(emisor)) return;
+
+            const esGrupo = !!aviso.idGrupo;
+            const idChat = esGrupo ? aviso.idGrupo : emisor;
+
+            if (esGrupo && !datosGrupos[idChat]) {
+                datosGrupos[idChat] = { nombre: aviso.nombreGrupo || "Grupo MQTT", esGrupo: true, foto: "", miembros: [] };
+                localStorage.setItem("wasapedro_datos_grupos", JSON.stringify(datosGrupos));
+            }
+            if (msg.fotoEmisor) {
+                fotosAmigos[emisor] = msg.fotoEmisor;
+                localStorage.setItem("wasapedro_fotos_amigos", JSON.stringify(fotosAmigos));
+            }
+
+            if (!historialesDeChats[idChat]) historialesDeChats[idChat] = [];
+            // Dedupe: el aviso retained se re-entrega en cada reconexión
+            if (historialesDeChats[idChat].some(m => m.idMsg === msg.idMsg)) return;
+
+            const recuperado = { ...msg, emisor: emisor, enviado: true };
+            if (msg.contenidoPerdido) {
+                const que = aviso.tipoMedia === 'audio' ? 'una nota de voz' : aviso.tipoMedia === 'gif' ? 'un GIF' : aviso.tipoMedia === 'sticker' ? 'un sticker' : 'un archivo';
+                recuperado.texto = "⚠️ Recibiste " + que + " mientras estabas desconectado, pero el contenido ya no está disponible.";
+                delete recuperado.urlMedia;
+                delete recuperado.urlArchivo;
+            }
+            historialesDeChats[idChat].push(recuperado);
+            localStorage.setItem("wasapedro_historiales", JSON.stringify(historialesDeChats));
+
+            moverChatAlPrincipio(idChat);
+
+            if (chatActivo === idChat) {
+                renderizarMensajes();
+            } else {
+                notificacionesPendientes[idChat] = (notificacionesPendientes[idChat] || 0) + 1;
+                localStorage.setItem("wasapedro_notif_pendientes", JSON.stringify(notificacionesPendientes));
+                notificarMensajeRecibido(recuperado, idChat, esGrupo);
+            }
+            actualizarListaAmigosUI();
         }
 
         function limpiarAvisoPendiente(de) {
@@ -2399,9 +2460,9 @@
 
             // Aviso "te escribió" para el destinatario (persiste aunque esté offline)
             if (esGrupo) {
-                publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false);
+                publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false, '', payload);
             } else {
-                publicarAvisoEnvio([chatActivo], 'mensaje', '', '', false);
+                publicarAvisoEnvio([chatActivo], 'mensaje', '', '', false, '', payload);
             }
 
             const objetoHistorial = { ...payload, enviado: false };
@@ -2447,9 +2508,9 @@
 
                 // Aviso de archivo para el destinatario (persiste aunque esté offline)
                 if (esGrupo) {
-                    publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, true);
+                    publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, true, '', payload);
                 } else {
-                    publicarAvisoEnvio([chatActivo], 'archivo', '', '', false);
+                    publicarAvisoEnvio([chatActivo], 'archivo', '', '', false, '', payload);
                 }
 
                 if (!historialesDeChats[chatActivo]) historialesDeChats[chatActivo] = [];
