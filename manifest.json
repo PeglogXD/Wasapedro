@@ -1,16 +1,16 @@
 {
-  "name": "Wasapedro - PG Studio",
+  "name": "Wasapedro",
   "short_name": "Wasapedro",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b141a",
+  "background_color": "#09090b",
   "theme_color": "#00a884",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8rIJCPVxx1xoUfEA7FEeDtWNK1yNJ3RfUfndqvFvb7g&s=10",
+      "src": "icon.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any maskable"

@@ -1,6 +1,5 @@
-// sw.js - Notificaciones y cache offline de NotebookPG
-
-const CACHE_NAME = 'notebookpg-shell-v2';
+// sw.js - Notificaciones y cache offline de WasaPedro
+const CACHE_NAME = 'wasapedro-shell-v1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -13,6 +12,9 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
+      // Nunca bloquear la instalación del service worker por un recurso que falle:
+      // las notificaciones dependen de que el SW quede activo.
+      .catch(() => {})
       .then(() => self.skipWaiting())
   );
 });
@@ -28,22 +30,41 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request)
+  // Navegaciones: primero la red para recibir siempre la versión más reciente
+  // de la app; si no hay conexión se cae al caché.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
           }
           return response;
         })
-        .catch(() => cached || caches.match('./index.html'));
+        .catch(() => caches.match(request).then(guardado => guardado || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Recursos estáticos: caché primero con actualización en segundo plano.
+  event.respondWith(
+    caches.match(request).then(cached => {
+      const network = fetch(request)
+        .then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => cached);
       return cached || network;
     })
   );
