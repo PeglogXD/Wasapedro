@@ -65,6 +65,28 @@
         .pulso-estado { animation: pulseGlow 2s infinite ease-in-out; }
         
         .glass-panel { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        /* Personalización: fondo y modo claro */
+        #contenedor-wasapedro { background-size: cover; background-position: center; background-repeat: no-repeat; }
+        body.modo-claro { color: #0f172a; }
+        body.modo-claro .bg-dark-900 { background-color: #f1f5f9 !important; }
+        body.modo-claro .bg-dark-800 { background-color: #ffffff !important; }
+        body.modo-claro .bg-dark-700 { background-color: #e2e8f0 !important; }
+        body.modo-claro .bg-dark-600 { background-color: #cbd5e1 !important; }
+        body.modo-claro .bg-dark-900\/95 { background-color: rgba(241,245,249,0.95) !important; }
+        body.modo-claro .bg-dark-800\/50 { background-color: rgba(255,255,255,0.85) !important; }
+        body.modo-claro .bg-dark-800\/80 { background-color: rgba(255,255,255,0.92) !important; }
+        body.modo-claro .text-white { color: #0f172a !important; }
+        body.modo-claro .text-gray-200 { color: #334155 !important; }
+        body.modo-claro .text-gray-300 { color: #475569 !important; }
+        body.modo-claro .text-gray-400 { color: #64748b !important; }
+        body.modo-claro .text-gray-500 { color: #94a3b8 !important; }
+        body.modo-claro .border-dark-700 { border-color: #e2e8f0 !important; }
+        body.modo-claro .border-dark-600 { border-color: #cbd5e1 !important; }
+        body.modo-claro .placeholder-gray-500::placeholder { color: #94a3b8 !important; }
+        body.modo-claro .glass-panel { background: rgba(255,255,255,0.92) !important; border-color: rgba(15,23,42,0.06) !important; }
+        body.modo-claro .hover\:bg-dark-700:hover { background-color: #e2e8f0 !important; }
+        body.modo-claro .hover\:bg-dark-600:hover { background-color: #cbd5e1 !important; }
         
         /* Hoja de papel estilo Word */
         .paper-page {
@@ -145,7 +167,7 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-dark-900 text-[#e4e4e7]">
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]">
 
     <!-- INTERFAZ SECRETA WASAPEDRO -->
     <div id="pantalla-ban" class="fixed inset-0 bg-dark-900 z-[9999] flex flex-col items-center justify-center p-6 text-center hidden">
@@ -170,29 +192,48 @@
 
     <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0">
         
-        <main id="pantalla-registro" class="glass-panel p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
+        <main id="pantalla-registro" class="glass-panel p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-purple-500"></div>
-            <div class="w-20 h-20 bg-dark-800 text-brand-500 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 border border-dark-700 shadow-inner">
-                <i class="ph ph-planet"></i>
+            <div class="w-20 h-20 mx-auto mb-5 flex items-center justify-center">
+                <img id="logo-auth" src="" alt="Logo" class="w-20 h-20 object-contain rounded-2xl hidden border border-dark-700 bg-dark-800">
+                <div id="logo-auth-fallback" class="w-20 h-20 bg-dark-800 text-brand-500 rounded-2xl flex items-center justify-center text-4xl border border-dark-700 shadow-inner">
+                    <i class="ph ph-planet"></i>
+                </div>
             </div>
-            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Wasa<span class="text-brand-500 theme-text">Pedro</span></h1>
-            <p class="text-gray-400 text-sm mb-8">Conexión en tiempo real ultra-rápida</p>
-            
-            <div class="space-y-4 text-left">
-                <div class="relative">
-                    <input type="text" id="input-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                </div>
-                <p id="error-registro" class="text-xs text-red-400 text-left pl-2 hidden transition-all">⚠️ Este nombre ya está en uso.</p>
-                <p id="error-email" class="text-xs text-red-400 text-left pl-2 hidden transition-all">⚠️ Este correo ya está registrado en otra cuenta.</p>
-                
-                <div class="relative">
-                    <input type="email" id="input-recuperar-email" placeholder="Correo para respaldo (Opcional)" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                </div>
+            <h1 class="text-4xl font-extrabold text-white mb-1 tracking-tight">Wasa<span class="text-brand-500 theme-text">Pedro</span></h1>
+            <p class="text-gray-400 text-sm mb-7">Conexión en tiempo real ultra-rápida</p>
+
+            <div id="auth-vista-inicio" class="space-y-3">
+                <button onclick="mostrarVistaAuth('login')" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-sign-in"></i> Iniciar Sesión
+                </button>
+                <button onclick="mostrarVistaAuth('registro')" class="w-full bg-dark-700 hover:bg-dark-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-user-plus"></i> Registrarse
+                </button>
             </div>
 
-            <button id="btn-guardar" class="w-full mt-8 bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
-                Ingresar al Sistema
-            </button>
+            <div id="auth-vista-login" class="hidden text-left space-y-3">
+                <input type="text" id="input-login-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <input type="password" id="input-login-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-login" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Usuario o contraseña incorrectos.</p>
+                <button id="btn-login" onclick="procesarLogin()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-sign-in"></i> Entrar
+                </button>
+                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+            </div>
+
+            <div id="auth-vista-registro" class="hidden text-left space-y-3">
+                <input type="text" id="input-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-registro" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este nombre ya está en uso.</p>
+                <input type="email" id="input-recuperar-email" placeholder="Correo para respaldo (Opcional)" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-email" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este correo ya está registrado en otra cuenta.</p>
+                <input type="password" id="input-registro-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-registro-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ La contraseña debe tener al menos 4 caracteres.</p>
+                <button id="btn-guardar" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
+                    <i class="ph ph-user-plus"></i> Crear Cuenta
+                </button>
+                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+            </div>
         </main>
 
         <div id="interfaz-principal" class="w-full max-w-6xl h-full md:h-[92vh] md:rounded-3xl shadow-2xl overflow-hidden hidden z-10 animar-entrada border-0 md:border md:border-dark-700 bg-dark-900/95 flex-row">
@@ -483,12 +524,6 @@
                         <button onclick="solicitarNotificaciones()" class="col-span-2 bg-dark-700 text-gray-300 font-medium py-2 rounded-lg text-xs hover:bg-dark-600 flex items-center justify-center gap-1">
                             <i class="ph ph-bell"></i> Activar Notificaciones
                         </button>
-                        <button id="btn-usuarios-admin-view" onclick="abrirModalUsuariosAdmin()" class="hidden bg-purple-500/20 text-purple-400 border border-purple-500/30 py-2 rounded-lg text-xs hover:bg-purple-500 hover:text-white transition-all flex items-center justify-center gap-1">
-                            <i class="ph ph-users"></i> Usuarios
-                        </button>
-                        <button onclick="abrirModalAdminLogin()" class="hidden bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 py-2 rounded-lg text-xs hover:bg-yellow-500 hover:text-white transition-all flex items-center justify-center gap-1">
-                            <i class="ph ph-shield-star"></i> Admin del servidor
-                        </button>
                         <button onclick="cerrarSesionLimpiar()" class="col-span-2 bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-all">
                             Cerrar Sesión
                         </button>
@@ -496,39 +531,48 @@
                     <p id="status-cloud" class="text-[10px] italic text-brand-400 theme-text text-center h-3"></p>
                 </div>
             </div>
-            
-            <div class="mb-5">
-                <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-2">Color del Tema</label>
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="cambiarTema('#3b82f6')" class="w-full h-10 bg-[#3b82f6] rounded-xl border-2 border-transparent focus:border-white transition-all shadow-lg"></button>
-                    <button onclick="cambiarTema('#10b981')" class="w-full h-10 bg-[#10b981] rounded-xl border-2 border-transparent focus:border-white transition-all shadow-lg"></button>
-                    <button onclick="cambiarTema('#8b5cf6')" class="w-full h-10 bg-[#8b5cf6] rounded-xl border-2 border-transparent focus:border-white transition-all shadow-lg"></button>
-                    <button onclick="cambiarTema('#f43f5e')" class="w-full h-10 bg-[#f43f5e] rounded-xl border-2 border-transparent focus:border-white transition-all shadow-lg"></button>
+
+            <div class="mb-5 p-4 bg-dark-900 border border-dark-700 rounded-2xl">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-brand-500 theme-text mb-3 flex items-center gap-1"><i class="ph ph-palette"></i> Apariencia</label>
+
+                <div class="mb-4">
+                    <span class="text-[10px] text-gray-400 block mb-2">Modo</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-modo-claro" onclick="cambiarModo('claro')" class="py-2 rounded-lg text-xs border transition-all flex items-center justify-center gap-1"><i class="ph ph-sun"></i> Claro</button>
+                        <button id="btn-modo-oscuro" onclick="cambiarModo('oscuro')" class="py-2 rounded-lg text-xs border transition-all flex items-center justify-center gap-1"><i class="ph ph-moon"></i> Oscuro</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <span class="text-[10px] text-gray-400 block mb-2">Color del Tema</span>
+                    <div id="grid-temas" class="grid grid-cols-5 gap-2"></div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-[10px] text-gray-500">Personalizado</span>
+                        <input type="color" id="input-tema-custom" onchange="cambiarTema(this.value)" class="w-8 h-8 bg-transparent border-0 cursor-pointer">
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[10px] text-gray-400 block mb-2">Fondo</span>
+                    <div class="grid grid-cols-3 gap-2 mb-2">
+                        <button id="btn-fondo-patron" onclick="cambiarFondoTipo('patron')" class="py-2 rounded-lg text-xs border transition-all">Patrón</button>
+                        <button id="btn-fondo-color" onclick="cambiarFondoTipo('color')" class="py-2 rounded-lg text-xs border transition-all">Color</button>
+                        <button id="btn-fondo-imagen" onclick="cambiarFondoTipo('imagen')" class="py-2 rounded-lg text-xs border transition-all">Imagen</button>
+                    </div>
+                    <div id="fondo-color-wrap" class="hidden items-center gap-2">
+                        <span class="text-[10px] text-gray-500">Color de fondo</span>
+                        <input type="color" id="input-fondo-color" onchange="cambiarFondoColor(this.value)" class="w-8 h-8 bg-transparent border-0 cursor-pointer">
+                    </div>
+                    <div id="fondo-imagen-wrap" class="hidden">
+                        <label for="input-fondo-img" class="w-full bg-dark-700 text-gray-300 py-2 rounded-lg text-xs hover:bg-dark-600 flex items-center justify-center gap-1 cursor-pointer"><i class="ph ph-upload"></i> Subir .png / .jpg</label>
+                        <input type="file" id="input-fondo-img" class="hidden" accept="image/png, image/jpeg, image/jpg" onchange="subirFondoImagen(this.files[0])">
+                    </div>
                 </div>
             </div>
 
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-2">Bloqueados</label>
                 <div id="contenedor-bloqueados" class="bg-dark-900 border border-dark-700 rounded-xl p-3 max-h-32 overflow-y-auto space-y-1.5 custom-scrollbar"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-admin-usuarios" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-dark-800 border border-dark-700 w-full max-w-md h-[80vh] rounded-3xl p-6 shadow-2xl flex flex-col animar-entrada">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-dark-700">
-                <h2 class="text-sm font-bold text-yellow-500 flex items-center gap-2"><i class="ph ph-users text-lg"></i> Control de Usuarios Admin</h2>
-                <button onclick="document.getElementById('modal-admin-usuarios').classList.add('hidden')" class="text-gray-400 hover:text-white bg-dark-700 p-1.5 rounded-lg"><i class="ph ph-x"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-1">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Usuarios Registrados</h3>
-                    <div id="lista-usuarios-global-contenedor" class="space-y-2"></div>
-                </div>
-                <div class="pt-3 border-t border-dark-700">
-                    <h3 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2 flex items-center gap-1"><i class="ph ph-prohibit"></i> Baneados y Permabaneados</h3>
-                    <div id="lista-usuarios-baneados-contenedor" class="space-y-2"></div>
-                </div>
             </div>
         </div>
     </div>
@@ -543,18 +587,6 @@
             <div class="flex gap-2 justify-end">
                 <button onclick="cerrarModalReporte()" class="px-4 py-2 text-xs text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-all">Cancelar</button>
                 <button onclick="enviarReporte()" class="px-4 py-2 text-xs bg-red-600 text-white font-medium rounded-lg hover:bg-red-500 shadow-lg shadow-red-500/20">Enviar Reporte</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-admin-login" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[70]">
-        <div class="bg-dark-800 border border-yellow-500/30 w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center animar-entrada">
-            <i class="ph ph-shield-star text-5xl text-yellow-500 mb-2 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
-            <h2 class="text-sm font-bold text-white mb-4">Acceso Administrador</h2>
-            <input type="password" id="input-admin-pass" placeholder="Contraseña..." class="w-full bg-dark-900 border border-dark-700 text-sm text-white rounded-xl p-3 mb-5 focus:outline-none text-center focus:border-yellow-500 transition-all">
-            <div class="flex gap-2 justify-center">
-                <button onclick="document.getElementById('modal-admin-login').classList.add('hidden')" class="px-4 py-2 text-xs text-gray-400 hover:text-white bg-dark-700 rounded-lg">Cancelar</button>
-                <button onclick="verificarAdmin()" class="px-4 py-2 text-xs bg-yellow-500 text-dark-900 font-bold rounded-lg hover:bg-yellow-400 shadow-lg shadow-yellow-500/30">Acceder</button>
             </div>
         </div>
     </div>
@@ -758,7 +790,21 @@
         // Lecturas / Read receipts
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
-        let esAdmin = false;
+        const LOGO_URL = "";
+
+        const TEMAS_COLOR = [
+            { nombre: 'Azul', color: '#3b82f6' },
+            { nombre: 'WhatsApp', color: '#25d366' },
+            { nombre: 'Verde', color: '#10b981' },
+            { nombre: 'Morado', color: '#8b5cf6' },
+            { nombre: 'Rosa', color: '#f43f5e' },
+            { nombre: 'Naranja', color: '#f97316' },
+            { nombre: 'Cian', color: '#06b6d4' },
+            { nombre: 'Ámbar', color: '#f59e0b' },
+            { nombre: 'Índigo', color: '#6366f1' },
+            { nombre: 'Rojo', color: '#ef4444' }
+        ];
+        let modoTema = localStorage.getItem("wasapedro_modo") || "oscuro";
 
         const URL_SERVIDOR_MESSENGER = 'wss://broker.emqx.io:8084/mqtt';
 
@@ -855,6 +901,9 @@
             const pantallaRegistro = document.getElementById("pantalla-registro");
             const interfazPrincipal = document.getElementById("interfaz-principal");
 
+            mostrarLogoAuth();
+            aplicarPersonalizacion();
+
             if (miNombre) {
                 pantallaRegistro.classList.add("hidden");
                 interfazPrincipal.classList.remove("hidden");
@@ -863,15 +912,10 @@
                 document.getElementById("nombre-usuario-pantalla").textContent = miNombre;
                 document.getElementById("config-nombre-usuario").textContent = miNombre;
                 document.getElementById("input-cuenta-gmail").value = gmailVinculado;
-                
-                if(esAdmin) {
-                    document.getElementById("btn-usuarios-admin-view").classList.remove("hidden");
-                }
 
                 renderizarMisAvatars();
                 actualizarListaBloqueadosUI();
                 actualizarBuzonNotificacionesUI();
-                aplicarColorTema(temaActual);
                 conectarServidorCloud();
                 inicializarEventosArrastrarArchivos();
                 inicializarPeerJS();
@@ -879,6 +923,7 @@
             } else {
                 interfazPrincipal.classList.add("hidden");
                 pantallaRegistro.classList.remove("hidden");
+                mostrarVistaAuth('inicio');
             }
         }
 
@@ -1596,9 +1641,7 @@
         }
 
         function abrirModalConfiguracion() {
-            if(esAdmin) {
-                document.getElementById("btn-usuarios-admin-view").classList.remove("hidden");
-            }
+            actualizarControlesApariencia();
             document.getElementById('modal-config').classList.remove('hidden');
         }
 
@@ -1668,11 +1711,18 @@
         document.getElementById("btn-guardar").addEventListener("click", () => {
             const nombreIngresado = document.getElementById("input-nombre").value.trim().toLowerCase();
             const emailRecuperar = document.getElementById("input-recuperar-email").value.trim().toLowerCase();
+            const passIngresada = document.getElementById("input-registro-pass").value;
             const btn = document.getElementById("btn-guardar");
             const txtError = document.getElementById("error-registro");
+            const txtErrorPass = document.getElementById("error-registro-pass");
 
             if (!REGEX_IDENTIFICADOR.test(nombreIngresado)) {
                 return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+            }
+            txtErrorPass.classList.add("hidden");
+            if (!passIngresada || passIngresada.length < 4) {
+                txtErrorPass.classList.remove("hidden");
+                return;
             }
             const txtErrorEmail = document.getElementById("error-email");
             btn.disabled = true;
@@ -1692,20 +1742,20 @@
 
             if (correoExisteLocal) {
                 btn.disabled = false;
-                btn.innerHTML = 'Ingresar al Sistema';
+                btn.innerHTML = 'Crear Cuenta';
                 txtErrorEmail.classList.remove("hidden");
                 return;
             }
             if (nombreExisteLocal) {
                 btn.disabled = false;
-                btn.innerHTML = 'Ingresar al Sistema';
+                btn.innerHTML = 'Crear Cuenta';
                 txtError.classList.remove("hidden");
                 return;
             }
 
             // Si el cliente MQTT no está conectado, registrar directamente (sin espera)
             if (!clienteValidacion || !clienteValidacion.connected) {
-                registrarUsuario(nombreIngresado, emailRecuperar, btn);
+                registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
                 return;
             }
 
@@ -1734,21 +1784,81 @@
                 } catch(e) {}
                 if (nombreOcupado) {
                     btn.disabled = false;
-                    btn.innerHTML = 'Ingresar al Sistema';
+                    btn.innerHTML = 'Crear Cuenta';
                     txtError.classList.remove("hidden");
                 } else {
-                    registrarUsuario(nombreIngresado, emailRecuperar, btn);
+                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
                 }
             }, 600);
         });
 
-        function registrarUsuario(nombre, email, btn) {
+        function mostrarLogoAuth() {
+            const img = document.getElementById("logo-auth");
+            const fallback = document.getElementById("logo-auth-fallback");
+            if (!img || !fallback) return;
+            if (LOGO_URL) {
+                img.src = LOGO_URL;
+                img.classList.remove("hidden");
+                fallback.classList.add("hidden");
+            } else {
+                img.classList.add("hidden");
+                fallback.classList.remove("hidden");
+            }
+        }
+
+        function mostrarVistaAuth(vista) {
+            ['inicio', 'login', 'registro'].forEach(v => {
+                const el = document.getElementById('auth-vista-' + v);
+                if (el) el.classList.toggle('hidden', v !== vista);
+            });
+            const errLogin = document.getElementById('error-login');
+            if (errLogin) errLogin.classList.add('hidden');
+        }
+
+        function hashPassword(pass) {
+            // Hash simple (no criptográficamente seguro): evita guardar la contraseña en texto plano.
+            let h = 0x811c9dc5;
+            const s = "wasapedro::" + pass;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 0x01000193);
+            }
+            return (h >>> 0).toString(16);
+        }
+
+        function procesarLogin() {
+            const nombre = document.getElementById('input-login-nombre').value.trim().toLowerCase();
+            const pass = document.getElementById('input-login-pass').value;
+            const err = document.getElementById('error-login');
+            err.classList.add('hidden');
+            if (!REGEX_IDENTIFICADOR.test(nombre)) {
+                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+            }
+            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const cuenta = registroGlobal[nombre];
+            if (!cuenta || (cuenta.pass && cuenta.pass !== hashPassword(pass))) {
+                err.classList.remove('hidden');
+                return;
+            }
+            miNombre = nombre;
+            localStorage.setItem("wasapedro_mqtt_name", miNombre);
+            if (cuenta.email) {
+                gmailVinculado = cuenta.email;
+                localStorage.setItem("wasapedro_gmail_link", cuenta.email);
+            }
+            document.getElementById('input-login-pass').value = "";
+            inicializarUI();
+            prepararNotificacionesSW(true);
+        }
+
+        function registrarUsuario(nombre, email, pass, btn) {
             miNombre = nombre;
             localStorage.setItem("wasapedro_mqtt_name", miNombre);
             if (email) localStorage.setItem("wasapedro_gmail_link", email);
             let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            registroGlobal[nombre] = { usuario: nombre, foto: "", email: email || "" };
+            registroGlobal[nombre] = { usuario: nombre, foto: "", email: email || "", pass: hashPassword(pass || "") };
             localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            document.getElementById('input-registro-pass').value = "";
             inicializarUI(); prepararNotificacionesSW(true);
         }
 
@@ -1988,7 +2098,7 @@
                     if (topico === `wasapedro/v3/registry/announce`) {
                         if (data.usuario && data.usuario !== miNombre) {
                             let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-                            registroGlobal[data.usuario] = { usuario: data.usuario, foto: data.foto || "" };
+                            registroGlobal[data.usuario] = { ...(registroGlobal[data.usuario] || {}), usuario: data.usuario, foto: data.foto || "" };
                             localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
                         }
                         return;
@@ -2647,10 +2757,129 @@
             document.querySelectorAll('.theme-text').forEach(el => el.style.color = color);
             temaActual = color;
             localStorage.setItem("wasapedro_theme_color", color);
+            const input = document.getElementById('input-tema-custom');
+            if (input) input.value = color;
+            actualizarControlesApariencia();
         }
 
         function cambiarTema(color) {
             aplicarColorTema(color);
+        }
+
+        function renderizarGridTemas() {
+            const grid = document.getElementById('grid-temas');
+            if (!grid) return;
+            grid.innerHTML = "";
+            TEMAS_COLOR.forEach(t => {
+                const b = document.createElement('button');
+                b.className = 'w-full h-9 rounded-xl border-2 transition-all shadow-lg';
+                b.style.backgroundColor = t.color;
+                b.title = t.nombre;
+                b.dataset.color = t.color;
+                b.onclick = () => cambiarTema(t.color);
+                grid.appendChild(b);
+            });
+        }
+
+        function aplicarModo(modo) {
+            modoTema = (modo === 'claro') ? 'claro' : 'oscuro';
+            document.body.classList.toggle('modo-claro', modoTema === 'claro');
+            localStorage.setItem("wasapedro_modo", modoTema);
+            const meta = document.getElementById('meta-theme');
+            if (meta) meta.setAttribute('content', modoTema === 'claro' ? '#f1f5f9' : '#09090b');
+            actualizarControlesApariencia();
+        }
+
+        function cambiarModo(modo) {
+            aplicarModo(modo);
+        }
+
+        function aplicarFondo() {
+            const cont = document.getElementById('contenedor-wasapedro');
+            if (!cont) return;
+            const tipo = localStorage.getItem('wasapedro_fondo_tipo') || 'patron';
+            const color = localStorage.getItem('wasapedro_fondo_color') || '#0f172a';
+            const img = localStorage.getItem('wasapedro_fondo_img') || '';
+            cont.style.backgroundImage = '';
+            cont.style.backgroundColor = '';
+            cont.style.backgroundSize = 'cover';
+            cont.style.backgroundPosition = 'center';
+            cont.style.backgroundRepeat = 'no-repeat';
+            if (tipo === 'color') {
+                cont.style.backgroundColor = color;
+            } else if (tipo === 'imagen' && img) {
+                cont.style.backgroundImage = "url('" + img + "')";
+            } else {
+                cont.style.backgroundImage = "url('https://www.transparenttextures.com/patterns/cubes.png')";
+            }
+            actualizarControlesApariencia();
+        }
+
+        function cambiarFondoTipo(tipo) {
+            localStorage.setItem('wasapedro_fondo_tipo', tipo);
+            aplicarFondo();
+        }
+
+        function cambiarFondoColor(color) {
+            localStorage.setItem('wasapedro_fondo_color', color);
+            localStorage.setItem('wasapedro_fondo_tipo', 'color');
+            aplicarFondo();
+        }
+
+        function subirFondoImagen(archivo) {
+            if (!archivo) return;
+            if (!archivo.type.match('image/(png|jpe?g)')) {
+                return alert("Solo se permiten imágenes .png o .jpg");
+            }
+            if (archivo.size > 3 * 1024 * 1024) {
+                return alert("La imagen de fondo no debe superar 3 MB.");
+            }
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                try {
+                    localStorage.setItem('wasapedro_fondo_img', e.target.result);
+                    localStorage.setItem('wasapedro_fondo_tipo', 'imagen');
+                    aplicarFondo();
+                } catch(err) {
+                    alert("La imagen es demasiado grande para guardarla. Prueba con una más liviana.");
+                }
+            };
+            lector.readAsDataURL(archivo);
+        }
+
+        function aplicarPersonalizacion() {
+            renderizarGridTemas();
+            aplicarModo(localStorage.getItem("wasapedro_modo") || "oscuro");
+            aplicarColorTema(temaActual);
+            aplicarFondo();
+            actualizarControlesApariencia();
+        }
+
+        function actualizarControlesApariencia() {
+            const modo = localStorage.getItem("wasapedro_modo") || "oscuro";
+            const activo = 'border-brand-500 bg-brand-500/10 text-white';
+            const inactivo = 'border-dark-700 text-gray-400 hover:bg-dark-700';
+            const btnClaro = document.getElementById('btn-modo-claro');
+            const btnOscuro = document.getElementById('btn-modo-oscuro');
+            if (btnClaro) btnClaro.className = 'py-2 rounded-lg text-xs border transition-all flex items-center justify-center gap-1 ' + (modo === 'claro' ? activo : inactivo);
+            if (btnOscuro) btnOscuro.className = 'py-2 rounded-lg text-xs border transition-all flex items-center justify-center gap-1 ' + (modo === 'oscuro' ? activo : inactivo);
+
+            const tipo = localStorage.getItem('wasapedro_fondo_tipo') || 'patron';
+            [['btn-fondo-patron', 'patron'], ['btn-fondo-color', 'color'], ['btn-fondo-imagen', 'imagen']].forEach(par => {
+                const b = document.getElementById(par[0]);
+                if (b) b.className = 'py-2 rounded-lg text-xs border transition-all ' + (tipo === par[1] ? activo : inactivo);
+            });
+            const wrapColor = document.getElementById('fondo-color-wrap');
+            const wrapImg = document.getElementById('fondo-imagen-wrap');
+            if (wrapColor) { wrapColor.classList.toggle('hidden', tipo !== 'color'); wrapColor.classList.toggle('flex', tipo === 'color'); }
+            if (wrapImg) wrapImg.classList.toggle('hidden', tipo !== 'imagen');
+
+            const inputColor = document.getElementById('input-fondo-color');
+            if (inputColor) inputColor.value = localStorage.getItem('wasapedro_fondo_color') || '#0f172a';
+
+            document.querySelectorAll('#grid-temas button').forEach(b => {
+                b.style.borderColor = (b.dataset.color && b.dataset.color.toLowerCase() === String(temaActual).toLowerCase()) ? '#ffffff' : 'transparent';
+            });
         }
 
         function guardarCorreoVinculado() {
@@ -2693,7 +2922,7 @@
 
         function cerrarSesionLimpiar() {
             if (confirm("¿Estás seguro de cerrar sesión?")) {
-                localStorage.clear();
+                localStorage.removeItem("wasapedro_mqtt_name");
                 location.reload();
             }
         }
@@ -2756,53 +2985,6 @@
             if (!motivo) return alert("Escribe un motivo.");
             alert("Los reportes requieren un backend seguro y no se envían desde esta versión estática.");
             cerrarModalReporte();
-        }
-
-        function abrirModalAdminLogin() {
-            alert("La administración se debe validar en un backend seguro; no se habilita en esta versión estática.");
-        }
-
-        function verificarAdmin() {
-            esAdmin = false;
-            document.getElementById("modal-admin-login").classList.add("hidden");
-            alert("El acceso administrativo está deshabilitado en el frontend. Configúralo en el servidor.");
-        }
-
-        function abrirModalUsuariosAdmin() {
-            if (!esAdmin) {
-                alert("La administración requiere autenticación en un servidor.");
-                return;
-            }
-            document.getElementById("modal-admin-usuarios").classList.remove("hidden");
-            renderizarPanelUsuariosAdmin();
-        }
-
-        function renderizarPanelUsuariosAdmin() {
-            const contGlobal = document.getElementById("lista-usuarios-global-contenedor");
-            const contBaneados = document.getElementById("lista-usuarios-baneados-contenedor");
-
-            let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            contGlobal.innerHTML = "";
-            contBaneados.innerHTML = "";
-
-            Object.keys(registroGlobal).forEach(u => {
-                contGlobal.innerHTML += `
-                    <div class="flex items-center justify-between bg-dark-900 p-2.5 rounded-xl text-xs text-white">
-                        <span>${escaparHTML(u)}</span>
-                        <button onclick="banearUsuarioAdmin('${escaparJS(u)}')" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all">Banear</button>
-                    </div>
-                `;
-            });
-        }
-
-        function banearUsuarioAdmin(u) {
-            if (!esAdmin) return;
-            const razon = prompt("Motivo del ban:", "Incumplimiento de normas");
-            if (!razon) return;
-            if (clienteMqtt && clienteMqtt.connected) {
-                clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "Baneado", razon: razon }));
-            }
-            alert(`Usuario ${u} baneado.`);
         }
 
         function abrirModalAgregarMiembros() {
