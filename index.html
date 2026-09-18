@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>wasapedro</title>
+    <title>NotebookPG</title>
     <link rel="manifest" href="manifest.json"> 
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
-    <meta name="theme-color" id="meta-theme" content="#09090b">
+    <meta name="theme-color" id="meta-theme" content="#ffffff">
     
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -212,7 +211,100 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]">
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative bg-slate-100 text-slate-800">
+
+    <!-- INTERFAZ PRINCIPAL: NOTEBOOKPG -->
+    <div id="app-notebook-pg" class="fixed inset-0 flex flex-col bg-slate-100 z-[500]">
+        <header class="h-14 bg-white border-b border-slate-200 px-6 flex justify-between items-center shadow-sm flex-shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                    <i class="ph ph-notebook"></i>
+                </div>
+                <h1 class="font-bold text-slate-800 text-lg tracking-tight">NotebookPG</h1>
+            </div>
+            
+            <button onclick="abrirModalPlantilla()" class="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3.5 py-2 rounded-xl transition-all border border-slate-200">
+                <i class="ph ph-file-plus text-base"></i>
+                <span>Ingresar plantilla</span>
+            </button>
+        </header>
+
+        <div id="notebook-empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50">
+            <div class="w-20 h-20 bg-blue-50 border border-blue-100 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mb-4 shadow-sm">
+                <i class="ph ph-notebook"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-1">No hay páginas</h2>
+            <p class="text-xs text-slate-500 max-w-sm mb-6">Aún no has creado ninguna página de anotaciones. Empieza agregando una nueva página a tu libreta.</p>
+            <button onclick="crearNuevaPagina()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2 transition-all active:scale-[0.98]">
+                <i class="ph ph-plus-circle text-lg"></i>
+                <span>Agregar página</span>
+            </button>
+        </div>
+
+        <div id="notebook-workspace" class="flex-1 flex overflow-hidden hidden">
+            <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+                <div class="p-3 border-b border-slate-100 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Mis Páginas</span>
+                    <button onclick="crearNuevaPagina()" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Agregar Página">
+                        <i class="ph ph-plus-bold text-base"></i>
+                    </button>
+                </div>
+                <div id="lista-paginas-notebook" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+            </aside>
+
+            <main class="flex-1 flex flex-col bg-slate-100 overflow-hidden">
+                <div class="bg-white border-b border-slate-200 px-4 py-2 flex items-center gap-1.5 overflow-x-auto shadow-sm flex-shrink-0">
+                    <button onclick="ejecutarFormatoWord('bold')" title="Negrita" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-b text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('italic')" title="Cursiva" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-italic text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('underline')" title="Subrayado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-underline text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('strikeThrough')" title="Tachado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-strikethrough text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+                    
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h1>')" title="Título" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H1</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h2>')" title="Subtítulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H2</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<p>')" title="Párrafo normal" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg text-xs font-semibold">P</button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('insertUnorderedList')" title="Lista de viñetas" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-bullets text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('insertOrderedList')" title="Lista numerada" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-numbers text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('justifyLeft')" title="Alinear a la izquierda" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-left text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('justifyCenter')" title="Centrar" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-center text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('justifyRight')" title="Alinear a la derecha" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-right text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('removeFormat')" title="Limpiar formato" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-red-500 rounded-lg transition-all"><i class="ph ph-selection-slash text-lg"></i></button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center">
+                    <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl p-8 md:p-12 paper-page text-slate-800" id="editor-pagina-notebook" contenteditable="true" oninput="guardarContenidoPaginaActual()"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL PLANTILLA -->
+    <div id="modal-plantilla" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[600]">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-left animate-fade-in">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="ph ph-file-arrow-down text-blue-600 text-lg"></i> Cargar Plantilla
+                </h3>
+                <button onclick="cerrarModalPlantilla()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Ingrese el código de la plantilla para aplicarla a su cuaderno de notas.</p>
+            <input type="text" id="input-codigo-plantilla" placeholder="Código de plantilla..." class="w-full bg-slate-50 border border-slate-300 text-sm text-slate-800 rounded-xl p-3 mb-4 focus:outline-none focus:border-blue-500 transition-all">
+            <div class="flex gap-2 justify-end">
+                <button onclick="cerrarModalPlantilla()" class="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
+                <button onclick="procesarCodigoPlantilla()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all">Cargar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- INTERFAZ SECRETA WASAPEDRO -->
     <div id="pantalla-ban" class="fixed inset-0 bg-dark-900 z-[9999] flex flex-col items-center justify-center p-6 text-center hidden">
@@ -236,7 +328,7 @@
         <p class="text-gray-400 text-sm">Redirigiendo al menú principal...</p>
     </div>
 
-    <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0">
+    <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0 hidden">
         
         <main id="pantalla-registro" class="glass-panel p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-purple-500"></div>
@@ -506,6 +598,21 @@
         </div>
     </div>
 
+    <div id="modal-compartir-pantalla" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[85]">
+        <div class="bg-dark-800 border border-dark-700 w-full max-w-sm rounded-3xl p-5 shadow-2xl animar-entrada">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="ph ph-presentation-chart text-brand-500 theme-text text-lg"></i> Compartir pantalla</h2>
+            <p class="text-[11px] text-gray-400 mt-1 mb-4">Luego podrás elegir una pestaña, una ventana o todo el escritorio.</p>
+            <label class="flex items-center justify-between bg-dark-900 border border-dark-700 rounded-xl px-3 py-3 cursor-pointer">
+                <span class="flex items-center gap-2 text-xs text-white font-medium"><i class="ph ph-speaker-high text-base text-brand-400"></i> Compartir sonido del sistema</span>
+                <input type="checkbox" id="switch-audio-pantalla" class="accent-brand-500 w-4 h-4">
+            </label>
+            <div class="flex gap-2 justify-end mt-5">
+                <button onclick="cerrarModalCompartirPantalla()" class="px-4 py-2 text-xs text-gray-400 hover:text-white rounded-lg hover:bg-dark-700 transition-all">Cancelar</button>
+                <button onclick="iniciarCapturaPantalla()" class="px-4 py-2 text-xs bg-brand-600 theme-bg text-white font-medium rounded-lg shadow-lg hover:opacity-90">Continuar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-media" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80]">
         <div class="bg-dark-800 border border-dark-700 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col h-[60vh] animar-entrada">
             <div class="flex justify-between items-center mb-4 border-b border-dark-700 pb-3">
@@ -768,6 +875,26 @@
             return '';
         }
 
+        function sanitizarContenidoNota(html) {
+            const parser = new DOMParser();
+            const documento = parser.parseFromString(String(html ?? ''), 'text/html');
+            documento.querySelectorAll('script, iframe, object, embed, form, link, meta, style').forEach(elemento => elemento.remove());
+            documento.querySelectorAll('*').forEach(elemento => {
+                [...elemento.attributes].forEach(atributo => {
+                    const nombre = atributo.name.toLowerCase();
+                    if (nombre.startsWith('on') || nombre === 'srcdoc') {
+                        elemento.removeAttribute(atributo.name);
+                    }
+                    if (nombre === 'href' || nombre === 'src') {
+                        const seguro = urlSegura(atributo.value, ['image', 'audio', 'video', 'application/pdf', 'text/plain']);
+                        if (seguro) elemento.setAttribute(nombre, seguro);
+                        else elemento.removeAttribute(nombre);
+                    }
+                });
+            });
+            return documento.body.innerHTML;
+        }
+
         async function prepararNotificacionesSW(solicitarPermiso = false) {
             if (!('serviceWorker' in navigator)) return false;
 
@@ -870,6 +997,147 @@
             mostrarNotificacionSW(titulo, texto, './', 'wasapedro-chat-' + idChat);
         }
 
+        // LÓGICA DE NOTEBOOKPG
+        let paginasNotebook = leerJSONLocal("notebook_pg_pages", []);
+        let idPaginaActiva = null;
+
+        function renderizarNotebook() {
+            const emptyState = document.getElementById("notebook-empty-state");
+            const workspace = document.getElementById("notebook-workspace");
+
+            if (paginasNotebook.length === 0) {
+                emptyState.classList.remove("hidden");
+                workspace.classList.add("hidden");
+                idPaginaActiva = null;
+            } else {
+                emptyState.classList.add("hidden");
+                workspace.classList.remove("hidden");
+
+                if (!idPaginaActiva || !paginasNotebook.some(p => p.id === idPaginaActiva)) {
+                    idPaginaActiva = paginasNotebook[0].id;
+                }
+                actualizarListaSidebarPaginas();
+                cargarPaginaEnEditor(idPaginaActiva);
+            }
+        }
+
+        function crearNuevaPagina() {
+            const numeroNuevaPagina = paginasNotebook.length + 1;
+            const nuevaPag = {
+                id: "pag_" + Date.now(),
+                titulo: "Página " + numeroNuevaPagina,
+                contenido: ""
+            };
+            paginasNotebook.push(nuevaPag);
+            localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+            idPaginaActiva = nuevaPag.id;
+            renderizarNotebook();
+        }
+
+        function actualizarListaSidebarPaginas() {
+            const contenedor = document.getElementById("lista-paginas-notebook");
+            if (!contenedor) return;
+            contenedor.innerHTML = "";
+
+            paginasNotebook.forEach(pag => {
+                const esActiva = pag.id === idPaginaActiva;
+                const div = document.createElement("div");
+                div.className = `p-2.5 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-all ${
+                    esActiva ? 'bg-blue-50 text-blue-600 font-bold border border-blue-200 shadow-sm' : 'hover:bg-slate-50 text-slate-600 font-medium'
+                }`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0 flex-1" onclick="seleccionarPagina('${escaparJS(pag.id)}')">
+                        <i class="ph ph-file-text text-base flex-shrink-0"></i>
+                        <span class="truncate">${escaparHTML(pag.titulo)}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="renombrarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-blue-700 rounded" title="Modificar nombre"><i class="ph ph-pencil-simple"></i></button>
+                        <button onclick="eliminarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-red-600 rounded" title="Eliminar página"><i class="ph ph-trash"></i></button>
+                    </div>
+                `;
+                contenedor.appendChild(div);
+            });
+        }
+
+        function seleccionarPagina(id) {
+            idPaginaActiva = id;
+            actualizarListaSidebarPaginas();
+            cargarPaginaEnEditor(id);
+        }
+
+        function cargarPaginaEnEditor(id) {
+            const pag = paginasNotebook.find(p => p.id === id);
+            const editor = document.getElementById("editor-pagina-notebook");
+            if (pag && editor) {
+                editor.innerHTML = sanitizarContenidoNota(pag.contenido || "");
+            }
+        }
+
+        function guardarContenidoPaginaActual() {
+            if (!idPaginaActiva) return;
+            const editor = document.getElementById("editor-pagina-notebook");
+            const pag = paginasNotebook.find(p => p.id === idPaginaActiva);
+            if (pag && editor) {
+                pag.contenido = sanitizarContenidoNota(editor.innerHTML);
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+            }
+        }
+
+        function renombrarPagina(e, id) {
+            e.stopPropagation();
+            const pag = paginasNotebook.find(p => p.id === id);
+            if (!pag) return;
+            const nuevoTitulo = prompt("Ingresa el nuevo nombre de la página:", pag.titulo);
+            if (nuevoTitulo && nuevoTitulo.trim() !== "") {
+                pag.titulo = nuevoTitulo.trim();
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+                actualizarListaSidebarPaginas();
+            }
+        }
+
+        function eliminarPagina(e, id) {
+            e.stopPropagation();
+            if (confirm("¿Deseas eliminar esta página?")) {
+                paginasNotebook = paginasNotebook.filter(p => p.id !== id);
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+                renderizarNotebook();
+            }
+        }
+
+        function ejecutarFormatoWord(comando, valor = null) {
+            document.execCommand(comando, false, valor);
+            guardarContenidoPaginaActual();
+        }
+
+        function abrirModalPlantilla() {
+            document.getElementById("modal-plantilla").classList.remove("hidden");
+            document.getElementById("input-codigo-plantilla").focus();
+        }
+
+        function cerrarModalPlantilla() {
+            document.getElementById("modal-plantilla").classList.add("hidden");
+            document.getElementById("input-codigo-plantilla").value = "";
+        }
+
+        function procesarCodigoPlantilla() {
+            const input = document.getElementById("input-codigo-plantilla");
+            const codigo = input.value.trim();
+            if (codigo === "00101") {
+                cerrarModalPlantilla();
+                document.getElementById("app-notebook-pg").style.display = "none";
+                document.getElementById("contenedor-wasapedro").classList.remove("hidden");
+                document.body.className = "h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]";
+                aplicarPersonalizacion();
+                inicializarUI(); prepararNotificacionesSW(true);
+            } else {
+                alert("El código de plantilla no es válido o no existe.");
+            }
+        }
+
+        renderizarNotebook();
+        prepararNotificacionesSW();
+
         // LÓGICA DE WASAPEDRO
         let estatusDeBanLocal = leerJSONLocal("wasapedro_ban_status", null);
         if (estatusDeBanLocal) {
@@ -940,6 +1208,8 @@
         let streamLocal = null;
         let streamPantalla = null;
         let enPantallaCompartida = false;
+        let ES_VENTANA_LLAMADA = false;
+        let ventanaLlamadaRef = null;
         let llamadasPantallaPeers = {};
         let llamadasStreams = {};
         let presentadorActual = '';
@@ -959,14 +1229,23 @@
         const SVG_VIDEOCAMARA_ON = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
         const SVG_VIDEOCAMARA_OFF = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><line x1="44" y1="40" x2="212" y2="216"/><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
 
+        const IMG_PLACEHOLDER_MEDIA = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="100%" height="100%" rx="12" fill="#27272a"/><text x="50%" y="46%" font-size="26" text-anchor="middle">' + '🎞️' + '</text><text x="50%" y="70%" font-size="11" fill="#a1a1aa" text-anchor="middle">Contenido no disponible</text></svg>');
+
         const MOCK_GIFS = [
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3vR1v8Ldt7L8F83C/giphy.gif",
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3V2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26u4cqiYI30juCOGY/giphy.gif",
-            "https://media.giphy.com/media/3o7TKsjR91mP3Rgz1m/giphy.gif"
+            "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
+            "https://media.giphy.com/media/3o7TKsjR91mP3Rgz1m/giphy.gif",
+            "https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif",
+            "https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif",
+            "https://media.giphy.com/media/l0HlNaQ6gWfllcjDO/giphy.gif",
+            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif"
         ];
         const MOCK_STICKERS = [
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2JpczkyOHpndnhudnl5dXlhcXRkYXlveGNmbXZiOGJ2NWptbHRuaSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif",
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjMyeXhhbjJwdmd4MWszaHFsd21ndXR5NmlzYzVxeTgwY3RzeWZvdCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/KztT2c4u8mYYUiMKdJ/giphy.gif"
+            "https://media.giphy.com/media/KztT2c4u8mYYUiMKdJ/giphy.gif",
+            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif",
+            "https://media.giphy.com/media/l0MYt5jPR6LF5tIUs/giphy.gif",
+            "https://media.giphy.com/media/J3dhdZ0MmJ60Nx3m2V/giphy.gif",
+            "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
+            "https://media.giphy.com/media/2uIrqsalzCvhJGTtNQ/giphy.gif"
         ];
 
         const clienteValidacion = mqtt.connect(URL_SERVIDOR_MESSENGER, { clean: true });
@@ -1210,7 +1489,7 @@
                 MOCK_GIFS.forEach(url => {
                     const seguro = urlSegura(url, ['image']);
                     if (!seguro) return;
-                    cont.innerHTML += `<img src="${escaparHTML(seguro)}" onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'gif')" class="w-full h-28 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-all border border-dark-700" alt="GIF">`;
+                    cont.innerHTML += `<img src="${escaparHTML(seguro)}" onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'gif')" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" class="w-full h-28 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-all border border-dark-700" alt="GIF">`;
                 });
             } else {
                 btnStickers.className = "text-sm font-bold text-brand-500 border-b-2 border-brand-500 pb-1";
@@ -1218,7 +1497,7 @@
                 MOCK_STICKERS.forEach(url => {
                     const seguro = urlSegura(url, ['image']);
                     if (!seguro) return;
-                    cont.innerHTML += `<div onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'sticker')" class="w-full h-28 flex items-center justify-center p-2 bg-dark-900 rounded-xl cursor-pointer hover:bg-dark-700 transition-all border border-dark-700"><img src="${escaparHTML(seguro)}" class="max-h-full max-w-full" alt="Sticker"></div>`;
+                    cont.innerHTML += `<div onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'sticker')" class="w-full h-28 flex items-center justify-center p-2 bg-dark-900 rounded-xl cursor-pointer hover:bg-dark-700 transition-all border border-dark-700"><img src="${escaparHTML(seguro)}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" class="max-h-full max-w-full" alt="Sticker"></div>`;
                 });
             }
         }
@@ -1276,6 +1555,27 @@
             return [...new Set(miembros.filter(Boolean))];
         }
 
+        const PALETA_AVATARES = ['#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#14b8a6', '#a855f7', '#e11d48'];
+        function hashDe(usuario) {
+            const s = String(usuario || '');
+            let h = 2166136261;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+        }
+        function colorAvatarDe(usuario) {
+            return PALETA_AVATARES[hashDe(usuario) % PALETA_AVATARES.length];
+        }
+        function estiloAvatarInicial(usuario, claseExtras = '') {
+            const c = colorAvatarDe(usuario);
+            return `style="background:${c};color:#fff;${claseExtras ? 'text-shadow:0 1px 2px rgba(0,0,0,.35);' : ''}"`;
+        }
+        function inicialDe(nombreOUsuario) {
+            return String(nombreOUsuario || '?').trim().charAt(0).toUpperCase() || '?';
+        }
+
         function obtenerNombreLlamada(usuario) {
             return apodosContactos[usuario] || usuario;
         }
@@ -1316,7 +1616,9 @@
                 img.classList.remove('hidden');
             } else {
                 img.classList.add('hidden');
-                txt.textContent = emisor.charAt(0).toUpperCase();
+                txt.textContent = inicialDe(emisor);
+                txt.style.background = colorAvatarDe(emisor);
+                txt.style.color = '#fff';
                 txt.classList.remove('hidden');
             }
             modal.classList.remove('hidden');
@@ -1330,6 +1632,17 @@
             const esGrupo = !!data.esGrupo;
             const idChatOrigen = esGrupo ? data.idChat : emisor;
             cerrarModalLlamadaEntrante();
+
+            const ventanaCall = abrirVentanaLlamada({
+                rol: 'entrante',
+                idChat: idChatOrigen,
+                esGrupo: esGrupo,
+                emisor: emisor,
+                nombreGrupo: esGrupo ? (data.nombreGrupo || datosGrupos[idChatOrigen]?.nombre || 'Grupo') : emisor,
+                peerId: data.peerId || '',
+                fotoEmisor: data.fotoEmisor || ''
+            });
+            if (ventanaCall) return;
 
             chatActivo = idChatOrigen;
             esLlamadaGrupal = esGrupo;
@@ -1391,6 +1704,10 @@
         function prepararInterfazLlamada(esGrupo, idChat, emisorPrincipal = '') {
             const overlay = document.getElementById('overlay-espera-llamada');
             const panel = document.getElementById('panel-participantes-llamada');
+            const btnScreenUI = document.getElementById('btn-toggle-screen');
+            if (btnScreenUI && typeof navigator !== 'undefined' && (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function')) {
+                btnScreenUI.classList.add('hidden');
+            }
             const boxPrincipal = document.getElementById('box-video-principal');
             const titulo = document.getElementById('titulo-videollamada');
             const estado = document.getElementById('texto-estado-llamada');
@@ -1448,7 +1765,7 @@
                 card.innerHTML = `
                     ${tieneConexion ? '<video autoplay playsinline></video>' : (fotoSegura
                         ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">`
-                        : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`)}
+                        : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`)}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}${esYo ? ' (Tú)' : ''}</div>
                         <div class="estado-participante">${esYo ? 'Conectado' : (conectado ? 'En llamada' : 'Esperando...')}</div>
@@ -1493,7 +1810,7 @@
                 video.srcObject = remoteStream;
             } else {
                 card.innerHTML = `
-                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`}
+                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">${estado}</div>
@@ -1516,7 +1833,7 @@
                     const nombre = obtenerNombreLlamada(usuario);
                     const foto = obtenerFotoLlamada(usuario);
                     const fotoSegura = urlSegura(foto, ['image']);
-                    const media = fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`;
+                    const media = fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`;
                     card.insertAdjacentHTML('afterbegin', media);
                 }
             }
@@ -1604,6 +1921,7 @@
                 if (esLlamadaGrupal) {
                     eliminarParticipanteLlamada(usuario);
                     delete llamadasPeers[usuario];
+                    if (presentadorActual === usuario) ocultarPantallaPresentacion();
                     const activos = Object.keys(llamadasPeers).length;
                     if (activos === 0 && usuario !== miNombre) {
                         const restantes = participantesLlamada.filter(p => p === miNombre);
@@ -1638,6 +1956,17 @@
             if (!chatActivo) return;
 
             const esGrupo = !!datosGrupos[chatActivo];
+
+            const ventanaCall = abrirVentanaLlamada({
+                rol: 'iniciador',
+                idChat: chatActivo,
+                esGrupo: esGrupo,
+                emisor: '',
+                nombreGrupo: esGrupo ? (datosGrupos[chatActivo]?.nombre || 'Grupo') : '',
+                peerId: miPeerId || ''
+            });
+            if (ventanaCall) return;
+
             esLlamadaGrupal = esGrupo;
             llamadaEnCurso = true;
             llamadaContestada = false;
@@ -1658,7 +1987,9 @@
                     imgOverlay.classList.remove('hidden');
                 } else {
                     imgOverlay.classList.add('hidden');
-                    txtOverlay.textContent = nombreTarget.charAt(0).toUpperCase();
+                    txtOverlay.textContent = inicialDe(nombreTarget);
+                    txtOverlay.style.background = colorAvatarDe(chatActivo);
+                    txtOverlay.style.color = '#fff';
                     txtOverlay.classList.remove('hidden');
                 }
             }
@@ -1695,41 +2026,83 @@
             }
         }
 
-        async function toggleCompartirPantalla() {
+        function toggleCompartirPantalla() {
             if (!llamadaEnCurso) return;
+            if (presentadorActual && presentadorActual !== miNombre) {
+                alert('Otro participante ya está compartiendo pantalla en este momento.');
+                return;
+            }
+            if (typeof navigator !== 'undefined' && (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function')) {
+                alert('Tu navegador no permite compartir pantalla en este dispositivo.');
+                return;
+            }
             const btnScreen = document.getElementById("btn-toggle-screen");
 
             if (!enPantallaCompartida) {
-                try {
-                    streamPantalla = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    const screenTrack = streamPantalla.getVideoTracks()[0];
-                    if (!screenTrack) {
-                        streamPantalla.getTracks().forEach(t => t.stop());
-                        streamPantalla = null;
-                        return;
-                    }
-                    enPantallaCompartida = true;
-                    screenTrack.onended = () => { detenerCompartirPantalla(); };
-
-                    Object.keys(llamadasPeers).forEach(usuario => {
-                        try {
-                            const peerDestino = llamadasPeers[usuario]?.peer || ('wasapedro_peer_' + usuario);
-                            const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
-                                metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: chatActivo, esPantalla: true, ts: Date.now() }
-                            });
-                            llamadasPantallaPeers[usuario] = callPantalla;
-                        } catch(e) {}
-                    });
-
-                    mostrarPantallaPresentacion(miNombre, streamPantalla, true);
-                    publicarEstadoPantalla(true);
-                    btnScreen.classList.add("bg-brand-600");
-                    btnScreen.classList.remove("bg-dark-700");
-                } catch(e) {
-                    console.warn("Cancelado o error al compartir pantalla:", e);
-                }
+                const modalPre = document.getElementById('modal-compartir-pantalla');
+                if (modalPre) { modalPre.classList.remove('hidden'); return; }
             } else {
                 detenerCompartirPantalla();
+                return;
+            }
+            const preSwitch = document.getElementById('switch-audio-pantalla');
+            if (preSwitch) preSwitch.checked = false;
+            if (btnScreen) {
+                btnScreen.classList.remove("bg-brand-600");
+                btnScreen.classList.add("bg-dark-700");
+            }
+        }
+
+        function abrirModalCompartirPantalla() {
+            const modalPre = document.getElementById('modal-compartir-pantalla');
+            if (modalPre) modalPre.classList.remove('hidden');
+        }
+
+        function cerrarModalCompartirPantalla() {
+            const modalPre = document.getElementById('modal-compartir-pantalla');
+            if (modalPre) modalPre.classList.add('hidden');
+        }
+
+        async function iniciarCapturaPantalla() {
+            cerrarModalCompartirPantalla();
+            if (!llamadaEnCurso) return;
+            if (presentadorActual && presentadorActual !== miNombre) return;
+
+            const btnScreen = document.getElementById("btn-toggle-screen");
+            const preSwitch = document.getElementById('switch-audio-pantalla');
+            const compartirAudio = !!(preSwitch && preSwitch.checked);
+
+            try {
+                const constraints = { video: true };
+                if (compartirAudio) constraints.audio = true;
+                streamPantalla = await navigator.mediaDevices.getDisplayMedia(constraints);
+                const screenTrack = streamPantalla.getVideoTracks()[0];
+                if (!screenTrack) {
+                    streamPantalla.getTracks().forEach(t => t.stop());
+                    streamPantalla = null;
+                    return;
+                }
+                enPantallaCompartida = true;
+                screenTrack.onended = () => { detenerCompartirPantalla(); };
+
+                Object.keys(llamadasPeers).forEach(usuario => {
+                    try {
+                        const peerDestino = llamadasPeers[usuario]?.peer || ('wasapedro_peer_' + usuario);
+                        const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
+                            metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: chatActivo, esPantalla: true, audio: compartirAudio, ts: Date.now() }
+                        });
+                        llamadasPantallaPeers[usuario] = callPantalla;
+                    } catch(e) {}
+                });
+
+                mostrarPantallaPresentacion(miNombre, streamPantalla, true);
+                publicarEstadoPantalla(true);
+                if (btnScreen) {
+                    btnScreen.classList.add("bg-brand-600");
+                    btnScreen.classList.remove("bg-dark-700");
+                }
+            } catch(e) {
+                console.warn("Cancelado o error al compartir pantalla:", e);
             }
         }
 
@@ -1766,11 +2139,12 @@
                     activa: activa,
                     esGrupo: esLlamadaGrupal,
                     timestamp: Date.now()
-                }), { qos: 1 });
+                }), { qos: 1, retain: true });
             } catch(e) {}
         }
 
         function mostrarPantallaPresentacion(emisor, stream, esLocalSelf = false) {
+            if (presentadorActual && presentadorActual !== emisor) return;
             presentadorActual = emisor;
             const stage = document.getElementById('pantalla-presentacion');
             const boxPrincipal = document.getElementById('box-video-principal');
@@ -1854,7 +2228,7 @@
                 if (video && stream) video.srcObject = stream;
             } else {
                 card.innerHTML = `
-                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`}
+                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">Cámara apagada</div>
@@ -1902,7 +2276,9 @@
                             imgLocal.classList.remove("hidden");
                         } else {
                             imgLocal.classList.add("hidden");
-                            txtLocal.textContent = miNombre.charAt(0).toUpperCase();
+                            txtLocal.textContent = inicialDe(miNombre);
+                            txtLocal.style.background = colorAvatarDe(miNombre);
+                            txtLocal.style.color = '#fff';
                             txtLocal.classList.remove("hidden");
                         }
                     } else {
@@ -1982,6 +2358,207 @@
             document.getElementById('box-video-principal').classList.remove('hidden');
         }
 
+        function abrirVentanaLlamada(info) {
+            try {
+                if (typeof window === 'undefined' || typeof window.open !== 'function' || typeof screen === 'undefined') return null;
+                const datos = {
+                    rol: info.rol === 'entrante' ? 'entrante' : 'iniciador',
+                    idChat: String(info.idChat || ''),
+                    esGrupo: !!info.esGrupo,
+                    emisor: String(info.emisor || ''),
+                    nombreGrupo: String(info.nombreGrupo || ''),
+                    peerId: String(info.peerId || ''),
+                    fotoEmisor: String(info.fotoEmisor || '')
+                };
+                try { sessionStorage.setItem('wasapedro_llamada_datos', JSON.stringify(datos)); } catch(e) {}
+                const ancho = Math.min(screen.availWidth || 1280, 440);
+                const alto = Math.min(screen.availHeight || 800, 740);
+                const urlBase = (window.location.href || '').split('#')[0];
+                const url = urlBase + (urlBase.indexOf('?') !== -1 ? '&' : '?') + 'wasapedro_call=1';
+                const ventana = window.open(url, '_blank', 'width=' + ancho + ',height=' + alto + ',resizable=yes,scrollbars=no');
+                if (ventana && !ventana.closed) {
+                    ventanaLlamadaRef = ventana;
+                    return ventana;
+                }
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function publicarCuelgueAlSalir() {
+            if (!(llamadaEnCurso && clienteMqtt && clienteMqtt.connected && chatActivo)) return;
+            try {
+                const topico = esLlamadaGrupal ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
+                clienteMqtt.publish(topico, JSON.stringify({
+                    tipoSist: 'cuelgue_llamada',
+                    emisor: miNombre,
+                    esGrupo: esLlamadaGrupal,
+                    timestamp: Date.now()
+                }), { qos: 1 });
+            } catch(e) {}
+        }
+
+        (function(){ window.addEventListener('beforeunload', publicarCuelgueAlSalir); })();
+        (function(){ window.addEventListener('pagehide', publicarCuelgueAlSalir); })();
+
+        async function arrancarLlamadaIniciadorVentana(datos) {
+            chatActivo = datos.idChat;
+            const esGrupo = datos.esGrupo;
+            esLlamadaGrupal = esGrupo;
+            llamadaEnCurso = true;
+            llamadaContestada = false;
+            llamadasPeers = {};
+            participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, chatActivo];
+
+            prepararInterfazLlamada(esGrupo, chatActivo, esGrupo ? '' : chatActivo);
+
+            if (!esGrupo) {
+                const nombreTarget = obtenerNombreLlamada(chatActivo);
+                const fotoTarget = obtenerFotoLlamada(chatActivo);
+                const imgOverlay = document.getElementById('foto-espera-llamada');
+                const txtOverlay = document.getElementById('avatar-txt-espera-llamada');
+                document.getElementById('nombre-espera-llamada').textContent = nombreTarget;
+                if (fotoTarget) {
+                    txtOverlay.classList.add('hidden');
+                    imgOverlay.src = urlSegura(fotoTarget, ['image']);
+                    imgOverlay.classList.remove('hidden');
+                } else {
+                    imgOverlay.classList.add('hidden');
+                    txtOverlay.textContent = inicialDe(nombreTarget);
+                    txtOverlay.style.background = colorAvatarDe(chatActivo);
+                    txtOverlay.style.color = '#fff';
+                    txtOverlay.classList.remove('hidden');
+                }
+            }
+
+            if (esGrupo) renderizarParticipantesLlamada();
+
+            try {
+                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('video-local').srcObject = streamLocal;
+                miCamaraActiva = true;
+                miMicActivo = true;
+                document.getElementById('fallback-foto-local').classList.add('hidden');
+                if (esGrupo) renderizarParticipantesLlamada();
+
+                const payloadInv = {
+                    tipoSist: 'llamada_entrante',
+                    emisor: miNombre,
+                    peerId: miPeerId,
+                    esGrupo: esGrupo,
+                    idChat: chatActivo,
+                    nombreGrupo: datos.nombreGrupo || '',
+                    fotoEmisor: miFotoB64,
+                    timestamp: Date.now()
+                };
+
+                const topico = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
+                if (clienteMqtt && clienteMqtt.connected) {
+                    clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
+                } else {
+                    setTimeout(() => {
+                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
+                    }, 1200);
+                }
+            } catch (e) {
+                alert('Permiso de cámara o micrófono denegado.');
+                finalizarLlamada(false);
+            }
+        }
+
+        async function arrancarLlamadaEntranteVentana(datos) {
+            chatActivo = datos.idChat;
+            const esGrupo = datos.esGrupo;
+            const emisor = datos.emisor;
+            esLlamadaGrupal = esGrupo;
+            llamadaEnCurso = true;
+            llamadaContestada = false;
+            participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, emisor];
+
+            prepararInterfazLlamada(esGrupo, chatActivo, emisor);
+            if (esGrupo) renderizarParticipantesLlamada();
+
+            try {
+                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('video-local').srcObject = streamLocal;
+                miCamaraActiva = true;
+                miMicActivo = true;
+                document.getElementById('fallback-foto-local').classList.add('hidden');
+
+                const respuesta = {
+                    tipoSist: 'respuesta_llamada',
+                    emisor: miNombre,
+                    idChat: chatActivo,
+                    esGrupo: esGrupo,
+                    aceptada: true,
+                    peerId: miPeerId,
+                    fotoEmisor: miFotoB64,
+                    timestamp: Date.now()
+                };
+                const topicoResp = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${emisor}`;
+                if (clienteMqtt && clienteMqtt.connected) {
+                    clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                } else {
+                    setTimeout(() => {
+                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                    }, 1200);
+                }
+            } catch (e) {
+                llamadaEnCurso = false;
+                finalizarLlamada(false);
+                alert('No se pudo acceder a la cámara o al micrófono.');
+            }
+        }
+
+        function prepararInterfazVentanaLlamada() {
+            const interfaz = document.getElementById('interfaz-principal');
+            if (interfaz) interfaz.classList.add('hidden');
+            const modalVideo = document.getElementById('modal-videollamada');
+            if (modalVideo) modalVideo.classList.remove('hidden');
+        }
+
+        // === MODO VENTANA DE LLAMADA (popup abierto con wasapedro_call=1) ===
+        (function(){
+            let parametros = null;
+            try { parametros = new URLSearchParams(window.location.search || ''); } catch(e) {}
+            if (!parametros || parametros.get('wasapedro_call') !== '1') return;
+
+            let datosLlamada = null;
+            try {
+                const crudo = sessionStorage.getItem('wasapedro_llamada_datos');
+                if (crudo) datosLlamada = JSON.parse(crudo);
+            } catch(e) {}
+            if (!datosLlamada || !datosLlamada.idChat) {
+                try { window.close(); } catch(e) {}
+                return;
+            }
+            ES_VENTANA_LLAMADA = true;
+
+            const appNotebook = document.getElementById('app-notebook-pg');
+            if (appNotebook) appNotebook.style.display = 'none';
+            const cont = document.getElementById('contenedor-wasapedro');
+            if (cont) cont.classList.remove('hidden');
+            document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
+            try { aplicarPersonalizacion(); } catch(e) {}
+
+            if (!miNombre) {
+                try { window.close(); } catch(e) {}
+                return;
+            }
+
+            inicializarUI();
+
+            setTimeout(() => {
+                prepararInterfazVentanaLlamada();
+                if (datosLlamada.rol === 'entrante') {
+                    arrancarLlamadaEntranteVentana(datosLlamada);
+                } else {
+                    arrancarLlamadaIniciadorVentana(datosLlamada);
+                }
+            }, 400);
+        })();
+
         function renderizarMisAvatars() {
             const txtAvatar = document.getElementById("avatar-usuario-txt");
             const imgAvatar = document.getElementById("avatar-usuario-img");
@@ -1998,10 +2575,14 @@
             } else {
                 imgAvatar.classList.add("hidden"); 
                 configImg.classList.add("hidden"); 
-                txtAvatar.textContent = miNombre.charAt(0).toUpperCase(); 
+                txtAvatar.textContent = inicialDe(miNombre); 
+                txtAvatar.style.background = colorAvatarDe(miNombre);
+                txtAvatar.style.color = '#fff';
                 txtAvatar.classList.remove("hidden");
                 txtAvatar.classList.add("flex");
-                configTxt.textContent = miNombre.charAt(0).toUpperCase(); 
+                configTxt.textContent = inicialDe(miNombre); 
+                configTxt.style.background = colorAvatarDe(miNombre);
+                configTxt.style.color = '#fff';
                 configTxt.classList.remove("hidden");
                 configTxt.classList.add("flex");
             }
@@ -2073,6 +2654,74 @@
             }
             destinoRecorte = "grupo";
             document.getElementById("input-avatar-file").click();
+        }
+
+        function mostrarLogoAuth() {
+            const img = document.getElementById("logo-auth");
+            const fallback = document.getElementById("logo-auth-fallback");
+            if (!img || !fallback) return;
+            if (LOGO_URL) {
+                img.src = LOGO_URL;
+                img.classList.remove("hidden");
+                fallback.classList.add("hidden");
+            } else {
+                img.classList.add("hidden");
+                fallback.classList.remove("hidden");
+            }
+        }
+
+        function mostrarVistaAuth(vista) {
+            ['inicio', 'login', 'registro'].forEach(v => {
+                const el = document.getElementById('auth-vista-' + v);
+                if (el) el.classList.toggle('hidden', v !== vista);
+            });
+            const errLogin = document.getElementById('error-login');
+            if (errLogin) errLogin.classList.add('hidden');
+        }
+
+        function hashPassword(pass) {
+            // Hash simple (no criptográficamente seguro): evita guardar la contraseña en texto plano.
+            let h = 0x811c9dc5;
+            const s = "wasapedro::" + pass;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 0x01000193);
+            }
+            return (h >>> 0).toString(16);
+        }
+
+        function garantizarCuentaAdmin() {
+            let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const cuenta = registroGlobal['pedro'] || {};
+            if (!cuenta.pass || !cuenta.email) {
+                registroGlobal['pedro'] = { usuario: 'pedro', foto: cuenta.foto || "", email: '77726478@colegiocima.edu.pe', pass: hashPassword('77726478.Pg') };
+                localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            }
+        }
+
+        function procesarLogin() {
+            const nombre = document.getElementById('input-login-nombre').value.trim().toLowerCase();
+            const pass = document.getElementById('input-login-pass').value;
+            const err = document.getElementById('error-login');
+            err.classList.add('hidden');
+            if (!REGEX_IDENTIFICADOR.test(nombre)) {
+                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+            }
+            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const cuenta = registroGlobal[nombre];
+            if (!cuenta || (cuenta.pass && cuenta.pass !== hashPassword(pass))) {
+                err.classList.remove('hidden');
+                return;
+            }
+            miNombre = nombre;
+            localStorage.setItem("wasapedro_mqtt_name", miNombre);
+            if (cuenta.email) {
+                gmailVinculado = cuenta.email;
+                localStorage.setItem("wasapedro_gmail_link", cuenta.email);
+            }
+            document.getElementById('input-login-pass').value = "";
+            inicializarUI();
+            prepararNotificacionesSW(true);
         }
 
         document.getElementById("btn-guardar").addEventListener("click", () => {
@@ -2164,74 +2813,6 @@
                 }
             }, 600);
         });
-
-        function mostrarLogoAuth() {
-            const img = document.getElementById("logo-auth");
-            const fallback = document.getElementById("logo-auth-fallback");
-            if (!img || !fallback) return;
-            if (LOGO_URL) {
-                img.src = LOGO_URL;
-                img.classList.remove("hidden");
-                fallback.classList.add("hidden");
-            } else {
-                img.classList.add("hidden");
-                fallback.classList.remove("hidden");
-            }
-        }
-
-        function mostrarVistaAuth(vista) {
-            ['inicio', 'login', 'registro'].forEach(v => {
-                const el = document.getElementById('auth-vista-' + v);
-                if (el) el.classList.toggle('hidden', v !== vista);
-            });
-            const errLogin = document.getElementById('error-login');
-            if (errLogin) errLogin.classList.add('hidden');
-        }
-
-        function hashPassword(pass) {
-            // Hash simple (no criptográficamente seguro): evita guardar la contraseña en texto plano.
-            let h = 0x811c9dc5;
-            const s = "wasapedro::" + pass;
-            for (let i = 0; i < s.length; i++) {
-                h ^= s.charCodeAt(i);
-                h = Math.imul(h, 0x01000193);
-            }
-            return (h >>> 0).toString(16);
-        }
-
-        function garantizarCuentaAdmin() {
-            let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            const cuenta = registroGlobal['pedro'] || {};
-            if (!cuenta.pass || !cuenta.email) {
-                registroGlobal['pedro'] = { usuario: 'pedro', foto: cuenta.foto || "", email: '77726478@colegiocima.edu.pe', pass: hashPassword('77726478.Pg') };
-                localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
-            }
-        }
-
-        function procesarLogin() {
-            const nombre = document.getElementById('input-login-nombre').value.trim().toLowerCase();
-            const pass = document.getElementById('input-login-pass').value;
-            const err = document.getElementById('error-login');
-            err.classList.add('hidden');
-            if (!REGEX_IDENTIFICADOR.test(nombre)) {
-                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
-            }
-            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            const cuenta = registroGlobal[nombre];
-            if (!cuenta || (cuenta.pass && cuenta.pass !== hashPassword(pass))) {
-                err.classList.remove('hidden');
-                return;
-            }
-            miNombre = nombre;
-            localStorage.setItem("wasapedro_mqtt_name", miNombre);
-            if (cuenta.email) {
-                gmailVinculado = cuenta.email;
-                localStorage.setItem("wasapedro_gmail_link", cuenta.email);
-            }
-            document.getElementById('input-login-pass').value = "";
-            inicializarUI();
-            prepararNotificacionesSW(true);
-        }
 
         function registrarUsuario(nombre, email, pass, btn) {
             const emailFinal = String(email || "").trim().toLowerCase();
@@ -2449,7 +3030,9 @@
                                 imgFallback.classList.remove("hidden");
                             } else {
                                 imgFallback.classList.add("hidden");
-                                txtFallback.textContent = data.emisor.charAt(0).toUpperCase();
+                                txtFallback.textContent = inicialDe(data.emisor);
+                                txtFallback.style.background = colorAvatarDe(data.emisor);
+                                txtFallback.style.color = '#fff';
                                 txtFallback.classList.remove("hidden");
                             }
                         } else {
@@ -2463,6 +3046,7 @@
                         if (esLlamadaGrupal || data.esGrupo) {
                             eliminarParticipanteLlamada(saliente);
                             participantesLlamada = participantesLlamada.filter(p => p !== saliente);
+                            if (presentadorActual === saliente) ocultarPantallaPresentacion();
                             if (llamadasPeers[saliente]) {
                                 try { llamadasPeers[saliente].close(); } catch(e) {}
                                 delete llamadasPeers[saliente];
@@ -2881,7 +3465,9 @@
                     imgAvatar.classList.remove("hidden");
                 } else {
                     imgAvatar.classList.add("hidden");
-                    txtAvatar.textContent = nombreMostrar.charAt(0).toUpperCase();
+                    txtAvatar.textContent = inicialDe(nombreMostrar);
+                    txtAvatar.style.background = colorAvatarDe(id);
+                    txtAvatar.style.color = '#fff';
                     txtAvatar.classList.remove("hidden");
                 }
                 const estado = calcularEstadoAmigo(id);
@@ -2910,7 +3496,7 @@
                     contenido = `<p class="mensaje-seleccionable text-xs text-white break-words">${escaparHTML(m.texto)}</p>`;
                 } else if (m.tipoMedia === 'gif' || m.tipoMedia === 'sticker') {
                     const media = urlSegura(m.urlMedia, ['image']);
-                    if (media) contenido = `<img src="${escaparHTML(media)}" class="max-w-[200px] rounded-xl" loading="lazy" alt="Contenido multimedia">`;
+                    if (media) contenido = `<img src="${escaparHTML(media)}" class="${m.tipoMedia === 'sticker' ? 'max-w-[160px] max-h-[160px]' : 'max-w-[200px]'} rounded-xl" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" alt="Contenido multimedia">`;
                 } else if (m.tipoMedia === 'audio') {
                     const audio = urlSegura(m.urlMedia, ['audio']);
                     if (audio) contenido = `<audio src="${escaparHTML(audio)}" controls class="max-w-[240px] h-8"></audio>`;
@@ -3087,7 +3673,7 @@
                     const fotoAmigo = urlSegura(fotosAmigos[id], ['image']);
                     avatarHTML = fotoAmigo
                         ? `<img src="${escaparHTML(fotoAmigo)}" class="w-10 h-10 rounded-full object-cover" alt="">`
-                        : `<div class="w-10 h-10 bg-dark-700 text-brand-500 font-bold rounded-full flex items-center justify-center text-sm">${escaparHTML(nombre.charAt(0).toUpperCase())}</div>`;
+                        : `<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" ${estiloAvatarInicial(id)}>${escaparHTML(inicialDe(nombre))}</div>`;
                 }
 
                 div.innerHTML = `
@@ -3319,6 +3905,7 @@
             const respaldo = {
                 version: 1,
                 exportadoEn: new Date().toISOString(),
+                notebook: paginasNotebook,
                 wasapedro: {
                     nombre: miNombre,
                     avatar: miFotoB64,
@@ -3336,7 +3923,7 @@
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement("a");
             enlace.href = url;
-            enlace.download = `wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            enlace.download = `notebookpg-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
             enlace.click();
             URL.revokeObjectURL(url);
             if (status) {
@@ -3740,11 +4327,7 @@
                 }
             });
         }
-
-        // Arranque directo de WasaPedro (sin la interfaz de cuaderno)
         garantizarCuentaAdmin();
-        inicializarUI();
-        prepararNotificacionesSW(true);
     </script>
 </body>
 </html>
