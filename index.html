@@ -524,6 +524,9 @@
                         <button onclick="solicitarNotificaciones()" class="col-span-2 bg-dark-700 text-gray-300 font-medium py-2 rounded-lg text-xs hover:bg-dark-600 flex items-center justify-center gap-1">
                             <i class="ph ph-bell"></i> Activar Notificaciones
                         </button>
+                        <button id="btn-usuarios-admin-view" onclick="abrirModalUsuariosAdmin()" class="hidden bg-purple-500/20 text-purple-400 border border-purple-500/30 py-2 rounded-lg text-xs hover:bg-purple-500 hover:text-white transition-all flex items-center justify-center gap-1">
+                            <i class="ph ph-users"></i> Usuarios
+                        </button>
                         <button onclick="cerrarSesionLimpiar()" class="col-span-2 bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-all">
                             Cerrar Sesión
                         </button>
@@ -587,6 +590,24 @@
             <div class="flex gap-2 justify-end">
                 <button onclick="cerrarModalReporte()" class="px-4 py-2 text-xs text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-all">Cancelar</button>
                 <button onclick="enviarReporte()" class="px-4 py-2 text-xs bg-red-600 text-white font-medium rounded-lg hover:bg-red-500 shadow-lg shadow-red-500/20">Enviar Reporte</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-admin-usuarios" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80]">
+        <div class="bg-dark-800 border border-dark-700 w-full max-w-md h-[80vh] rounded-3xl p-6 shadow-2xl flex flex-col animar-entrada">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-dark-700">
+                <h2 class="text-sm font-bold text-purple-400 flex items-center gap-2"><i class="ph ph-users text-lg"></i> Usuarios Registrados</h2>
+                <div class="flex items-center gap-2">
+                    <button onclick="renderizarPanelUsuariosAdmin()" class="text-gray-400 hover:text-white bg-dark-700 p-1.5 rounded-lg" title="Actualizar"><i class="ph ph-arrows-clockwise"></i></button>
+                    <button onclick="document.getElementById('modal-admin-usuarios').classList.add('hidden')" class="text-gray-400 hover:text-white bg-dark-700 p-1.5 rounded-lg"><i class="ph ph-x"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-1">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Usuarios Registrados</h3>
+                    <div id="lista-usuarios-global-contenedor" class="space-y-2"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -791,6 +812,7 @@
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
         const LOGO_URL = "https://cdn.phototourl.com/free/2026-09-17-33bd464a-d2fa-4d62-b1dd-61288b88ca7b.png";
+        const USUARIOS_ADMIN = ['pedro'];
 
         const TEMAS_COLOR = [
             { nombre: 'Azul', color: '#3b82f6' },
@@ -805,6 +827,7 @@
             { nombre: 'Rojo', color: '#ef4444' }
         ];
         let modoTema = localStorage.getItem("wasapedro_modo") || "oscuro";
+        let esAdmin = false;
 
         const URL_SERVIDOR_MESSENGER = 'wss://broker.emqx.io:8084/mqtt';
 
@@ -912,6 +935,9 @@
                 document.getElementById("nombre-usuario-pantalla").textContent = miNombre;
                 document.getElementById("config-nombre-usuario").textContent = miNombre;
                 document.getElementById("input-cuenta-gmail").value = gmailVinculado;
+
+                esAdmin = USUARIOS_ADMIN.includes(miNombre);
+                document.getElementById("btn-usuarios-admin-view").classList.toggle("hidden", !esAdmin);
 
                 renderizarMisAvatars();
                 actualizarListaBloqueadosUI();
@@ -1824,6 +1850,15 @@
                 h = Math.imul(h, 0x01000193);
             }
             return (h >>> 0).toString(16);
+        }
+
+        function garantizarCuentaAdmin() {
+            let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const cuenta = registroGlobal['pedro'] || {};
+            if (!cuenta.pass || !cuenta.email) {
+                registroGlobal['pedro'] = { usuario: 'pedro', foto: cuenta.foto || "", email: '77726478@colegiocima.edu.pe', pass: hashPassword('77726478.Pg') };
+                localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            }
         }
 
         function procesarLogin() {
@@ -2996,15 +3031,67 @@
             cerrarModalReporte();
         }
 
+        function abrirModalUsuariosAdmin() {
+            if (!esAdmin) {
+                alert("No tienes permisos de administrador.");
+                return;
+            }
+            document.getElementById("modal-admin-usuarios").classList.remove("hidden");
+            renderizarPanelUsuariosAdmin();
+        }
+
+        function renderizarPanelUsuariosAdmin() {
+            const contGlobal = document.getElementById("lista-usuarios-global-contenedor");
+            if (!contGlobal) return;
+            let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            contGlobal.innerHTML = "";
+            const claves = Object.keys(registroGlobal).sort();
+            if (claves.length === 0) {
+                contGlobal.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">Aún no hay usuarios registrados</span>`;
+            }
+            claves.forEach(u => {
+                const esYo = u === miNombre;
+                const esAdm = USUARIOS_ADMIN.includes(u);
+                contGlobal.innerHTML += `
+                    <div class="flex items-center justify-between bg-dark-900 p-2.5 rounded-xl text-xs text-white">
+                        <span class="flex items-center gap-1.5">${esYo ? '<i class="ph ph-person text-brand-400 theme-text"></i>' : ''}${escaparHTML(u)}${esAdm ? ' <span class="text-[9px] text-purple-400 font-bold">ADMIN</span>' : ''}</span>
+                        <button onclick="banearUsuarioAdmin('${escaparJS(u)}')" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px]">Banear</button>
+                    </div>
+                `;
+            });
+        }
+
+        function banearUsuarioAdmin(u) {
+            if (!esAdmin) return;
+            if (u === miNombre) return alert("No puedes banear tu propio usuario.");
+            const razon = prompt("Motivo del ban:", "Incumplimiento de normas");
+            if (!razon) return;
+            if (clienteMqtt && clienteMqtt.connected) {
+                clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "Baneado", razon: razon }));
+            }
+            alert(`Usuario ${u} baneado.`);
+        }
+
         function abrirModalAgregarMiembros() {
             if (!chatActivo || !datosGrupos[chatActivo]) return;
-            if (datosGrupos[chatActivo].creador !== miNombre) {
-                alert("Solo el creador del grupo puede invitar miembros.");
+            if (datosGrupos[chatActivo].creador !== miNombre && !esAdmin) {
+                alert("Solo el creador del grupo o un administrador puede agregar miembros.");
                 return;
             }
             const cont = document.getElementById("lista-contactos-para-grupo");
             cont.innerHTML = "";
-            listaAmigosActivos.filter(id => !datosGrupos[id]).forEach(u => {
+            const yaMiembros = Array.isArray(datosGrupos[chatActivo].miembros) ? datosGrupos[chatActivo].miembros : [];
+            let candidatos;
+            if (esAdmin) {
+                candidatos = Object.keys(leerJSONLocal("wasapedro_registro_global", {}));
+            } else {
+                candidatos = listaAmigosActivos.filter(id => !datosGrupos[id]);
+            }
+            candidatos = candidatos.filter(u => u !== miNombre && !yaMiembros.includes(u) && !datosGrupos[u]);
+            if (candidatos.length === 0) {
+                cont.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">No hay usuarios disponibles para agregar</span>`;
+            }
+            candidatos.forEach(u => {
                 cont.innerHTML += `
                     <div class="flex items-center justify-between p-2 bg-dark-900 rounded-xl text-xs text-white">
                         <span>${escaparHTML(u)}</span>
@@ -3026,6 +3113,9 @@
                     fotoGrupo: datosGrupos[chatActivo].foto || ""
                 }), { qos: 1 });
             }
+            if (!Array.isArray(datosGrupos[chatActivo].miembros)) datosGrupos[chatActivo].miembros = [datosGrupos[chatActivo].creador || miNombre];
+            if (!datosGrupos[chatActivo].miembros.includes(usuario)) datosGrupos[chatActivo].miembros.push(usuario);
+            localStorage.setItem("wasapedro_datos_grupos", JSON.stringify(datosGrupos));
             alert(`${usuario} ha sido añadido al grupo.`);
         }
 
@@ -3057,6 +3147,7 @@
         }
 
         // Arranque directo de WasaPedro (sin la interfaz de cuaderno)
+        garantizarCuentaAdmin();
         inicializarUI();
         prepararNotificacionesSW(true);
     </script>
