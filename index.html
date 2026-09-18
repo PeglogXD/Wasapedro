@@ -226,7 +226,7 @@
             <div id="auth-vista-registro" class="hidden text-left space-y-3">
                 <input type="text" id="input-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
                 <p id="error-registro" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este nombre ya está en uso.</p>
-                <input type="email" id="input-recuperar-email" placeholder="Correo para respaldo (Opcional)" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <input type="email" id="input-recuperar-email" placeholder="Correo electrónico (Obligatorio)" required class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
                 <p id="error-email" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este correo ya está registrado en otra cuenta.</p>
                 <input type="password" id="input-registro-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
                 <p id="error-registro-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ La contraseña debe tener al menos 4 caracteres.</p>
@@ -957,6 +957,24 @@
             localStorage.setItem("wasapedro_registro_baneados", JSON.stringify(registroBaneados));
         }
 
+        function procesarMensajeBan(data) {
+            if (data.tipo === "desbaneado") {
+                const estabaBaneado = localStorage.getItem("wasapedro_ban_status");
+                if (estabaBaneado) {
+                    localStorage.removeItem("wasapedro_ban_status");
+                    ejecutarAnimacionDesbaneo();
+                }
+                return;
+            }
+            const payloadBan = { tipo: data.tipo || "Baneado", razon: data.razon || "", admin: data.admin || "" };
+            let hasta = data.hasta ? Number(data.hasta) : null;
+            if (!hasta && data.tiempoMinutos) hasta = Date.now() + Number(data.tiempoMinutos) * 60000;
+            if (hasta && hasta <= Date.now()) return;
+            if (hasta) payloadBan.hasta = hasta;
+            localStorage.setItem("wasapedro_ban_status", JSON.stringify(payloadBan));
+            mostrarPantallaBanAbsoluto(payloadBan.tipo, payloadBan.razon, payloadBan.hasta);
+        }
+
         function tickBanes() {
             const propio = leerJSONLocal("wasapedro_ban_status", null);
             if (propio && propio.hasta && Date.now() >= propio.hasta) {
@@ -976,6 +994,11 @@
                     const b = registroBaneados[u];
                     if (b && b.hasta && Date.now() >= b.hasta) {
                         delete registroBaneados[u];
+                        if (clienteMqtt && clienteMqtt.connected) {
+                            try {
+                                clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "desbaneado", admin: miNombre }), { qos: 1, retain: true });
+                            } catch(e) {}
+                        }
                         huboCambio = true;
                     }
                 });
@@ -1867,9 +1890,15 @@
                 return;
             }
             const txtErrorEmail = document.getElementById("error-email");
+            if (!emailRecuperar || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailRecuperar)) {
+                txtErrorEmail.textContent = "⚠️ El correo es obligatorio y debe tener un formato válido (ej. nombre@dominio.com).";
+                txtErrorEmail.classList.remove("hidden");
+                return;
+            }
             btn.disabled = true;
             btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-xl"></i> Verificando...';
             txtError.classList.add("hidden");
+            txtErrorEmail.textContent = "⚠️ Este correo ya está registrado en otra cuenta.";
             txtErrorEmail.classList.add("hidden");
 
             // Verificación local instantánea contra el registro global
@@ -2003,11 +2032,16 @@
         }
 
         function registrarUsuario(nombre, email, pass, btn) {
+            const emailFinal = String(email || "").trim().toLowerCase();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailFinal)) {
+                alert("El correo es obligatorio y debe tener un formato válido.");
+                return false;
+            }
             miNombre = nombre;
             localStorage.setItem("wasapedro_mqtt_name", miNombre);
-            if (email) localStorage.setItem("wasapedro_gmail_link", email);
+            localStorage.setItem("wasapedro_gmail_link", emailFinal);
             let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            registroGlobal[nombre] = { usuario: nombre, foto: "", email: email || "", pass: hashPassword(pass || "") };
+            registroGlobal[nombre] = { usuario: nombre, foto: "", email: emailFinal, pass: hashPassword(pass || "") };
             localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
             document.getElementById('input-registro-pass').value = "";
             inicializarUI(); prepararNotificacionesSW(true);
@@ -2219,18 +2253,7 @@
                     }
 
                     if (topico === `wasapedro/v3/sistema/bans/${miNombre}`) {
-                        if (data.tipo === "desbaneado") {
-                            let estabaBaneado = localStorage.getItem("wasapedro_ban_status");
-                            if (estabaBaneado) {
-                                localStorage.removeItem("wasapedro_ban_status");
-                                ejecutarAnimacionDesbaneo();
-                            }
-                        } else {
-                            const payloadBan = { tipo: data.tipo || "Baneado", razon: data.razon || "", admin: data.admin || "" };
-                            if (data.tiempoMinutos) payloadBan.hasta = Date.now() + Number(data.tiempoMinutos) * 60000;
-                            localStorage.setItem("wasapedro_ban_status", JSON.stringify(payloadBan));
-                            mostrarPantallaBanAbsoluto(payloadBan.tipo, payloadBan.razon, payloadBan.hasta);
-                        }
+                        procesarMensajeBan(data);
                         return;
                     }
 
@@ -3381,15 +3404,17 @@
             const razon = (razonPrompt || "").trim() || "Sin motivo";
             const payload = { tipo: "Baneado", razon: razon, admin: miNombre };
             if (tiempoMinutos !== null && tiempoMinutos > 0) payload.tiempoMinutos = tiempoMinutos;
+            const hastaAbs = payload.tiempoMinutos ? Date.now() + payload.tiempoMinutos * 60000 : null;
+            if (hastaAbs) payload.hasta = hastaAbs;
             if (clienteMqtt && clienteMqtt.connected) {
                 try {
-                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify(payload), { qos: 1 });
+                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify(payload), { qos: 1, retain: true });
                 } catch(e) {}
             }
             registroBaneados[u] = {
                 tipo: "Baneado",
                 razon: razon,
-                hasta: payload.tiempoMinutos ? Date.now() + payload.tiempoMinutos * 60000 : null,
+                hasta: hastaAbs,
                 desde: Date.now()
             };
             guardarRegistroBaneados();
@@ -3401,7 +3426,7 @@
             if (!esAdmin) return;
             if (clienteMqtt && clienteMqtt.connected) {
                 try {
-                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "desbaneado", admin: miNombre }), { qos: 1 });
+                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "desbaneado", admin: miNombre }), { qos: 1, retain: true });
                 } catch(e) {}
             }
             delete registroBaneados[u];
