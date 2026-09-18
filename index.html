@@ -108,6 +108,51 @@
         #panel-participantes-llamada.activo {
             display: grid;
         }
+        #pantalla-presentacion {
+            display: none;
+        }
+        #pantalla-presentacion.mostrar {
+            display: block;
+        }
+        #panel-participantes-llamada.modo-pantalla {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-content: flex-start;
+            align-items: stretch;
+            overflow-y: auto;
+            max-height: 32%;
+            flex: 0 1 auto;
+            padding: 6px;
+        }
+        #panel-participantes-llamada.modo-pantalla .participante-llamada-card {
+            width: 176px;
+            height: 118px;
+            min-width: 0;
+            min-height: 0;
+            flex: 0 0 auto;
+        }
+        #panel-participantes-llamada.modo-pantalla .participante-llamada-card video {
+            min-height: 0;
+            height: 100%;
+        }
+        .participante-llamada-card .pantalla-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 20;
+            background: rgba(59,130,246,.92);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.35);
+        }
         .participante-llamada-card {
             min-width: 0;
             min-height: 120px;
@@ -370,7 +415,19 @@
             <span id="tiempo-llamada" class="text-xs font-mono text-gray-400">00:00</span>
         </div>
 
-        <div class="flex-1 relative p-4 flex items-center justify-center bg-black/40 overflow-hidden">
+        <div id="escena-llamada" class="flex-1 relative p-3 flex flex-col gap-3 bg-black/40 overflow-hidden">
+            <div id="pantalla-presentacion" class="relative w-full min-h-0 flex-1 rounded-2xl bg-dark-900 border border-dark-700 shadow-2xl overflow-hidden">
+                <video id="video-pantalla-remota" autoplay playsinline class="w-full h-full object-contain"></video>
+                <div id="fallback-pantalla-remota" class="absolute inset-0 bg-dark-900 flex flex-col items-center justify-center gap-2 hidden z-10">
+                    <i class="ph ph-presentation-chart text-5xl text-gray-500"></i>
+                    <span class="text-gray-300 text-xs font-semibold">Esperando pantalla compartida...</span>
+                </div>
+                <div class="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-brand-600 text-white rounded-full px-3 py-1 text-[11px] font-bold shadow-lg">
+                    <i class="ph ph-presentation-chart text-sm"></i>
+                    <span id="label-pantalla-presentador">...</span>
+                </div>
+            </div>
+
             <div id="overlay-espera-llamada" class="absolute inset-0 z-30 bg-dark-900/95 flex flex-col items-center justify-center gap-3 p-4">
                 <img id="foto-espera-llamada" src="" class="w-32 h-32 rounded-full object-cover border-4 border-brand-500 shadow-2xl hidden">
                 <div id="avatar-txt-espera-llamada" class="w-32 h-32 bg-dark-700 text-brand-500 font-bold text-5xl rounded-full flex items-center justify-center border-4 border-brand-500 shadow-2xl hidden">?</div>
@@ -378,9 +435,7 @@
                 <span id="texto-estado-llamada" class="text-brand-400 text-sm font-medium animate-pulse">Llamando...</span>
             </div>
 
-            <div id="panel-participantes-llamada" class="absolute inset-4 z-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto content-center"></div>
-
-            <div id="box-video-principal" class="relative w-full h-full max-h-[75vh] flex items-center justify-center rounded-2xl bg-dark-800 border border-dark-700 shadow-2xl overflow-hidden">
+            <div id="box-video-principal" class="relative w-full min-h-0 flex-1 rounded-2xl bg-dark-800 border border-dark-700 shadow-2xl overflow-hidden">
                 <video id="video-remoto" autoplay playsinline class="w-full h-full object-contain"></video>
                 <div id="fallback-foto-remoto" class="absolute inset-0 bg-dark-800 flex flex-col items-center justify-center gap-2 hidden z-10">
                     <img id="img-fallback-remoto" src="" class="w-28 h-28 rounded-full object-cover border-2 border-dark-600 hidden">
@@ -388,7 +443,9 @@
                     <span id="label-fallback-remoto" class="text-gray-300 text-xs font-semibold">Cámara apagada</span>
                 </div>
             </div>
-            
+
+            <div id="panel-participantes-llamada" class="flex-1 min-h-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-center items-stretch"></div>
+
             <div id="box-video-local" class="absolute bottom-6 right-6 w-36 h-48 md:w-48 md:h-64 rounded-2xl overflow-hidden border-2 border-brand-500 shadow-2xl bg-dark-800 z-20">
                 <video id="video-local" autoplay playsinline muted class="w-full h-full object-cover"></video>
                 <div id="fallback-foto-local" class="absolute inset-0 bg-dark-800 flex flex-col items-center justify-center hidden z-10">
@@ -883,6 +940,9 @@
         let streamLocal = null;
         let streamPantalla = null;
         let enPantallaCompartida = false;
+        let llamadasPantallaPeers = {};
+        let llamadasStreams = {};
+        let presentadorActual = '';
         let mediaRecorder = null;
         let fragmentosAudio = [];
         let estaGrabandoAudio = false;
@@ -1339,6 +1399,10 @@
             document.getElementById('fallback-foto-remoto').classList.add('hidden');
             document.getElementById('video-remoto').srcObject = null;
 
+            llamadasPantallaPeers = {};
+            presentadorActual = '';
+            ocultarPantallaPresentacion();
+
             if (esGrupo) {
                 overlay.classList.add('hidden');
                 panel.classList.add('activo');
@@ -1361,7 +1425,9 @@
             panel.innerHTML = '';
 
             const idGrupo = chatActivo;
-            const miembros = obtenerMiembrosLlamada(idGrupo);
+            const miembros = esLlamadaGrupal
+                ? obtenerMiembrosLlamada(idGrupo)
+                : (participantesLlamada.length ? participantesLlamada.slice() : [miNombre, idGrupo]);
             participantesLlamada = miembros;
 
             miembros.forEach(usuario => {
@@ -1387,6 +1453,7 @@
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}${esYo ? ' (Tú)' : ''}</div>
                         <div class="estado-participante">${esYo ? 'Conectado' : (conectado ? 'En llamada' : 'Esperando...')}</div>
                     </div>
+                    ${presentadorActual === usuario ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>' : ''}
                 `;
                 panel.appendChild(card);
 
@@ -1420,6 +1487,7 @@
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">${estado}</div>
                     </div>
+                    ${presentadorActual === usuario ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>' : ''}
                 `;
                 const video = card.querySelector('video');
                 video.srcObject = remoteStream;
@@ -1430,6 +1498,7 @@
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">${estado}</div>
                     </div>
+                    ${presentadorActual === usuario ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>' : ''}
                 `;
             }
         }
@@ -1462,6 +1531,17 @@
                 const emisor = call.metadata?.emisor || call.peer.replace('wasapedro_peer_', '');
                 const esGrupo = !!(call.metadata?.esGrupo);
                 const idChat = call.metadata?.idChat || (esGrupo ? chatActivo : emisor);
+
+                if (call.metadata?.esPantalla) {
+                    if (!llamadaEnCurso || (esGrupo && chatActivo !== idChat)) {
+                        try { call.close(); } catch(e) {}
+                        return;
+                    }
+                    llamadasPantallaPeers[emisor] = call;
+                    try { call.answer(); } catch(e) {}
+                    vincularEventosPantallaPeer(call, emisor);
+                    return;
+                }
 
                 // Nunca abrimos una llamada automáticamente: solo aceptamos después del botón verde.
                 if (!llamadaEnCurso) {
@@ -1509,6 +1589,7 @@
             call.on('stream', remoteStream => {
                 llamadaContestada = true;
                 iniciarTimerLlamada();
+                llamadasStreams[usuario] = remoteStream;
 
                 if (esLlamadaGrupal) {
                     actualizarParticipanteLlamada(usuario, remoteStream, 'En llamada');
@@ -1519,6 +1600,7 @@
             });
 
             call.on('close', () => {
+                delete llamadasStreams[usuario];
                 if (esLlamadaGrupal) {
                     eliminarParticipanteLlamada(usuario);
                     delete llamadasPeers[usuario];
@@ -1621,22 +1703,28 @@
                 try {
                     streamPantalla = await navigator.mediaDevices.getDisplayMedia({ video: true });
                     const screenTrack = streamPantalla.getVideoTracks()[0];
+                    if (!screenTrack) {
+                        streamPantalla.getTracks().forEach(t => t.stop());
+                        streamPantalla = null;
+                        return;
+                    }
+                    enPantallaCompartida = true;
+                    screenTrack.onended = () => { detenerCompartirPantalla(); };
 
-                    Object.values(llamadasPeers).forEach(call => {
-                        if (!call?.peerConnection) return;
-                        const sender = call.peerConnection.getSenders()
-                            .find(s => s.track && s.track.kind === 'video');
-                        if (sender) sender.replaceTrack(screenTrack);
+                    Object.keys(llamadasPeers).forEach(usuario => {
+                        try {
+                            const peerDestino = llamadasPeers[usuario]?.peer || ('wasapedro_peer_' + usuario);
+                            const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
+                                metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: chatActivo, esPantalla: true, ts: Date.now() }
+                            });
+                            llamadasPantallaPeers[usuario] = callPantalla;
+                        } catch(e) {}
                     });
 
-                    document.getElementById("video-local").srcObject = streamPantalla;
-                    enPantallaCompartida = true;
+                    mostrarPantallaPresentacion(miNombre, streamPantalla, true);
+                    publicarEstadoPantalla(true);
                     btnScreen.classList.add("bg-brand-600");
                     btnScreen.classList.remove("bg-dark-700");
-
-                    screenTrack.onended = () => {
-                        detenerCompartirPantalla();
-                    };
                 } catch(e) {
                     console.warn("Cancelado o error al compartir pantalla:", e);
                 }
@@ -1652,21 +1740,127 @@
                 streamPantalla = null;
             }
             enPantallaCompartida = false;
+
+            Object.values(llamadasPantallaPeers || {}).forEach(call => {
+                try { call.close(); } catch(e) {}
+            });
+            llamadasPantallaPeers = {};
+
             const btnScreen = document.getElementById("btn-toggle-screen");
             if (btnScreen) {
                 btnScreen.classList.remove("bg-brand-600");
                 btnScreen.classList.add("bg-dark-700");
             }
 
-            if (streamLocal) {
-                const camTrack = streamLocal.getVideoTracks()[0];
-                Object.values(llamadasPeers).forEach(call => {
-                    if (!call?.peerConnection || !camTrack) return;
-                    const sender = call.peerConnection.getSenders()
-                        .find(s => s.track && s.track.kind === 'video');
-                    if (sender) sender.replaceTrack(camTrack);
-                });
-                document.getElementById("video-local").srcObject = streamLocal;
+            publicarEstadoPantalla(false);
+            if (presentadorActual === miNombre) ocultarPantallaPresentacion();
+        }
+
+        function publicarEstadoPantalla(activa) {
+            if (!(clienteMqtt && clienteMqtt.connected && chatActivo)) return;
+            const topico = esLlamadaGrupal ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
+            try {
+                clienteMqtt.publish(topico, JSON.stringify({
+                    tipoSist: "pantalla_estado",
+                    emisor: miNombre,
+                    activa: activa,
+                    esGrupo: esLlamadaGrupal,
+                    timestamp: Date.now()
+                }), { qos: 1 });
+            } catch(e) {}
+        }
+
+        function mostrarPantallaPresentacion(emisor, stream, esLocalSelf = false) {
+            presentadorActual = emisor;
+            const stage = document.getElementById('pantalla-presentacion');
+            const boxPrincipal = document.getElementById('box-video-principal');
+            const panel = document.getElementById('panel-participantes-llamada');
+            const label = document.getElementById('label-pantalla-presentador');
+            const video = document.getElementById('video-pantalla-remota');
+            const fallback = document.getElementById('fallback-pantalla-remota');
+
+            if (!stage || !panel) return;
+
+            label.textContent = esLocalSelf
+                ? (obtenerNombreLlamada(emisor) + ' está compartiendo su pantalla (Tú)')
+                : (obtenerNombreLlamada(emisor) + ' está compartiendo su pantalla');
+
+            stage.classList.add('mostrar');
+            if (boxPrincipal) boxPrincipal.classList.add('hidden');
+
+            panel.classList.add('modo-pantalla');
+            panel.classList.add('activo');
+            if (!esLlamadaGrupal) renderizarParticipantesLlamada();
+
+            if (stream && video) {
+                video.srcObject = stream;
+                if (fallback) fallback.classList.add('hidden');
+            } else if (fallback) {
+                fallback.classList.remove('hidden');
+            }
+        }
+
+        function ocultarPantallaPresentacion() {
+            const stage = document.getElementById('pantalla-presentacion');
+            const boxPrincipal = document.getElementById('box-video-principal');
+            const panel = document.getElementById('panel-participantes-llamada');
+            const video = document.getElementById('video-pantalla-remota');
+            const fallback = document.getElementById('fallback-pantalla-remota');
+
+            presentadorActual = '';
+            if (stage) stage.classList.remove('mostrar');
+            if (boxPrincipal && llamadaEnCurso && !esLlamadaGrupal) boxPrincipal.classList.remove('hidden');
+            if (panel) {
+                panel.classList.remove('modo-pantalla');
+                if (!esLlamadaGrupal) {
+                    panel.classList.remove('activo');
+                    panel.innerHTML = '';
+                }
+            }
+            if (video) { try { video.srcObject = null; } catch(e) {} }
+            if (fallback) fallback.classList.add('hidden');
+        }
+
+        function vincularEventosPantallaPeer(call, usuario) {
+            call.on('stream', stream => {
+                mostrarPantallaPresentacion(usuario, stream, false);
+            });
+            call.on('close', () => {
+                delete llamadasPantallaPeers[usuario];
+                if (presentadorActual === usuario) ocultarPantallaPresentacion();
+            });
+        }
+
+        function ajustarCamaraParticipante(usuario, videoActivo) {
+            const card = document.getElementById(`participante-llamada-${CSS.escape(usuario)}`);
+            if (!card) return;
+            const nombre = obtenerNombreLlamada(usuario);
+            const foto = obtenerFotoLlamada(usuario);
+            const fotoSegura = urlSegura(foto, ['image']);
+            const badge = presentadorActual === usuario
+                ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>'
+                : '';
+            if (videoActivo) {
+                const stream = llamadasStreams[usuario] || null;
+                card.innerHTML = `
+                    <video autoplay playsinline></video>
+                    <div class="participante-overlay">
+                        <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
+                        <div class="estado-participante">En llamada</div>
+                    </div>
+                    ${badge}
+                `;
+                const video = card.querySelector('video');
+                if (video && stream) video.srcObject = stream;
+            } else {
+                card.innerHTML = `
+                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`}
+                    <div class="participante-overlay">
+                        <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
+                        <div class="estado-participante">Cámara apagada</div>
+                    </div>
+                    ${badge}
+                `;
             }
         }
 
@@ -1729,6 +1923,14 @@
 
         function finalizarLlamada(notificar = true) {
             if (enPantallaCompartida) detenerCompartirPantalla();
+
+            Object.values(llamadasPantallaPeers || {}).forEach(call => {
+                try { call.close(); } catch(e) {}
+            });
+            llamadasPantallaPeers = {};
+            llamadasStreams = {};
+            presentadorActual = '';
+            ocultarPantallaPresentacion();
 
             if (notificar && clienteMqtt && clienteMqtt.connected && chatActivo && llamadaEnCurso) {
                 const totalPrevio = participantesLlamada.filter(Boolean).length;
@@ -2188,6 +2390,15 @@
                             llamadasPeers[usuario] = peerCall;
                             if (!esLlamadaGrupal) llamadaPeer = peerCall;
                             vincularEventosLlamadaPeer(peerCall, usuario);
+
+                            if (enPantallaCompartida && streamPantalla) {
+                                try {
+                                    const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
+                                        metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo, esPantalla: true, ts: Date.now() }
+                                    });
+                                    llamadasPantallaPeers[usuario] = callPantalla;
+                                } catch(e) {}
+                            }
                         }
                         return;
                     }
@@ -2207,7 +2418,22 @@
                         return;
                     }
 
+                    if (data.tipoSist === 'pantalla_estado' && data.emisor !== miNombre) {
+                        if (llamadaEnCurso) {
+                            if (data.activa) {
+                                mostrarPantallaPresentacion(data.emisor, null, false);
+                            } else if (presentadorActual === data.emisor) {
+                                ocultarPantallaPresentacion();
+                            }
+                        }
+                        return;
+                    }
+
                     if (data.tipoSist === "camara_estado" && data.emisor !== miNombre) {
+                        if (llamadaEnCurso && esLlamadaGrupal) {
+                            ajustarCamaraParticipante(data.emisor, !!data.videoActivo);
+                            return;
+                        }
                         const fallbackRemoto = document.getElementById("fallback-foto-remoto");
                         const imgFallback = document.getElementById("img-fallback-remoto");
                         const txtFallback = document.getElementById("txt-fallback-remoto");
