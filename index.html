@@ -179,6 +179,7 @@
         <div class="bg-dark-800 border border-dark-700 p-5 rounded-2xl max-w-md w-full shadow-2xl">
             <span class="text-xs uppercase font-bold tracking-widest text-red-400 block mb-2">Motivo Oficial:</span>
             <p id="pantalla-ban-razon" class="text-gray-200 text-sm font-medium">...</p>
+            <p id="pantalla-ban-tiempo" class="text-xs text-amber-400 font-bold mt-3 hidden"></p>
         </div>
     </div>
 
@@ -402,10 +403,23 @@
                 <i id="icono-mic" class="ph ph-microphone text-xl"></i>
             </button>
             <button id="btn-toggle-cam" onclick="toggleCamaraLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Cámara">
-                <i id="icono-cam" class="ph ph-video-camera text-xl"></i>
+                <i id="icono-cam" class="flex items-center justify-center">
+                    <svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="56" y="84" width="80" height="88" rx="24"/>
+                        <polygon points="136,107 212,84 212,172 136,149"/>
+                    </svg>
+                </i>
             </button>
             <button id="btn-toggle-screen" onclick="toggleCompartirPantalla()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Compartir Pantalla">
-                <i id="icono-screen" class="ph ph-screenshare text-xl"></i>
+                <i id="icono-screen" class="flex items-center justify-center">
+                    <svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="36" y="40" width="184" height="132" rx="12"/>
+                        <line x1="84" y1="196" x2="172" y2="196"/>
+                        <line x1="128" y1="196" x2="128" y2="212"/>
+                        <line x1="128" y1="128" x2="128" y2="92"/>
+                        <polyline points="108,112 128,92 148,112"/>
+                    </svg>
+                </i>
             </button>
             <button onclick="finalizarLlamada()" class="w-14 h-14 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-500 transition-all shadow-lg shadow-red-600/40" title="Finalizar Llamada">
                 <i class="ph ph-phone-disconnect text-2xl"></i>
@@ -527,6 +541,10 @@
                         <button id="btn-usuarios-admin-view" onclick="abrirModalUsuariosAdmin()" class="hidden bg-purple-500/20 text-purple-400 border border-purple-500/30 py-2 rounded-lg text-xs hover:bg-purple-500 hover:text-white transition-all flex items-center justify-center gap-1">
                             <i class="ph ph-users"></i> Usuarios
                         </button>
+                        <button id="btn-reportes-admin-view" onclick="abrirModalReportesAdmin()" class="hidden bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-1">
+                            <i class="ph ph-flag"></i> Reportes
+                            <span id="contador-reportes" class="hidden px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9px] font-bold"></span>
+                        </button>
                         <button onclick="cerrarSesionLimpiar()" class="col-span-2 bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-all">
                             Cerrar Sesión
                         </button>
@@ -608,6 +626,25 @@
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Usuarios Registrados</h3>
                     <div id="lista-usuarios-global-contenedor" class="space-y-2"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-reportes-admin" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[85]">
+        <div class="bg-dark-800 border border-dark-700 w-full max-w-md h-[80vh] rounded-3xl p-6 shadow-2xl flex flex-col animar-entrada">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-dark-700">
+                <h2 class="text-sm font-bold text-red-400 flex items-center gap-2"><i class="ph ph-flag text-lg"></i> Reportes Recibidos</h2>
+                <div class="flex items-center gap-2">
+                    <button onclick="renderizarReportesAdmin()" class="text-gray-400 hover:text-white bg-dark-700 p-1.5 rounded-lg" title="Actualizar"><i class="ph ph-arrows-clockwise"></i></button>
+                    <button onclick="document.getElementById('modal-reportes-admin').classList.add('hidden')" class="text-gray-400 hover:text-white bg-dark-700 p-1.5 rounded-lg"><i class="ph ph-x"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
+                <div id="lista-reportes-admin" class="space-y-2"></div>
+            </div>
+            <div class="pt-3 border-t border-dark-700 flex justify-between items-center">
+                <button onclick="vaciarReportesAdmin()" class="text-[11px] text-red-400/80 hover:text-red-400">Vaciar todos</button>
+                <span id="contador-total-reportes" class="text-[11px] text-gray-500"></span>
             </div>
         </div>
     </div>
@@ -779,7 +816,12 @@
         // LÓGICA DE WASAPEDRO
         let estatusDeBanLocal = leerJSONLocal("wasapedro_ban_status", null);
         if (estatusDeBanLocal) {
-            mostrarPantallaBanAbsoluto(estatusDeBanLocal.tipo, estatusDeBanLocal.razon);
+            if (estatusDeBanLocal.hasta && Date.now() >= estatusDeBanLocal.hasta) {
+                localStorage.removeItem("wasapedro_ban_status");
+                estatusDeBanLocal = null;
+            } else {
+                mostrarPantallaBanAbsoluto(estatusDeBanLocal.tipo, estatusDeBanLocal.razon, estatusDeBanLocal.hasta);
+            }
         }
 
         let miNombre = (localStorage.getItem("wasapedro_mqtt_name") || "").toLowerCase();
@@ -806,6 +848,7 @@
         let registrosPresenciaAmigos = {}; 
         let notificacionesPendientes = leerJSONLocal("wasapedro_notif_pendientes", {});
         let avisosPendientes = leerJSONLocal("wasapedro_avisos", {});
+        let registroBaneados = leerJSONLocal("wasapedro_registro_baneados", {});
         let temaActual = localStorage.getItem("wasapedro_theme_color") || "#3b82f6";
         
         // Lecturas / Read receipts
@@ -853,6 +896,9 @@
         let intervaloTiempoLlamada = null;
         let segundosLlamada = 0;
 
+        const SVG_VIDEOCAMARA_ON = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
+        const SVG_VIDEOCAMARA_OFF = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><line x1="44" y1="40" x2="212" y2="216"/><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
+
         const MOCK_GIFS = [
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3vR1v8Ldt7L8F83C/giphy.gif",
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3V2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26u4cqiYI30juCOGY/giphy.gif",
@@ -876,13 +922,80 @@
             } catch(e) {}
         });
 
-        function mostrarPantallaBanAbsoluto(tipo, razon) {
+        function mostrarPantallaBanAbsoluto(tipo, razon, hasta) {
             document.getElementById("pantalla-ban").classList.remove("hidden");
             document.getElementById("pantalla-ban-tipo").textContent = tipo;
             document.getElementById("pantalla-ban-razon").textContent = razon;
+            const elTiempo = document.getElementById("pantalla-ban-tiempo");
+            if (elTiempo) {
+                if (hasta) {
+                    elTiempo.textContent = "Se eliminará automáticamente en " + formatearTiempoRestante(Math.max(0, hasta - Date.now()));
+                    elTiempo.classList.remove("hidden");
+                } else {
+                    elTiempo.classList.add("hidden");
+                }
+            }
             document.getElementById("interfaz-principal")?.classList.add("hidden");
             document.getElementById("pantalla-registro")?.classList.add("hidden");
         }
+
+        function formatearTiempoRestante(restanteMs) {
+            const segTotal = Math.max(0, Math.floor(restanteMs / 1000));
+            const dias = Math.floor(segTotal / 86400);
+            const horas = Math.floor((segTotal % 86400) / 3600);
+            const min = Math.floor((segTotal % 3600) / 60);
+            const seg = segTotal % 60;
+            const partes = [];
+            if (dias) partes.push(`${dias}d`);
+            if (horas) partes.push(`${horas}h`);
+            if (min) partes.push(`${min}m`);
+            if (seg || partes.length === 0) partes.push(`${seg}s`);
+            return partes.join(" ");
+        }
+
+        function guardarRegistroBaneados() {
+            localStorage.setItem("wasapedro_registro_baneados", JSON.stringify(registroBaneados));
+        }
+
+        function tickBanes() {
+            const propio = leerJSONLocal("wasapedro_ban_status", null);
+            if (propio && propio.hasta && Date.now() >= propio.hasta) {
+                localStorage.removeItem("wasapedro_ban_status");
+                ejecutarAnimacionDesbaneo();
+                return;
+            }
+            if (propio && propio.hasta) {
+                const elTiempo = document.getElementById("pantalla-ban-tiempo");
+                if (elTiempo) {
+                    elTiempo.textContent = "Se eliminará automáticamente en " + formatearTiempoRestante(Math.max(0, propio.hasta - Date.now()));
+                }
+            }
+            if (esAdmin) {
+                let huboCambio = false;
+                Object.keys(registroBaneados).forEach(u => {
+                    const b = registroBaneados[u];
+                    if (b && b.hasta && Date.now() >= b.hasta) {
+                        delete registroBaneados[u];
+                        huboCambio = true;
+                    }
+                });
+                if (huboCambio) {
+                    guardarRegistroBaneados();
+                    const modalAdmin = document.getElementById("modal-admin-usuarios");
+                    if (modalAdmin && !modalAdmin.classList.contains("hidden")) {
+                        renderizarBaneadosAdmin();
+                    }
+                }
+                if (typeof actualizarTemporizadoresBaneados === "function") {
+                    const modalAdmin = document.getElementById("modal-admin-usuarios");
+                    if (modalAdmin && !modalAdmin.classList.contains("hidden")) {
+                        actualizarTemporizadoresBaneados();
+                    }
+                }
+            }
+        }
+
+        setInterval(tickBanes, 1000);
 
         function ejecutarAnimacionDesbaneo() {
             document.getElementById("pantalla-ban").classList.add("hidden");
@@ -938,6 +1051,7 @@
 
                 esAdmin = USUARIOS_ADMIN.includes(miNombre);
                 document.getElementById("btn-usuarios-admin-view").classList.toggle("hidden", !esAdmin);
+                document.getElementById("btn-reportes-admin-view").classList.toggle("hidden", !esAdmin);
 
                 renderizarMisAvatars();
                 actualizarListaBloqueadosUI();
@@ -1553,9 +1667,11 @@
                     videoTrack.enabled = !videoTrack.enabled;
                     miCamaraActiva = videoTrack.enabled;
                     
-                    document.getElementById("icono-cam").className = miCamaraActiva 
-                        ? "ph ph-video-camera text-xl" 
-                        : "ph ph-video-camera-slash text-xl text-red-500";
+                    const iconoCam = document.getElementById("icono-cam");
+                    if (iconoCam) {
+                        iconoCam.innerHTML = miCamaraActiva ? SVG_VIDEOCAMARA_ON : SVG_VIDEOCAMARA_OFF;
+                        iconoCam.classList.toggle("text-red-500", !miCamaraActiva);
+                    }
 
                     const fallbackLocal = document.getElementById("fallback-foto-local");
                     const imgLocal = document.getElementById("img-fallback-local");
@@ -1936,7 +2052,8 @@
                 actualizarPildoraConexion("conectado");
                 
                 clienteMqtt.subscribe(`wasapedro/v3/chat/${miNombre}`, { qos: 1 });
-                clienteMqtt.subscribe(`wasapedro/v3/sistema/bans/${miNombre}`, { qos: 1 }); 
+                clienteMqtt.subscribe(`wasapedro/v3/sistema/bans/${miNombre}`, { qos: 1 });
+                clienteMqtt.subscribe(`wasapedro/v3/sistema/reportes`, { qos: 1 }); 
                 clienteMqtt.subscribe(`wasapedro/v3/status/fotos`); 
                 clienteMqtt.subscribe(`wasapedro/v3/status/presencia`); 
                 clienteMqtt.subscribe(`wasapedro/v3/registry/announce`, { qos: 1 });
@@ -2109,8 +2226,23 @@
                                 ejecutarAnimacionDesbaneo();
                             }
                         } else {
-                            localStorage.setItem("wasapedro_ban_status", JSON.stringify(data));
-                            mostrarPantallaBanAbsoluto(data.tipo, data.razon);
+                            const payloadBan = { tipo: data.tipo || "Baneado", razon: data.razon || "", admin: data.admin || "" };
+                            if (data.tiempoMinutos) payloadBan.hasta = Date.now() + Number(data.tiempoMinutos) * 60000;
+                            localStorage.setItem("wasapedro_ban_status", JSON.stringify(payloadBan));
+                            mostrarPantallaBanAbsoluto(payloadBan.tipo, payloadBan.razon, payloadBan.hasta);
+                        }
+                        return;
+                    }
+
+                    // Recepción de reportes (se almacenan si quien ve es un admin)
+                    if (topico === "wasapedro/v3/sistema/reportes" && data.denunciado) {
+                        if (esAdmin) {
+                            almacenarReporte(data);
+                            actualizarContadorReportes();
+                            const modalReportes = document.getElementById("modal-reportes-admin");
+                            if (modalReportes && !modalReportes.classList.contains("hidden")) {
+                                renderizarReportesAdmin();
+                            }
                         }
                         return;
                     }
@@ -3027,8 +3159,106 @@
         function enviarReporte() {
             const motivo = document.getElementById("input-motivo-reporte").value.trim();
             if (!motivo) return alert("Escribe un motivo.");
-            alert("Los reportes requieren un backend seguro y no se envían desde esta versión estática.");
+            const reporte = { denunciado: chatActivo, motivo: motivo, por: miNombre, ts: Date.now() };
+            if (clienteMqtt && clienteMqtt.connected) {
+                try {
+                    clienteMqtt.publish("wasapedro/v3/sistema/reportes", JSON.stringify(reporte), { qos: 1 });
+                } catch(e) {}
+            }
+            alert("Reporte enviado. Un administrador lo revisará.");
             cerrarModalReporte();
+        }
+
+        function almacenarReporte(r) {
+            if (!r || !r.denunciado) return;
+            const lista = leerJSONLocal("wasapedro_reportes", []);
+            const dupe = lista.some(x => x.ts === Number(r.ts) && x.denunciado === String(r.denunciado));
+            if (dupe) return;
+            lista.unshift({
+                denunciado: String(r.denunciado),
+                motivo: String(r.motivo || ""),
+                por: String(r.por || ""),
+                ts: Number(r.ts) || Date.now()
+            });
+            if (lista.length > 200) lista.length = 200;
+            localStorage.setItem("wasapedro_reportes", JSON.stringify(lista));
+        }
+
+        function actualizarContadorReportes() {
+            const contador = document.getElementById("contador-reportes");
+            const total = document.getElementById("contador-total-reportes");
+            const lista = leerJSONLocal("wasapedro_reportes", []);
+            if (contador) {
+                if (lista.length > 0) {
+                    contador.textContent = lista.length > 99 ? "99+" : String(lista.length);
+                    contador.classList.remove("hidden");
+                } else {
+                    contador.classList.add("hidden");
+                }
+            }
+            if (total) {
+                total.textContent = lista.length === 0 ? "Sin reportes" : (lista.length === 1 ? "1 reporte" : `${lista.length} reportes`);
+            }
+        }
+
+        function abrirModalReportesAdmin() {
+            if (!esAdmin) {
+                alert("No tienes permisos de administrador.");
+                return;
+            }
+            document.getElementById("modal-reportes-admin").classList.remove("hidden");
+            renderizarReportesAdmin();
+        }
+
+        function renderizarReportesAdmin() {
+            const cont = document.getElementById("lista-reportes-admin");
+            if (!cont) return;
+            const lista = leerJSONLocal("wasapedro_reportes", []);
+            actualizarContadorReportes();
+            cont.innerHTML = "";
+            if (lista.length === 0) {
+                cont.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">No hay reportes por el momento.</span>`;
+                return;
+            }
+            lista.forEach((r, indice) => {
+                const fecha = new Date(r.ts || Date.now()).toLocaleString("es-PE", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+                cont.innerHTML += `
+                    <div class="bg-dark-900 border border-red-500/20 rounded-xl p-3 text-xs">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-red-400 font-bold flex items-center gap-1"><i class="ph ph-warning text-sm"></i> Reporte de ${escaparHTML(r.por || "?")}</span>
+                            <span class="text-[10px] text-gray-500 shrink-0">${fecha}</span>
+                        </div>
+                        <div class="text-white font-medium mb-1">Contra: <strong>${escaparHTML(r.denunciado)}</strong></div>
+                        <div class="text-gray-300 mb-2 leading-relaxed">${escaparHTML(r.motivo || "Sin motivo")}</div>
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="banearDesdeReporte('${escaparJS(r.denunciado)}', ${indice})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px]">Banear usuario</button>
+                            <button onclick="eliminarReporte(${indice})" class="bg-dark-700 text-gray-400 px-2 py-1 rounded-lg hover:bg-dark-600 hover:text-white transition-all text-[10px]">Descartar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function eliminarReporte(indice) {
+            const lista = leerJSONLocal("wasapedro_reportes", []);
+            if (indice >= 0 && indice < lista.length) lista.splice(indice, 1);
+            localStorage.setItem("wasapedro_reportes", JSON.stringify(lista));
+            renderizarReportesAdmin();
+        }
+
+        function vaciarReportesAdmin() {
+            if (!confirm("¿Eliminar todos los reportes?")) return;
+            localStorage.setItem("wasapedro_reportes", JSON.stringify([]));
+            renderizarReportesAdmin();
+        }
+
+        function banearDesdeReporte(u, indice) {
+            if (!esAdmin) return;
+            document.getElementById("modal-reportes-admin").classList.add("hidden");
+            const lista = leerJSONLocal("wasapedro_reportes", []);
+            if (indice >= 0 && indice < lista.length) lista.splice(indice, 1);
+            localStorage.setItem("wasapedro_reportes", JSON.stringify(lista));
+            banearUsuarioAdmin(u);
         }
 
         function abrirModalUsuariosAdmin() {
@@ -3052,24 +3282,138 @@
             claves.forEach(u => {
                 const esYo = u === miNombre;
                 const esAdm = USUARIOS_ADMIN.includes(u);
+                const estaBaneado = !!registroBaneados[u];
+                const botones = esYo
+                    ? ''
+                    : `
+                        <button onclick="abrirChatAdmin('${escaparJS(u)}')" class="bg-brand-600/20 text-brand-400 border border-brand-600/30 px-2 py-1 rounded-lg hover:bg-brand-600 hover:text-white transition-all text-[10px]">Mensaje</button>
+                        <button onclick="banearUsuarioAdmin('${escaparJS(u)}')" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px]">${estaBaneado ? "Rebanear" : "Banear"}</button>`;
                 contGlobal.innerHTML += `
-                    <div class="flex items-center justify-between bg-dark-900 p-2.5 rounded-xl text-xs text-white">
-                        <span class="flex items-center gap-1.5">${esYo ? '<i class="ph ph-person text-brand-400 theme-text"></i>' : ''}${escaparHTML(u)}${esAdm ? ' <span class="text-[9px] text-purple-400 font-bold">ADMIN</span>' : ''}</span>
-                        <button onclick="banearUsuarioAdmin('${escaparJS(u)}')" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px]">Banear</button>
+                    <div class="flex items-center justify-between gap-2 bg-dark-900 p-2.5 rounded-xl text-xs text-white">
+                        <span class="flex items-center gap-1.5 min-w-0 truncate">${esYo ? '<i class="ph ph-person text-brand-400 theme-text"></i>' : ''}${escaparHTML(u)}${esAdm ? ' <span class="text-[9px] text-purple-400 font-bold">ADMIN</span>' : ''}${estaBaneado ? ' <span class="text-[9px] text-red-400 font-bold">BANEADO</span>' : ''}</span>
+                        <span class="flex items-center gap-1.5 shrink-0">${botones}</span>
+                    </div>
+                `;
+            });
+            contGlobal.innerHTML += `
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Baneados (${Object.keys(registroBaneados).length})</h3>
+                    <div id="lista-baneados-contenedor" class="space-y-2"></div>
+                </div>
+            `;
+            renderizarBaneadosAdmin();
+        }
+
+        function renderizarBaneadosAdmin() {
+            const cont = document.getElementById("lista-baneados-contenedor");
+            if (!cont) return;
+            const claves = Object.keys(registroBaneados).sort();
+            if (claves.length === 0) {
+                cont.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">No hay usuarios baneados</span>`;
+                return;
+            }
+            cont.innerHTML = "";
+            claves.forEach(u => {
+                const b = registroBaneados[u] || {};
+                cont.innerHTML += `
+                    <div class="flex items-center justify-between gap-2 bg-dark-900 border border-red-500/20 p-2.5 rounded-xl text-xs">
+                        <div class="min-w-0">
+                            <div class="text-white font-medium truncate">${escaparHTML(u)}</div>
+                            <div class="text-[10px] text-gray-400 truncate">${escaparHTML(b.razon || "Sin motivo")}</div>
+                            <div class="text-[10px] text-amber-400 font-bold" id="temporizador-ban-${u}">${b.hasta ? formatearTiempoRestante(Math.max(0, b.hasta - Date.now())) : "Permanente"}</div>
+                        </div>
+                        <button onclick="desbanearUsuarioAdmin('${escaparJS(u)}')" class="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-1 rounded-lg hover:bg-green-500 hover:text-white transition-all text-[10px] shrink-0">Desbanear</button>
                     </div>
                 `;
             });
         }
 
+        function actualizarTemporizadoresBaneados() {
+            Object.keys(registroBaneados).forEach(u => {
+                const el = document.getElementById(`temporizador-ban-${u}`);
+                if (!el) return;
+                const b = registroBaneados[u];
+                if (b && b.hasta) {
+                    el.textContent = formatearTiempoRestante(Math.max(0, b.hasta - Date.now()));
+                }
+            });
+        }
+
+        function parsearDuracionMinutos(texto) {
+            const t = (texto || "").trim().toLowerCase();
+            if (!t) return null;
+            if (/^\d+$/.test(t)) return parseInt(t, 10);
+            const partes = t.split(/[\s,;]+/).filter(Boolean);
+            let totalMin = 0;
+            let algo = false;
+            for (const parte of partes) {
+                const m = parte.match(/^(\d+)(d|h|m)$/);
+                if (!m) return null;
+                const val = parseInt(m[1], 10);
+                if (m[2] === 'd') totalMin += val * 24 * 60;
+                else if (m[2] === 'h') totalMin += val * 60;
+                else totalMin += val;
+                algo = true;
+            }
+            return algo ? totalMin : null;
+        }
+
+        function formatearDuracion(min) {
+            const d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
+            const partes = [];
+            if (d) partes.push(`${d} día${d > 1 ? "s" : ""}`);
+            if (h) partes.push(`${h} hora${h > 1 ? "s" : ""}`);
+            if (m) partes.push(`${m} min`);
+            return partes.join(" ");
+        }
+
         function banearUsuarioAdmin(u) {
             if (!esAdmin) return;
             if (u === miNombre) return alert("No puedes banear tu propio usuario.");
-            const razon = prompt("Motivo del ban:", "Incumplimiento de normas");
-            if (!razon) return;
-            if (clienteMqtt && clienteMqtt.connected) {
-                clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "Baneado", razon: razon }));
+            const razonPrompt = prompt("Motivo del ban:", "Incumplimiento de normas");
+            if (razonPrompt === null) return;
+            const textoDuracion = prompt("Duración del ban:\n\n- Escribe un tiempo como: 1d (días), 3h (horas), 30m (minutos) o combina: 2d 4h 15m\n- Déjalo vacío para un baneo PERMANENTE.", "");
+            if (textoDuracion === null) return;
+            const tiempoMinutos = parsearDuracionMinutos(textoDuracion);
+            if (textoDuracion.trim() && tiempoMinutos === null) {
+                return alert("Formato de duración no válido. Usa números con d, h o m, por ejemplo: 2d 4h 15m.");
             }
-            alert(`Usuario ${u} baneado.`);
+            const razon = (razonPrompt || "").trim() || "Sin motivo";
+            const payload = { tipo: "Baneado", razon: razon, admin: miNombre };
+            if (tiempoMinutos !== null && tiempoMinutos > 0) payload.tiempoMinutos = tiempoMinutos;
+            if (clienteMqtt && clienteMqtt.connected) {
+                try {
+                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify(payload), { qos: 1 });
+                } catch(e) {}
+            }
+            registroBaneados[u] = {
+                tipo: "Baneado",
+                razon: razon,
+                hasta: payload.tiempoMinutos ? Date.now() + payload.tiempoMinutos * 60000 : null,
+                desde: Date.now()
+            };
+            guardarRegistroBaneados();
+            renderizarPanelUsuariosAdmin();
+            alert(`Usuario ${u} baneado${payload.tiempoMinutos ? " por " + formatearDuracion(payload.tiempoMinutos) : " permanentemente"}.`);
+        }
+
+        function desbanearUsuarioAdmin(u) {
+            if (!esAdmin) return;
+            if (clienteMqtt && clienteMqtt.connected) {
+                try {
+                    clienteMqtt.publish(`wasapedro/v3/sistema/bans/${u}`, JSON.stringify({ tipo: "desbaneado", admin: miNombre }), { qos: 1 });
+                } catch(e) {}
+            }
+            delete registroBaneados[u];
+            guardarRegistroBaneados();
+            renderizarPanelUsuariosAdmin();
+            alert(`Usuario ${u} desbaneado.`);
+        }
+
+        function abrirChatAdmin(u) {
+            if (!esAdmin) return;
+            document.getElementById("modal-admin-usuarios").classList.add("hidden");
+            abrirChat(u);
         }
 
         function abrirModalAgregarMiembros() {
