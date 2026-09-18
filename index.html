@@ -506,6 +506,21 @@
         </div>
     </div>
 
+    <div id="modal-compartir-pantalla" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[85]">
+        <div class="bg-dark-800 border border-dark-700 w-full max-w-sm rounded-3xl p-5 shadow-2xl animar-entrada">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="ph ph-presentation-chart text-brand-500 theme-text text-lg"></i> Compartir pantalla</h2>
+            <p class="text-[11px] text-gray-400 mt-1 mb-4">Luego podrás elegir una pestaña, una ventana o todo el escritorio.</p>
+            <label class="flex items-center justify-between bg-dark-900 border border-dark-700 rounded-xl px-3 py-3 cursor-pointer">
+                <span class="flex items-center gap-2 text-xs text-white font-medium"><i class="ph ph-speaker-high text-base text-brand-400"></i> Compartir sonido del sistema</span>
+                <input type="checkbox" id="switch-audio-pantalla" class="accent-brand-500 w-4 h-4">
+            </label>
+            <div class="flex gap-2 justify-end mt-5">
+                <button onclick="cerrarModalCompartirPantalla()" class="px-4 py-2 text-xs text-gray-400 hover:text-white rounded-lg hover:bg-dark-700 transition-all">Cancelar</button>
+                <button onclick="iniciarCapturaPantalla()" class="px-4 py-2 text-xs bg-brand-600 theme-bg text-white font-medium rounded-lg shadow-lg hover:opacity-90">Continuar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-media" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80]">
         <div class="bg-dark-800 border border-dark-700 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col h-[60vh] animar-entrada">
             <div class="flex justify-between items-center mb-4 border-b border-dark-700 pb-3">
@@ -940,6 +955,8 @@
         let streamLocal = null;
         let streamPantalla = null;
         let enPantallaCompartida = false;
+        let ES_VENTANA_LLAMADA = false;
+        let ventanaLlamadaRef = null;
         let llamadasPantallaPeers = {};
         let llamadasStreams = {};
         let presentadorActual = '';
@@ -959,14 +976,23 @@
         const SVG_VIDEOCAMARA_ON = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
         const SVG_VIDEOCAMARA_OFF = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><line x1="44" y1="40" x2="212" y2="216"/><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
 
+        const IMG_PLACEHOLDER_MEDIA = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="100%" height="100%" rx="12" fill="#27272a"/><text x="50%" y="46%" font-size="26" text-anchor="middle">' + '🎞️' + '</text><text x="50%" y="70%" font-size="11" fill="#a1a1aa" text-anchor="middle">Contenido no disponible</text></svg>');
+
         const MOCK_GIFS = [
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3vR1v8Ldt7L8F83C/giphy.gif",
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3V2bzVsZzlycG9xZnA4ZnhxcnQxbnhic2dndHk1bWhreWJibzBxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26u4cqiYI30juCOGY/giphy.gif",
-            "https://media.giphy.com/media/3o7TKsjR91mP3Rgz1m/giphy.gif"
+            "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
+            "https://media.giphy.com/media/3o7TKsjR91mP3Rgz1m/giphy.gif",
+            "https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif",
+            "https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif",
+            "https://media.giphy.com/media/l0HlNaQ6gWfllcjDO/giphy.gif",
+            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif"
         ];
         const MOCK_STICKERS = [
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2JpczkyOHpndnhudnl5dXlhcXRkYXlveGNmbXZiOGJ2NWptbHRuaSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif",
-            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjMyeXhhbjJwdmd4MWszaHFsd21ndXR5NmlzYzVxeTgwY3RzeWZvdCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/KztT2c4u8mYYUiMKdJ/giphy.gif"
+            "https://media.giphy.com/media/KztT2c4u8mYYUiMKdJ/giphy.gif",
+            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif",
+            "https://media.giphy.com/media/l0MYt5jPR6LF5tIUs/giphy.gif",
+            "https://media.giphy.com/media/J3dhdZ0MmJ60Nx3m2V/giphy.gif",
+            "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
+            "https://media.giphy.com/media/2uIrqsalzCvhJGTtNQ/giphy.gif"
         ];
 
         const clienteValidacion = mqtt.connect(URL_SERVIDOR_MESSENGER, { clean: true });
@@ -1210,7 +1236,7 @@
                 MOCK_GIFS.forEach(url => {
                     const seguro = urlSegura(url, ['image']);
                     if (!seguro) return;
-                    cont.innerHTML += `<img src="${escaparHTML(seguro)}" onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'gif')" class="w-full h-28 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-all border border-dark-700" alt="GIF">`;
+                    cont.innerHTML += `<img src="${escaparHTML(seguro)}" onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'gif')" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" class="w-full h-28 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-all border border-dark-700" alt="GIF">`;
                 });
             } else {
                 btnStickers.className = "text-sm font-bold text-brand-500 border-b-2 border-brand-500 pb-1";
@@ -1218,7 +1244,7 @@
                 MOCK_STICKERS.forEach(url => {
                     const seguro = urlSegura(url, ['image']);
                     if (!seguro) return;
-                    cont.innerHTML += `<div onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'sticker')" class="w-full h-28 flex items-center justify-center p-2 bg-dark-900 rounded-xl cursor-pointer hover:bg-dark-700 transition-all border border-dark-700"><img src="${escaparHTML(seguro)}" class="max-h-full max-w-full" alt="Sticker"></div>`;
+                    cont.innerHTML += `<div onclick="seleccionarMediaItem('${escaparJS(seguro)}', 'sticker')" class="w-full h-28 flex items-center justify-center p-2 bg-dark-900 rounded-xl cursor-pointer hover:bg-dark-700 transition-all border border-dark-700"><img src="${escaparHTML(seguro)}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" class="max-h-full max-w-full" alt="Sticker"></div>`;
                 });
             }
         }
@@ -1276,6 +1302,27 @@
             return [...new Set(miembros.filter(Boolean))];
         }
 
+        const PALETA_AVATARES = ['#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#14b8a6', '#a855f7', '#e11d48'];
+        function hashDe(usuario) {
+            const s = String(usuario || '');
+            let h = 2166136261;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+        }
+        function colorAvatarDe(usuario) {
+            return PALETA_AVATARES[hashDe(usuario) % PALETA_AVATARES.length];
+        }
+        function estiloAvatarInicial(usuario, claseExtras = '') {
+            const c = colorAvatarDe(usuario);
+            return `style="background:${c};color:#fff;${claseExtras ? 'text-shadow:0 1px 2px rgba(0,0,0,.35);' : ''}"`;
+        }
+        function inicialDe(nombreOUsuario) {
+            return String(nombreOUsuario || '?').trim().charAt(0).toUpperCase() || '?';
+        }
+
         function obtenerNombreLlamada(usuario) {
             return apodosContactos[usuario] || usuario;
         }
@@ -1316,7 +1363,9 @@
                 img.classList.remove('hidden');
             } else {
                 img.classList.add('hidden');
-                txt.textContent = emisor.charAt(0).toUpperCase();
+                txt.textContent = inicialDe(emisor);
+                txt.style.background = colorAvatarDe(emisor);
+                txt.style.color = '#fff';
                 txt.classList.remove('hidden');
             }
             modal.classList.remove('hidden');
@@ -1330,6 +1379,17 @@
             const esGrupo = !!data.esGrupo;
             const idChatOrigen = esGrupo ? data.idChat : emisor;
             cerrarModalLlamadaEntrante();
+
+            const ventanaCall = abrirVentanaLlamada({
+                rol: 'entrante',
+                idChat: idChatOrigen,
+                esGrupo: esGrupo,
+                emisor: emisor,
+                nombreGrupo: esGrupo ? (data.nombreGrupo || datosGrupos[idChatOrigen]?.nombre || 'Grupo') : emisor,
+                peerId: data.peerId || '',
+                fotoEmisor: data.fotoEmisor || ''
+            });
+            if (ventanaCall) return;
 
             chatActivo = idChatOrigen;
             esLlamadaGrupal = esGrupo;
@@ -1391,6 +1451,10 @@
         function prepararInterfazLlamada(esGrupo, idChat, emisorPrincipal = '') {
             const overlay = document.getElementById('overlay-espera-llamada');
             const panel = document.getElementById('panel-participantes-llamada');
+            const btnScreenUI = document.getElementById('btn-toggle-screen');
+            if (btnScreenUI && typeof navigator !== 'undefined' && (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function')) {
+                btnScreenUI.classList.add('hidden');
+            }
             const boxPrincipal = document.getElementById('box-video-principal');
             const titulo = document.getElementById('titulo-videollamada');
             const estado = document.getElementById('texto-estado-llamada');
@@ -1448,7 +1512,7 @@
                 card.innerHTML = `
                     ${tieneConexion ? '<video autoplay playsinline></video>' : (fotoSegura
                         ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">`
-                        : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`)}
+                        : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`)}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}${esYo ? ' (Tú)' : ''}</div>
                         <div class="estado-participante">${esYo ? 'Conectado' : (conectado ? 'En llamada' : 'Esperando...')}</div>
@@ -1493,7 +1557,7 @@
                 video.srcObject = remoteStream;
             } else {
                 card.innerHTML = `
-                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`}
+                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">${estado}</div>
@@ -1516,7 +1580,7 @@
                     const nombre = obtenerNombreLlamada(usuario);
                     const foto = obtenerFotoLlamada(usuario);
                     const fotoSegura = urlSegura(foto, ['image']);
-                    const media = fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`;
+                    const media = fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`;
                     card.insertAdjacentHTML('afterbegin', media);
                 }
             }
@@ -1604,6 +1668,7 @@
                 if (esLlamadaGrupal) {
                     eliminarParticipanteLlamada(usuario);
                     delete llamadasPeers[usuario];
+                    if (presentadorActual === usuario) ocultarPantallaPresentacion();
                     const activos = Object.keys(llamadasPeers).length;
                     if (activos === 0 && usuario !== miNombre) {
                         const restantes = participantesLlamada.filter(p => p === miNombre);
@@ -1638,6 +1703,17 @@
             if (!chatActivo) return;
 
             const esGrupo = !!datosGrupos[chatActivo];
+
+            const ventanaCall = abrirVentanaLlamada({
+                rol: 'iniciador',
+                idChat: chatActivo,
+                esGrupo: esGrupo,
+                emisor: '',
+                nombreGrupo: esGrupo ? (datosGrupos[chatActivo]?.nombre || 'Grupo') : '',
+                peerId: miPeerId || ''
+            });
+            if (ventanaCall) return;
+
             esLlamadaGrupal = esGrupo;
             llamadaEnCurso = true;
             llamadaContestada = false;
@@ -1658,7 +1734,9 @@
                     imgOverlay.classList.remove('hidden');
                 } else {
                     imgOverlay.classList.add('hidden');
-                    txtOverlay.textContent = nombreTarget.charAt(0).toUpperCase();
+                    txtOverlay.textContent = inicialDe(nombreTarget);
+                    txtOverlay.style.background = colorAvatarDe(chatActivo);
+                    txtOverlay.style.color = '#fff';
                     txtOverlay.classList.remove('hidden');
                 }
             }
@@ -1695,41 +1773,83 @@
             }
         }
 
-        async function toggleCompartirPantalla() {
+        function toggleCompartirPantalla() {
             if (!llamadaEnCurso) return;
+            if (presentadorActual && presentadorActual !== miNombre) {
+                alert('Otro participante ya está compartiendo pantalla en este momento.');
+                return;
+            }
+            if (typeof navigator !== 'undefined' && (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function')) {
+                alert('Tu navegador no permite compartir pantalla en este dispositivo.');
+                return;
+            }
             const btnScreen = document.getElementById("btn-toggle-screen");
 
             if (!enPantallaCompartida) {
-                try {
-                    streamPantalla = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    const screenTrack = streamPantalla.getVideoTracks()[0];
-                    if (!screenTrack) {
-                        streamPantalla.getTracks().forEach(t => t.stop());
-                        streamPantalla = null;
-                        return;
-                    }
-                    enPantallaCompartida = true;
-                    screenTrack.onended = () => { detenerCompartirPantalla(); };
-
-                    Object.keys(llamadasPeers).forEach(usuario => {
-                        try {
-                            const peerDestino = llamadasPeers[usuario]?.peer || ('wasapedro_peer_' + usuario);
-                            const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
-                                metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: chatActivo, esPantalla: true, ts: Date.now() }
-                            });
-                            llamadasPantallaPeers[usuario] = callPantalla;
-                        } catch(e) {}
-                    });
-
-                    mostrarPantallaPresentacion(miNombre, streamPantalla, true);
-                    publicarEstadoPantalla(true);
-                    btnScreen.classList.add("bg-brand-600");
-                    btnScreen.classList.remove("bg-dark-700");
-                } catch(e) {
-                    console.warn("Cancelado o error al compartir pantalla:", e);
-                }
+                const modalPre = document.getElementById('modal-compartir-pantalla');
+                if (modalPre) { modalPre.classList.remove('hidden'); return; }
             } else {
                 detenerCompartirPantalla();
+                return;
+            }
+            const preSwitch = document.getElementById('switch-audio-pantalla');
+            if (preSwitch) preSwitch.checked = false;
+            if (btnScreen) {
+                btnScreen.classList.remove("bg-brand-600");
+                btnScreen.classList.add("bg-dark-700");
+            }
+        }
+
+        function abrirModalCompartirPantalla() {
+            const modalPre = document.getElementById('modal-compartir-pantalla');
+            if (modalPre) modalPre.classList.remove('hidden');
+        }
+
+        function cerrarModalCompartirPantalla() {
+            const modalPre = document.getElementById('modal-compartir-pantalla');
+            if (modalPre) modalPre.classList.add('hidden');
+        }
+
+        async function iniciarCapturaPantalla() {
+            cerrarModalCompartirPantalla();
+            if (!llamadaEnCurso) return;
+            if (presentadorActual && presentadorActual !== miNombre) return;
+
+            const btnScreen = document.getElementById("btn-toggle-screen");
+            const preSwitch = document.getElementById('switch-audio-pantalla');
+            const compartirAudio = !!(preSwitch && preSwitch.checked);
+
+            try {
+                const constraints = { video: true };
+                if (compartirAudio) constraints.audio = true;
+                streamPantalla = await navigator.mediaDevices.getDisplayMedia(constraints);
+                const screenTrack = streamPantalla.getVideoTracks()[0];
+                if (!screenTrack) {
+                    streamPantalla.getTracks().forEach(t => t.stop());
+                    streamPantalla = null;
+                    return;
+                }
+                enPantallaCompartida = true;
+                screenTrack.onended = () => { detenerCompartirPantalla(); };
+
+                Object.keys(llamadasPeers).forEach(usuario => {
+                    try {
+                        const peerDestino = llamadasPeers[usuario]?.peer || ('wasapedro_peer_' + usuario);
+                        const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
+                            metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: chatActivo, esPantalla: true, audio: compartirAudio, ts: Date.now() }
+                        });
+                        llamadasPantallaPeers[usuario] = callPantalla;
+                    } catch(e) {}
+                });
+
+                mostrarPantallaPresentacion(miNombre, streamPantalla, true);
+                publicarEstadoPantalla(true);
+                if (btnScreen) {
+                    btnScreen.classList.add("bg-brand-600");
+                    btnScreen.classList.remove("bg-dark-700");
+                }
+            } catch(e) {
+                console.warn("Cancelado o error al compartir pantalla:", e);
             }
         }
 
@@ -1766,11 +1886,12 @@
                     activa: activa,
                     esGrupo: esLlamadaGrupal,
                     timestamp: Date.now()
-                }), { qos: 1 });
+                }), { qos: 1, retain: true });
             } catch(e) {}
         }
 
         function mostrarPantallaPresentacion(emisor, stream, esLocalSelf = false) {
+            if (presentadorActual && presentadorActual !== emisor) return;
             presentadorActual = emisor;
             const stage = document.getElementById('pantalla-presentacion');
             const boxPrincipal = document.getElementById('box-video-principal');
@@ -1854,7 +1975,7 @@
                 if (video && stream) video.srcObject = stream;
             } else {
                 card.innerHTML = `
-                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante">${escaparHTML((nombre || '?').charAt(0).toUpperCase())}</div>`}
+                    ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
                         <div class="estado-participante">Cámara apagada</div>
@@ -1902,7 +2023,9 @@
                             imgLocal.classList.remove("hidden");
                         } else {
                             imgLocal.classList.add("hidden");
-                            txtLocal.textContent = miNombre.charAt(0).toUpperCase();
+                            txtLocal.textContent = inicialDe(miNombre);
+                            txtLocal.style.background = colorAvatarDe(miNombre);
+                            txtLocal.style.color = '#fff';
                             txtLocal.classList.remove("hidden");
                         }
                     } else {
@@ -1982,6 +2105,205 @@
             document.getElementById('box-video-principal').classList.remove('hidden');
         }
 
+        function abrirVentanaLlamada(info) {
+            try {
+                if (typeof window === 'undefined' || typeof window.open !== 'function' || typeof screen === 'undefined') return null;
+                const datos = {
+                    rol: info.rol === 'entrante' ? 'entrante' : 'iniciador',
+                    idChat: String(info.idChat || ''),
+                    esGrupo: !!info.esGrupo,
+                    emisor: String(info.emisor || ''),
+                    nombreGrupo: String(info.nombreGrupo || ''),
+                    peerId: String(info.peerId || ''),
+                    fotoEmisor: String(info.fotoEmisor || '')
+                };
+                try { sessionStorage.setItem('wasapedro_llamada_datos', JSON.stringify(datos)); } catch(e) {}
+                const ancho = Math.min(screen.availWidth || 1280, 440);
+                const alto = Math.min(screen.availHeight || 800, 740);
+                const urlBase = (window.location.href || '').split('#')[0];
+                const url = urlBase + (urlBase.indexOf('?') !== -1 ? '&' : '?') + 'wasapedro_call=1';
+                const ventana = window.open(url, '_blank', 'width=' + ancho + ',height=' + alto + ',resizable=yes,scrollbars=no');
+                if (ventana && !ventana.closed) {
+                    ventanaLlamadaRef = ventana;
+                    return ventana;
+                }
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function publicarCuelgueAlSalir() {
+            if (!(llamadaEnCurso && clienteMqtt && clienteMqtt.connected && chatActivo)) return;
+            try {
+                const topico = esLlamadaGrupal ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
+                clienteMqtt.publish(topico, JSON.stringify({
+                    tipoSist: 'cuelgue_llamada',
+                    emisor: miNombre,
+                    esGrupo: esLlamadaGrupal,
+                    timestamp: Date.now()
+                }), { qos: 1 });
+            } catch(e) {}
+        }
+
+        (function(){ window.addEventListener('beforeunload', publicarCuelgueAlSalir); })();
+        (function(){ window.addEventListener('pagehide', publicarCuelgueAlSalir); })();
+
+        async function arrancarLlamadaIniciadorVentana(datos) {
+            chatActivo = datos.idChat;
+            const esGrupo = datos.esGrupo;
+            esLlamadaGrupal = esGrupo;
+            llamadaEnCurso = true;
+            llamadaContestada = false;
+            llamadasPeers = {};
+            participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, chatActivo];
+
+            prepararInterfazLlamada(esGrupo, chatActivo, esGrupo ? '' : chatActivo);
+
+            if (!esGrupo) {
+                const nombreTarget = obtenerNombreLlamada(chatActivo);
+                const fotoTarget = obtenerFotoLlamada(chatActivo);
+                const imgOverlay = document.getElementById('foto-espera-llamada');
+                const txtOverlay = document.getElementById('avatar-txt-espera-llamada');
+                document.getElementById('nombre-espera-llamada').textContent = nombreTarget;
+                if (fotoTarget) {
+                    txtOverlay.classList.add('hidden');
+                    imgOverlay.src = urlSegura(fotoTarget, ['image']);
+                    imgOverlay.classList.remove('hidden');
+                } else {
+                    imgOverlay.classList.add('hidden');
+                    txtOverlay.textContent = inicialDe(nombreTarget);
+                    txtOverlay.style.background = colorAvatarDe(chatActivo);
+                    txtOverlay.style.color = '#fff';
+                    txtOverlay.classList.remove('hidden');
+                }
+            }
+
+            if (esGrupo) renderizarParticipantesLlamada();
+
+            try {
+                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('video-local').srcObject = streamLocal;
+                miCamaraActiva = true;
+                miMicActivo = true;
+                document.getElementById('fallback-foto-local').classList.add('hidden');
+                if (esGrupo) renderizarParticipantesLlamada();
+
+                const payloadInv = {
+                    tipoSist: 'llamada_entrante',
+                    emisor: miNombre,
+                    peerId: miPeerId,
+                    esGrupo: esGrupo,
+                    idChat: chatActivo,
+                    nombreGrupo: datos.nombreGrupo || '',
+                    fotoEmisor: miFotoB64,
+                    timestamp: Date.now()
+                };
+
+                const topico = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
+                if (clienteMqtt && clienteMqtt.connected) {
+                    clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
+                } else {
+                    setTimeout(() => {
+                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
+                    }, 1200);
+                }
+            } catch (e) {
+                alert('Permiso de cámara o micrófono denegado.');
+                finalizarLlamada(false);
+            }
+        }
+
+        async function arrancarLlamadaEntranteVentana(datos) {
+            chatActivo = datos.idChat;
+            const esGrupo = datos.esGrupo;
+            const emisor = datos.emisor;
+            esLlamadaGrupal = esGrupo;
+            llamadaEnCurso = true;
+            llamadaContestada = false;
+            participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, emisor];
+
+            prepararInterfazLlamada(esGrupo, chatActivo, emisor);
+            if (esGrupo) renderizarParticipantesLlamada();
+
+            try {
+                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('video-local').srcObject = streamLocal;
+                miCamaraActiva = true;
+                miMicActivo = true;
+                document.getElementById('fallback-foto-local').classList.add('hidden');
+
+                const respuesta = {
+                    tipoSist: 'respuesta_llamada',
+                    emisor: miNombre,
+                    idChat: chatActivo,
+                    esGrupo: esGrupo,
+                    aceptada: true,
+                    peerId: miPeerId,
+                    fotoEmisor: miFotoB64,
+                    timestamp: Date.now()
+                };
+                const topicoResp = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${emisor}`;
+                if (clienteMqtt && clienteMqtt.connected) {
+                    clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                } else {
+                    setTimeout(() => {
+                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                    }, 1200);
+                }
+            } catch (e) {
+                llamadaEnCurso = false;
+                finalizarLlamada(false);
+                alert('No se pudo acceder a la cámara o al micrófono.');
+            }
+        }
+
+        function prepararInterfazVentanaLlamada() {
+            const interfaz = document.getElementById('interfaz-principal');
+            if (interfaz) interfaz.classList.add('hidden');
+            const modalVideo = document.getElementById('modal-videollamada');
+            if (modalVideo) modalVideo.classList.remove('hidden');
+        }
+
+        // === MODO VENTANA DE LLAMADA (popup abierto con wasapedro_call=1) ===
+        (function(){
+            let parametros = null;
+            try { parametros = new URLSearchParams(window.location.search || ''); } catch(e) {}
+            if (!parametros || parametros.get('wasapedro_call') !== '1') return;
+
+            let datosLlamada = null;
+            try {
+                const crudo = sessionStorage.getItem('wasapedro_llamada_datos');
+                if (crudo) datosLlamada = JSON.parse(crudo);
+            } catch(e) {}
+            if (!datosLlamada || !datosLlamada.idChat) {
+                try { window.close(); } catch(e) {}
+                return;
+            }
+            ES_VENTANA_LLAMADA = true;
+
+            const cont = document.getElementById('contenedor-wasapedro');
+            if (cont) cont.classList.remove('hidden');
+            document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
+            try { aplicarPersonalizacion(); } catch(e) {}
+
+            if (!miNombre) {
+                try { window.close(); } catch(e) {}
+                return;
+            }
+
+            inicializarUI();
+
+            setTimeout(() => {
+                prepararInterfazVentanaLlamada();
+                if (datosLlamada.rol === 'entrante') {
+                    arrancarLlamadaEntranteVentana(datosLlamada);
+                } else {
+                    arrancarLlamadaIniciadorVentana(datosLlamada);
+                }
+            }, 400);
+        })();
+
         function renderizarMisAvatars() {
             const txtAvatar = document.getElementById("avatar-usuario-txt");
             const imgAvatar = document.getElementById("avatar-usuario-img");
@@ -1998,10 +2320,14 @@
             } else {
                 imgAvatar.classList.add("hidden"); 
                 configImg.classList.add("hidden"); 
-                txtAvatar.textContent = miNombre.charAt(0).toUpperCase(); 
+                txtAvatar.textContent = inicialDe(miNombre); 
+                txtAvatar.style.background = colorAvatarDe(miNombre);
+                txtAvatar.style.color = '#fff';
                 txtAvatar.classList.remove("hidden");
                 txtAvatar.classList.add("flex");
-                configTxt.textContent = miNombre.charAt(0).toUpperCase(); 
+                configTxt.textContent = inicialDe(miNombre); 
+                configTxt.style.background = colorAvatarDe(miNombre);
+                configTxt.style.color = '#fff';
                 configTxt.classList.remove("hidden");
                 configTxt.classList.add("flex");
             }
@@ -2449,7 +2775,9 @@
                                 imgFallback.classList.remove("hidden");
                             } else {
                                 imgFallback.classList.add("hidden");
-                                txtFallback.textContent = data.emisor.charAt(0).toUpperCase();
+                                txtFallback.textContent = inicialDe(data.emisor);
+                                txtFallback.style.background = colorAvatarDe(data.emisor);
+                                txtFallback.style.color = '#fff';
                                 txtFallback.classList.remove("hidden");
                             }
                         } else {
@@ -2463,6 +2791,7 @@
                         if (esLlamadaGrupal || data.esGrupo) {
                             eliminarParticipanteLlamada(saliente);
                             participantesLlamada = participantesLlamada.filter(p => p !== saliente);
+                            if (presentadorActual === saliente) ocultarPantallaPresentacion();
                             if (llamadasPeers[saliente]) {
                                 try { llamadasPeers[saliente].close(); } catch(e) {}
                                 delete llamadasPeers[saliente];
@@ -2881,7 +3210,9 @@
                     imgAvatar.classList.remove("hidden");
                 } else {
                     imgAvatar.classList.add("hidden");
-                    txtAvatar.textContent = nombreMostrar.charAt(0).toUpperCase();
+                    txtAvatar.textContent = inicialDe(nombreMostrar);
+                    txtAvatar.style.background = colorAvatarDe(id);
+                    txtAvatar.style.color = '#fff';
                     txtAvatar.classList.remove("hidden");
                 }
                 const estado = calcularEstadoAmigo(id);
@@ -2910,7 +3241,7 @@
                     contenido = `<p class="mensaje-seleccionable text-xs text-white break-words">${escaparHTML(m.texto)}</p>`;
                 } else if (m.tipoMedia === 'gif' || m.tipoMedia === 'sticker') {
                     const media = urlSegura(m.urlMedia, ['image']);
-                    if (media) contenido = `<img src="${escaparHTML(media)}" class="max-w-[200px] rounded-xl" loading="lazy" alt="Contenido multimedia">`;
+                    if (media) contenido = `<img src="${escaparHTML(media)}" class="${m.tipoMedia === 'sticker' ? 'max-w-[160px] max-h-[160px]' : 'max-w-[200px]'} rounded-xl" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER_MEDIA}'" alt="Contenido multimedia">`;
                 } else if (m.tipoMedia === 'audio') {
                     const audio = urlSegura(m.urlMedia, ['audio']);
                     if (audio) contenido = `<audio src="${escaparHTML(audio)}" controls class="max-w-[240px] h-8"></audio>`;
@@ -3087,7 +3418,7 @@
                     const fotoAmigo = urlSegura(fotosAmigos[id], ['image']);
                     avatarHTML = fotoAmigo
                         ? `<img src="${escaparHTML(fotoAmigo)}" class="w-10 h-10 rounded-full object-cover" alt="">`
-                        : `<div class="w-10 h-10 bg-dark-700 text-brand-500 font-bold rounded-full flex items-center justify-center text-sm">${escaparHTML(nombre.charAt(0).toUpperCase())}</div>`;
+                        : `<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" ${estiloAvatarInicial(id)}>${escaparHTML(inicialDe(nombre))}</div>`;
                 }
 
                 div.innerHTML = `
