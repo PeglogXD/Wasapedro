@@ -67,7 +67,7 @@
         .glass-panel { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
 
         /* Personalización: fondo y modo claro */
-        #contenedor-wasapedro { background-size: cover; background-position: center; background-repeat: no-repeat; }
+        #contenedor-wasapedro { background-size: auto; background-position: top left; background-repeat: repeat; }
         body.modo-claro { color: #0f172a; }
         body.modo-claro .bg-dark-900 { background-color: #f1f5f9 !important; }
         body.modo-claro .bg-dark-800 { background-color: #ffffff !important; }
@@ -2803,16 +2803,22 @@
             const img = localStorage.getItem('wasapedro_fondo_img') || '';
             const base = document.body.classList.contains('modo-claro') ? '#f1f5f9' : '#09090b';
             cont.style.backgroundImage = '';
-            cont.style.backgroundSize = 'cover';
-            cont.style.backgroundPosition = 'center';
-            cont.style.backgroundRepeat = 'no-repeat';
             if (tipo === 'color') {
                 cont.style.backgroundColor = color;
+                cont.style.backgroundSize = 'auto';
+                cont.style.backgroundPosition = 'center';
+                cont.style.backgroundRepeat = 'no-repeat';
             } else if (tipo === 'imagen' && img) {
                 cont.style.backgroundColor = base;
+                cont.style.backgroundSize = 'cover';
+                cont.style.backgroundPosition = 'center';
+                cont.style.backgroundRepeat = 'no-repeat';
                 cont.style.backgroundImage = "url('" + img + "')";
             } else {
                 cont.style.backgroundColor = base;
+                cont.style.backgroundSize = 'auto';
+                cont.style.backgroundPosition = 'top left';
+                cont.style.backgroundRepeat = 'repeat';
                 cont.style.backgroundImage = "url('https://www.transparenttextures.com/patterns/cubes.png')";
             }
             actualizarControlesApariencia();
