@@ -1588,7 +1588,9 @@
 
         function inicializarPeerJS() {
             if (peerInstance && !peerInstance.destroyed) return;
-            miPeerId = 'wasapedro_peer_' + miNombre;
+            miPeerId = ES_VENTANA_LLAMADA
+                ? ('wasapedro_peer_' + miNombre + '_' + Math.random().toString(36).slice(2, 10))
+                : ('wasapedro_peer_' + miNombre);
             peerInstance = new Peer(miPeerId);
 
             peerInstance.on('call', async (call) => {
@@ -2105,6 +2107,26 @@
             document.getElementById('box-video-principal').classList.remove('hidden');
         }
 
+        function prepararMensajeriaPopup() {
+            if (window.__popupMsgListo) return;
+            window.__popupMsgListo = true;
+            window.addEventListener('message', (event) => {
+                const dato = event.data;
+                if (!dato || !dato.wasapedroAccion) return;
+                if (dato.wasapedroAccion === 'apagar_principal') {
+                    if (ES_VENTANA_LLAMADA) return;
+                    if (peerInstance && !peerInstance.destroyed) {
+                        try { peerInstance.destroy(); } catch(e) {}
+                    }
+                    peerInstance = null;
+                    miPeerId = '';
+                } else if (dato.wasapedroAccion === 'reactivar_principal') {
+                    llamadaEnCurso = false;
+                    if (miNombre && (!peerInstance || peerInstance.destroyed)) inicializarPeerJS();
+                }
+            });
+        }
+
         function abrirVentanaLlamada(info) {
             try {
                 if (typeof window === 'undefined' || typeof window.open !== 'function' || typeof screen === 'undefined') return null;
@@ -2125,6 +2147,8 @@
                 const ventana = window.open(url, '_blank', 'width=' + ancho + ',height=' + alto + ',resizable=yes,scrollbars=no');
                 if (ventana && !ventana.closed) {
                     ventanaLlamadaRef = ventana;
+                    llamadaEnCurso = true;
+                    prepararMensajeriaPopup();
                     return ventana;
                 }
                 return null;
@@ -2282,6 +2306,12 @@
             }
             ES_VENTANA_LLAMADA = true;
 
+            (function(){
+                window.addEventListener('pagehide', () => {
+                    try { if (window.opener) window.opener.postMessage({ wasapedroAccion: 'reactivar_principal' }, '*'); } catch(e) {}
+                });
+            })();
+
             const cont = document.getElementById('contenedor-wasapedro');
             if (cont) cont.classList.remove('hidden');
             document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
@@ -2293,6 +2323,8 @@
             }
 
             inicializarUI();
+
+            try { if (window.opener) window.opener.postMessage({ wasapedroAccion: 'apagar_principal' }, '*'); } catch(e) {}
 
             setTimeout(() => {
                 prepararInterfazVentanaLlamada();
@@ -2714,6 +2746,7 @@
                                 metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo }
                             });
                             llamadasPeers[usuario] = peerCall;
+                            llamadasPeers[usuario].peer = peerDestino;
                             if (!esLlamadaGrupal) llamadaPeer = peerCall;
                             vincularEventosLlamadaPeer(peerCall, usuario);
 
