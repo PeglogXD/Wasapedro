@@ -435,6 +435,16 @@
                 <span id="texto-estado-llamada" class="text-brand-400 text-sm font-medium animate-pulse">Llamando...</span>
             </div>
 
+            <div id="panel-permiso-camara" class="absolute inset-0 z-40 bg-dark-900/95 flex flex-col items-center justify-center gap-4 p-6 hidden">
+                <i class="ph ph-video-camera-slash text-5xl text-brand-500"></i>
+                <h3 class="text-white text-lg font-bold text-center">Necesitamos tu cámara y micrófono</h3>
+                <p class="text-gray-400 text-sm text-center max-w-xs">El navegador bloqueó el acceso automático al abrir esta ventana. Toca el botón para activar cámara y micrófono.</p>
+                <button id="btn-reintentar-camara" class="bg-brand-600 hover:bg-brand-500 text-white font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                    <i class="ph ph-camera text-lg"></i> Activar cámara y micrófono
+                </button>
+                <button onclick="finalizarLlamada(false)" class="text-gray-300 underline text-sm hover:text-white">Cancelar llamada</button>
+            </div>
+
             <div id="box-video-principal" class="relative w-full min-h-0 flex-1 rounded-2xl bg-dark-800 border border-dark-700 shadow-2xl overflow-hidden">
                 <video id="video-remoto" autoplay playsinline class="w-full h-full object-contain"></video>
                 <div id="fallback-foto-remoto" class="absolute inset-0 bg-dark-800 flex flex-col items-center justify-center gap-2 hidden z-10">
@@ -2105,6 +2115,30 @@
             document.getElementById('panel-participantes-llamada').innerHTML = '';
             document.getElementById('panel-participantes-llamada').classList.remove('activo');
             document.getElementById('box-video-principal').classList.remove('hidden');
+
+            if (ES_VENTANA_LLAMADA) {
+                try { window.close(); } catch(e) {}
+            }
+        }
+
+        function adquirirMediosPopup(continuar) {
+            const intentar = () => {
+                if (typeof navigator === 'undefined' || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+                    alert('Tu navegador no permite acceder a la cámara en este dispositivo.');
+                    return;
+                }
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(continuar).catch(() => {
+                    const panel = document.getElementById('panel-permiso-camara');
+                    if (panel) panel.classList.remove('hidden');
+                });
+            };
+            const btn = document.getElementById('btn-reintentar-camara');
+            if (btn) btn.onclick = () => {
+                const panel = document.getElementById('panel-permiso-camara');
+                if (panel) panel.classList.add('hidden');
+                intentar();
+            };
+            intentar();
         }
 
         function prepararMensajeriaPopup() {
@@ -2205,9 +2239,9 @@
 
             if (esGrupo) renderizarParticipantesLlamada();
 
-            try {
-                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('video-local').srcObject = streamLocal;
+            const continuarIniciador = (streamCapturado) => {
+                streamLocal = streamCapturado;
+                document.getElementById('video-local').srcObject = streamCapturado;
                 miCamaraActiva = true;
                 miMicActivo = true;
                 document.getElementById('fallback-foto-local').classList.add('hidden');
@@ -2232,10 +2266,9 @@
                         if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
                     }, 1200);
                 }
-            } catch (e) {
-                alert('Permiso de cámara o micrófono denegado.');
-                finalizarLlamada(false);
-            }
+            };
+
+            adquirirMediosPopup(continuarIniciador);
         }
 
         async function arrancarLlamadaEntranteVentana(datos) {
@@ -2250,9 +2283,9 @@
             prepararInterfazLlamada(esGrupo, chatActivo, emisor);
             if (esGrupo) renderizarParticipantesLlamada();
 
-            try {
-                streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('video-local').srcObject = streamLocal;
+            const continuarRespuesta = (streamCapturado) => {
+                streamLocal = streamCapturado;
+                document.getElementById('video-local').srcObject = streamCapturado;
                 miCamaraActiva = true;
                 miMicActivo = true;
                 document.getElementById('fallback-foto-local').classList.add('hidden');
@@ -2275,11 +2308,9 @@
                         if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
                     }, 1200);
                 }
-            } catch (e) {
-                llamadaEnCurso = false;
-                finalizarLlamada(false);
-                alert('No se pudo acceder a la cámara o al micrófono.');
-            }
+            };
+
+            adquirirMediosPopup(continuarRespuesta);
         }
 
         function prepararInterfazVentanaLlamada() {
@@ -2305,6 +2336,8 @@
                 return;
             }
             ES_VENTANA_LLAMADA = true;
+
+            try { window.focus(); } catch(e) {}
 
             (function(){
                 window.addEventListener('pagehide', () => {
