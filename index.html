@@ -994,21 +994,25 @@
 
         const IMG_PLACEHOLDER_MEDIA = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="100%" height="100%" rx="12" fill="#27272a"/><text x="50%" y="46%" font-size="26" text-anchor="middle">' + '🎞️' + '</text><text x="50%" y="70%" font-size="11" fill="#a1a1aa" text-anchor="middle">Contenido no disponible</text></svg>');
 
+        function svgData(svgInterno) {
+            return 'data:image/svg+xml;charset=utf8,' + encodeURIComponent(svgInterno);
+        }
+
         const MOCK_GIFS = [
-            "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
-            "https://media.giphy.com/media/3o7TKsjR91mP3Rgz1m/giphy.gif",
-            "https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif",
-            "https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif",
-            "https://media.giphy.com/media/l0HlNaQ6gWfllcjDO/giphy.gif",
-            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif"
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g1)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -30;0 0" dur="0.8s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">🎉</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dc2626"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g2)"/><g><animate attributeName="opacity" values="1;0.45;1" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">❤️</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g3)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;8 0;-8 0;0 0" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">👍</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ea580c"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g4)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;-10 0;10 0;0 0" dur="0.7s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">🤣</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#db2777"/><stop offset="1" stop-color="#f9a8d4"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g5)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -16;0 0" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.7;1" dur="1s" repeatCount="indefinite"/><text x="240" y="230" font-size="180" text-anchor="middle">😍</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g6)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -34;0 0" dur="0.6s" repeatCount="indefinite"/><text x="240" y="230" font-size="170" text-anchor="middle">🚀</text></g></svg>')
         ];
         const MOCK_STICKERS = [
-            "https://media.giphy.com/media/KztT2c4u8mYYUiMKdJ/giphy.gif",
-            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif",
-            "https://media.giphy.com/media/l0MYt5jPR6LF5tIUs/giphy.gif",
-            "https://media.giphy.com/media/J3dhdZ0MmJ60Nx3m2V/giphy.gif",
-            "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
-            "https://media.giphy.com/media/2uIrqsalzCvhJGTtNQ/giphy.gif"
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fde68a"/><text x="120" y="160" font-size="140" text-anchor="middle">😎</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fed7aa"/><text x="120" y="160" font-size="140" text-anchor="middle">🐻</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fbcfe8"/><text x="120" y="160" font-size="140" text-anchor="middle">🎂</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#e9d5ff"/><text x="120" y="160" font-size="140" text-anchor="middle">👑</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fef3c7"/><text x="120" y="160" font-size="140" text-anchor="middle">💡</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#bae6fd"/><text x="120" y="160" font-size="140" text-anchor="middle">🌈</text></svg>')
         ];
 
         const clienteValidacion = mqtt.connect(URL_SERVIDOR_MESSENGER, { clean: true });
@@ -1570,7 +1574,9 @@
                     ${presentadorActual === usuario ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>' : ''}
                 `;
                 const video = card.querySelector('video');
+                video.muted = true;
                 video.srcObject = remoteStream;
+                video.play().then(() => { setTimeout(() => { video.muted = false; }, 300); }).catch(() => {});
             } else {
                 card.innerHTML = `
                     ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
@@ -1620,7 +1626,16 @@
             miPeerId = ES_VENTANA_LLAMADA
                 ? ('wasapedro_peer_' + miNombre + '_' + Math.random().toString(36).slice(2, 10))
                 : ('wasapedro_peer_' + miNombre);
-            peerInstance = new Peer(miPeerId);
+            peerInstance = new Peer(miPeerId, {
+                config: {
+                    iceServers: [
+                        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+                        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+                        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+                        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+                    ]
+                }
+            });
             peerOpenPromise = null;
             registrarPromesaPeerAbierto();
             peerInstance.on('error', (e) => { console.warn('[wasapedro] PeerJS:', e && (e.type || e.message || e)); });
@@ -1694,7 +1709,10 @@
                     actualizarParticipanteLlamada(usuario, remoteStream, 'En llamada');
                 } else {
                     document.getElementById('overlay-espera-llamada').classList.add('hidden');
-                    document.getElementById('video-remoto').srcObject = remoteStream;
+                    const vR = document.getElementById('video-remoto');
+                    vR.muted = true;
+                    vR.srcObject = remoteStream;
+                    vR.play().then(() => { setTimeout(() => { vR.muted = false; }, 300); }).catch(() => {});
                 }
             });
 
@@ -2025,6 +2043,11 @@
         function vincularEventosPantallaPeer(call, usuario) {
             call.on('stream', stream => {
                 mostrarPantallaPresentacion(usuario, stream, false);
+                const video = document.getElementById('video-pantalla-remota');
+                if (video) {
+                    video.muted = true;
+                    video.play().then(() => { setTimeout(() => { video.muted = false; }, 300); }).catch(() => {});
+                }
             });
             call.on('close', () => {
                 delete llamadasPantallaPeers[usuario];
