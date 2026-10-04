@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WasaPedro</title>
-    <link rel="manifest" href="manifest.json"> 
+    <script>
+        if (location.protocol === 'http:' || location.protocol === 'https:') {
+            if (!document.querySelector('link[rel="manifest"]')) {
+                var elManifest = document.createElement('link');
+                elManifest.rel = 'manifest';
+                elManifest.href = 'manifest.json';
+                document.head.appendChild(elManifest);
+            }
+        }
+    </script>
     <meta name="theme-color" id="meta-theme" content="#ffffff">
     
     <!-- Librerías Externas -->
@@ -889,6 +898,8 @@
         }
 
         async function prepararNotificacionesSW(solicitarPermiso = false) {
+            const protocoloApp = (window && window.location && window.location.protocol) || 'https:';
+            if (protocoloApp !== 'http:' && protocoloApp !== 'https:') return false;
             if (!('serviceWorker' in navigator)) return false;
 
             try {
