@@ -2629,9 +2629,21 @@
                 return;
             }
 
-            // Si el cliente MQTT no está conectado, registrar directamente (sin espera)
+// Si el cliente MQTT no está conectado, intentar verificar en segundo plano con el otro cliente
             if (!clienteValidacion || !clienteValidacion.connected) {
-                registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                if (clienteMqtt && clienteMqtt.connected) {
+                    consultarCuenta(nombreIngresado, 1200).then(cuentaRemota => {
+                        if (cuentaRemota) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Crear Cuenta';
+                            txtError.classList.remove('hidden');
+                            return;
+                        }
+                        registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                    });
+                } else {
+                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                }
                 return;
             }
 
@@ -2653,15 +2665,22 @@
                 clienteValidacion.publish(subCanal, JSON.stringify({ accion: "pregunta" }));
             } catch(e) {}
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 try {
                     clienteValidacion.unsubscribe(subCanal);
                     clienteValidacion.off('message', manejarVerificacion);
                 } catch(e) {}
+                const cuentaRemota = await consultarCuenta(nombreIngresado, 1000);
+                if (cuentaRemota) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Crear Cuenta';
+                    txtError.classList.remove('hidden');
+                    return;
+                }
                 if (nombreOcupado) {
                     btn.disabled = false;
                     btn.innerHTML = 'Crear Cuenta';
-                    txtError.classList.remove("hidden");
+                    txtError.classList.remove('hidden');
                 } else {
                     registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
                 }
@@ -2702,6 +2721,50 @@
             return (h >>> 0).toString(16);
         }
 
+        function topicoCuenta(nombre) {
+            return `wasapedro/v3/cuentas/${String(nombre || '').toLowerCase()}`;
+        }
+
+        function consultarCuenta(nombre, tiempoMaxMs = 1200) {
+            return new Promise((resolve) => {
+                const cliente = (clienteValidacion && clienteValidacion.connected)
+                    ? clienteValidacion
+                    : (clienteMqtt && clienteMqtt.connected ? clienteMqtt : null);
+                if (!cliente) { resolve(null); return; }
+                const topico = topicoCuenta(nombre);
+                let hecho = false;
+                const fin = (r) => {
+                    if (hecho) return;
+                    hecho = true;
+                    try { if (cliente.off) cliente.off('message', manejador); } catch(e) {}
+                    try { if (cliente.unsubscribe) cliente.unsubscribe(topico); } catch(e) {}
+                    resolve(r);
+                };
+                const manejador = (top, mensaje) => {
+                    if (top !== topico || hecho) return;
+                    try {
+                        const d = JSON.parse(mensaje.toString());
+                        if (d && d.accion === 'cuenta') fin(d);
+                    } catch(e) {}
+                };
+                try { cliente.on('message', manejador); cliente.subscribe(topico, { qos: 1 }); } catch(e) {}
+                setTimeout(() => fin(null), tiempoMaxMs);
+            });
+        }
+
+        function publicarCuenta(nombre, pass, email) {
+            try {
+                const cliente = (clienteValidacion && clienteValidacion.connected)
+                    ? clienteValidacion
+                    : (clienteMqtt && clienteMqtt.connected ? clienteMqtt : null);
+                if (!cliente || !cliente.publish) return;
+                cliente.publish(topicoCuenta(nombre), JSON.stringify({
+                    accion: 'cuenta', usuario: nombre, pass: hashPassword(pass || ''),
+                    email: String(email || '').toLowerCase(), creado: Date.now()
+                }), { qos: 1, retain: true });
+            } catch(e) {}
+        }
+
         function garantizarCuentaAdmin() {
             let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
             const cuenta = registroGlobal['pedro'] || {};
@@ -2711,7 +2774,7 @@
             }
         }
 
-        function procesarLogin() {
+        async function procesarLogin() {
             const nombre = document.getElementById('input-login-nombre').value.trim().toLowerCase();
             const pass = document.getElementById('input-login-pass').value;
             const err = document.getElementById('error-login');
@@ -2720,8 +2783,17 @@
                 return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
             }
             const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            const cuenta = registroGlobal[nombre];
-            if (!cuenta || (cuenta.pass && cuenta.pass !== hashPassword(pass))) {
+            const local = registroGlobal[nombre];
+            let cuenta = (local && local.pass && local.pass === hashPassword(pass)) ? local : null;
+            if (!cuenta) {
+                const remota = await consultarCuenta(nombre, 1500);
+                if (remota && remota.pass && remota.pass === hashPassword(pass)) {
+                    cuenta = { usuario: nombre, foto: remota.foto || '', email: remota.email || '', pass: remota.pass };
+                    registroGlobal[nombre] = cuenta;
+                    localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+                }
+            }
+            if (!cuenta) {
                 err.classList.remove('hidden');
                 return;
             }
@@ -2731,6 +2803,7 @@
                 gmailVinculado = cuenta.email;
                 localStorage.setItem("wasapedro_gmail_link", cuenta.email);
             }
+            publicarCuenta(nombre, pass, cuenta.email || '');
             document.getElementById('input-login-pass').value = "";
             inicializarUI();
             prepararNotificacionesSW(true);
@@ -2748,6 +2821,7 @@
             let registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
             registroGlobal[nombre] = { usuario: nombre, foto: "", email: emailFinal, pass: hashPassword(pass || "") };
             localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            publicarCuenta(nombre, pass || "", emailFinal);
             document.getElementById('input-registro-pass').value = "";
             inicializarUI(); prepararNotificacionesSW(true);
         }
