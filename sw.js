@@ -1,12 +1,11 @@
 // sw.js - Notificaciones y cache offline de WasaPedro
-const CACHE_NAME = 'wasapedro-shell-v2';
+const CACHE_NAME = 'wasapedro-shell-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './sw.js',
-  './icon.svg',
-  './logo.jpg'
+  './icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
