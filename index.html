@@ -1301,6 +1301,29 @@
 
         const URL_SERVIDOR_MESSENGER = 'wss://broker.emqx.io:8084/mqtt';
 
+        const LISTA_SERVIDORES_MQTT = [
+            { url: 'wss://broker.emqx.io:8084/mqtt', etiqueta: 'EMQX' },
+            { url: 'wss://broker.hivemq.com:8884/mqtt', etiqueta: 'HiveMQ' },
+            { url: 'wss://mqtt.eclipseprojects.io:443/mqtt', etiqueta: 'Eclipse' }
+        ];
+        let brokerConectandoIdx = (function() {
+            const guardado = localStorage.getItem('wasapedro_broker_ok') || '';
+            if (guardado) {
+                const i = LISTA_SERVIDORES_MQTT.findIndex(b => b.url === guardado);
+                if (i >= 0) return i;
+            }
+            return 0;
+        })();
+        let idxValidacion = (function() {
+            const guardado = localStorage.getItem('wasapedro_broker_ok') || '';
+            if (guardado) {
+                const i = LISTA_SERVIDORES_MQTT.findIndex(b => b.url === guardado);
+                if (i >= 0) return i;
+            }
+            return 0;
+        })();
+        let intentoToken = 0;
+
         let peerInstance = null;
         let peerOpenResolve = null;
         let peerOpenPromise = null;
@@ -1357,18 +1380,37 @@
             svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#bae6fd"/><text x="120" y="160" font-size="140" text-anchor="middle">🌈</text></svg>')
         ];
 
-        const clienteValidacion = mqtt.connect(URL_SERVIDOR_MESSENGER, { clean: true });
-        clienteValidacion.on('connect', () => {
-            if (miNombre) { clienteValidacion.subscribe(`wasapedro/v3/verificar/${miNombre}`); }
-        });
-        clienteValidacion.on('message', (topico, mensaje) => {
-            try {
-                const data = JSON.parse(mensaje.toString());
-                if (topico === `wasapedro/v3/verificar/${miNombre}` && data.accion === "pregunta") {
-                    clienteValidacion.publish(`wasapedro/v3/verificar/${miNombre}`, JSON.stringify({ accion: "respuesta_ocupado", foto: miFotoB64 }));
+        let clienteValidacion = null;
+        (function conectarValidacion() {
+            if (clienteValidacion) { try { clienteValidacion.end(true); } catch(e){} }
+            const broker = LISTA_SERVIDORES_MQTT[idxValidacion];
+            idxValidacion = (idxValidacion + 1) % LISTA_SERVIDORES_MQTT.length;
+            clienteValidacion = mqtt.connect(broker.url, { clean: true, reconnectPeriod: 0, connectTimeout: 6000 });
+            const cvPropio = clienteValidacion;
+            clienteValidacion.on('connect', () => {
+                if (clienteValidacion !== cvPropio) return;
+                if (miNombre) { clienteValidacion.subscribe(`wasapedro/v3/verificar/${miNombre}`); }
+            });
+            clienteValidacion.on('message', (topico, mensaje) => {
+                try {
+                    const data = JSON.parse(mensaje.toString());
+                    if (topico === `wasapedro/v3/verificar/${miNombre}` && data.accion === "pregunta") {
+                        clienteValidacion.publish(`wasapedro/v3/verificar/${miNombre}`, JSON.stringify({ accion: "respuesta_ocupado", foto: miFotoB64 }));
+                    }
+                } catch(e) {}
+            });
+            clienteValidacion.on('close', () => {
+                if (clienteValidacion !== cvPropio) return;
+                setTimeout(conectarValidacion, 400);
+            });
+            clienteValidacion.on('error', () => {});
+            setTimeout(() => {
+                if (clienteValidacion === cvPropio && !clienteValidacion.connected) {
+                    try { clienteValidacion.end(true); } catch(e) {}
+                    setTimeout(conectarValidacion, 300);
                 }
-            } catch(e) {}
-        });
+            }, 5000);
+        })();
 
         function mostrarPantallaBanAbsoluto(tipo, razon, hasta) {
             document.getElementById("pantalla-ban").classList.remove("hidden");
@@ -1489,7 +1531,7 @@ setTimeout(() => {
             }, 2800);
         }
 
-        function actualizarPildoraConexion(estado) {
+        function actualizarPildoraConexion(estado, texto) {
             const ind = document.getElementById("indicador-conexion");
             if (!ind) return;
             if (estado === "conectado") {
@@ -1497,7 +1539,7 @@ setTimeout(() => {
                 ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Conectado';
             } else if (estado === "conectando") {
                 ind.className = "text-[10px] font-medium text-yellow-500 flex items-center gap-1 mt-0.5";
-                ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 inline-block animate-pulse"></span> Conectando...';
+                ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 inline-block animate-pulse"></span> ' + (texto || 'Conectando...');
             } else {
                 ind.className = "text-[10px] font-medium text-red-400 flex items-center gap-1 mt-0.5";
                 ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span> Desconectado';
@@ -3561,24 +3603,49 @@ setTimeout(() => {
 
         function conectarServidorCloud() {
             if (clienteMqtt) { try { clienteMqtt.end(true); } catch(e){} }
-            actualizarPildoraConexion("conectando");
+            intentarConectar();
+        }
+
+        function intentarConectar() {
+            intentoToken++;
+            const token = intentoToken;
+
+            const broker = LISTA_SERVIDORES_MQTT[brokerConectandoIdx];
+            brokerConectandoIdx = (brokerConectandoIdx + 1) % LISTA_SERVIDORES_MQTT.length;
+            actualizarPildoraConexion("conectando", "Conectando (" + broker.etiqueta + ")...");
 
             const clientId = "wasapedro_sess_" + (miNombre || "user") + "_" + Math.random().toString(16).substring(2, 8);
 
-            clienteMqtt = mqtt.connect(URL_SERVIDOR_MESSENGER, { 
+            clienteMqtt = mqtt.connect(broker.url, {
                 clientId: clientId,
-                reconnectPeriod: 3000, 
-                connectTimeout: 10000,
-                clean: true 
+                reconnectPeriod: 0,
+                connectTimeout: 6000,
+                clean: true
             });
+            const clientePropio = clienteMqtt;
+
+            const avanzar = () => {
+                if (intentoToken !== token) return;
+                intentoToken++;
+                setTimeout(intentarConectar, 400);
+            };
 
             clienteMqtt.on('error', () => {
-                actualizarPildoraConexion("desconectado");
+                if (intentoToken !== token) return;
+                actualizarPildoraConexion("conectando", "Conectando (" + broker.etiqueta + ")...");
+            });
+
+            clienteMqtt.on('close', () => {
+                if (intentoToken !== token) return;
+                actualizarPildoraConexion("conectando", "Reconectando...");
+                avanzar();
             });
 
             clienteMqtt.on('connect', () => {
+                if (intentoToken !== token) return;
+                localStorage.setItem('wasapedro_broker_ok', broker.url);
                 actualizarPildoraConexion("conectado");
-                
+
                 clienteMqtt.subscribe(`wasapedro/v3/chat/${miNombre}`, { qos: 1 });
                 clienteMqtt.subscribe(`wasapedro/v3/sistema/bans/${miNombre}`, { qos: 1 });
                 clienteMqtt.subscribe(`wasapedro/v3/sistema/reportes`, { qos: 1 }); 
@@ -3603,6 +3670,15 @@ setTimeout(() => {
                 actualizarListaAmigosUI();
                 procesarColaDeEnvios();
             });
+
+            // Vigilante: si a los 5s no conectó (p.ej. handshake WebSocket bloqueado sin aviso), forzamos el siguiente broker
+            setTimeout(() => {
+                if (intentoToken !== token) return;
+                if (clienteMqtt === clientePropio && !clienteMqtt.connected) {
+                    try { clienteMqtt.end(true); } catch(e) {}
+                    setTimeout(avanzar, 300);
+                }
+            }, 5000);
 
             clienteMqtt.on('message', (topico, mensaje) => {
                 try {
