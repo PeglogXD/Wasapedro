@@ -12,7 +12,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
-      // Nunca bloquear la instalación del service worker por un recurso que falle:
+      // Nunca bloquear la instalaciÃ³n del service worker por un recurso que falle:
       // las notificaciones dependen de que el SW quede activo.
       .catch(() => {})
       .then(() => self.skipWaiting())
@@ -36,8 +36,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Navegaciones: primero la red para recibir siempre la versión más reciente
-  // de la app; si no hay conexión se cae al caché.
+  // Navegaciones: primero la red para recibir siempre la versiÃ³n mÃ¡s reciente
+  // de la app; si no hay conexiÃ³n se cae al cachÃ©.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -53,7 +53,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Recursos estáticos: caché primero con actualización en segundo plano.
+  // Recursos estÃ¡ticos: cachÃ© primero con actualizaciÃ³n en segundo plano.
   event.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request)
@@ -79,9 +79,9 @@ self.addEventListener('push', (event) => {
   } catch (error) {
     data = { body: event.data.text() };
   }
-  const title = data.title || 'Nueva Notificación';
+  const title = data.title || 'Nueva NotificaciÃ³n';
 
-  // Configuración adaptada a Chromebook
+  // ConfiguraciÃ³n adaptada a Chromebook
   const options = {
     body: data.body || '',
     icon: data.icon || './icon.svg',
@@ -93,21 +93,21 @@ self.addEventListener('push', (event) => {
       type: data.type,
       callId: data.callId
     },
-    // Mantener notificación activa en pantalla si es llamada entrante
+    // Mantener notificaciÃ³n activa en pantalla si es llamada entrante
     requireInteraction: data.type === 'call'
   };
 
-  // Añadir botones interactivos si es una llamada
+  // AÃ±adir botones interactivos si es una llamada
   if (data.type === 'call') {
     options.actions = [
-      { action: 'open', title: '📞 Abrir para responder' }
+      { action: 'open', title: 'ðŸ“ž Abrir para responder' }
     ];
   }
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Manejar clic en la notificación
+// Manejar clic en la notificaciÃ³n
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     const notificationData = event.notification.data || {};

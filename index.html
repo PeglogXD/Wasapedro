@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wasapedro</title>
+    <title>WasaPedro</title>
     <link rel="manifest" href="manifest.json"> 
     <meta name="theme-color" id="meta-theme" content="#ffffff">
     
@@ -95,13 +95,6 @@
         body.modo-claro .hover\:bg-dark-700:hover { background-color: #e2e8f0 !important; }
         body.modo-claro .hover\:bg-dark-600:hover { background-color: #cbd5e1 !important; }
         
-        /* Hoja de papel estilo Word */
-        .paper-page {
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
-            min-height: 650px;
-        }
-        .paper-page:focus { outline: none; }
-
         /* Los mensajes se pueden seleccionar/copiar aunque el resto de la app use select-none. */
         .mensaje-seleccionable, .mensaje-seleccionable * {
             user-select: text !important;
@@ -221,100 +214,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden select-none relative bg-slate-100 text-slate-800">
 
-    <!-- INTERFAZ PRINCIPAL: Wasapedro -->
-    <div id="app-wasapedro" class="fixed inset-0 flex flex-col bg-slate-100 z-[500]">
-        <header class="h-14 bg-white border-b border-slate-200 px-6 flex justify-between items-center shadow-sm flex-shrink-0">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                    <i class="ph ph-notebook"></i>
-                </div>
-                <h1 class="font-bold text-slate-800 text-lg tracking-tight">Wasapedro</h1>
-            </div>
-            
-            <button onclick="abrirModalPlantilla()" class="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3.5 py-2 rounded-xl transition-all border border-slate-200">
-                <i class="ph ph-file-plus text-base"></i>
-                <span>Ingresar plantilla</span>
-            </button>
-        </header>
-
-        <div id="notebook-empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50">
-            <div class="w-20 h-20 bg-blue-50 border border-blue-100 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mb-4 shadow-sm">
-                <i class="ph ph-notebook"></i>
-            </div>
-            <h2 class="text-xl font-bold text-slate-800 mb-1">No hay pÃ¡ginas</h2>
-            <p class="text-xs text-slate-500 max-w-sm mb-6">AÃºn no has creado ninguna pÃ¡gina de anotaciones. Empieza agregando una nueva pÃ¡gina a tu libreta.</p>
-            <button onclick="crearNuevaPagina()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2 transition-all active:scale-[0.98]">
-                <i class="ph ph-plus-circle text-lg"></i>
-                <span>Agregar pÃ¡gina</span>
-            </button>
-        </div>
-
-        <div id="notebook-workspace" class="flex-1 flex overflow-hidden hidden">
-            <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
-                <div class="p-3 border-b border-slate-100 flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Mis PÃ¡ginas</span>
-                    <button onclick="crearNuevaPagina()" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Agregar PÃ¡gina">
-                        <i class="ph ph-plus-bold text-base"></i>
-                    </button>
-                </div>
-                <div id="lista-paginas-notebook" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-            </aside>
-
-            <main class="flex-1 flex flex-col bg-slate-100 overflow-hidden">
-                <div class="bg-white border-b border-slate-200 px-4 py-2 flex items-center gap-1.5 overflow-x-auto shadow-sm flex-shrink-0">
-                    <button onclick="ejecutarFormatoWord('bold')" title="Negrita" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-b text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('italic')" title="Cursiva" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-italic text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('underline')" title="Subrayado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-underline text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('strikeThrough')" title="Tachado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-strikethrough text-lg"></i></button>
-                    
-                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
-                    
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<h1>')" title="TÃ­tulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H1</button>
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<h2>')" title="SubtÃ­tulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H2</button>
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<p>')" title="PÃ¡rrafo normal" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg text-xs font-semibold">P</button>
-                    
-                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
-
-                    <button onclick="ejecutarFormatoWord('insertUnorderedList')" title="Lista de viÃ±etas" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-bullets text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('insertOrderedList')" title="Lista numerada" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-numbers text-lg"></i></button>
-                    
-                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
-
-                    <button onclick="ejecutarFormatoWord('justifyLeft')" title="Alinear a la izquierda" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-left text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('justifyCenter')" title="Centrar" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-center text-lg"></i></button>
-                    <button onclick="ejecutarFormatoWord('justifyRight')" title="Alinear a la derecha" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-right text-lg"></i></button>
-                    
-                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
-
-                    <button onclick="ejecutarFormatoWord('removeFormat')" title="Limpiar formato" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-red-500 rounded-lg transition-all"><i class="ph ph-selection-slash text-lg"></i></button>
-                </div>
-
-                <div class="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center">
-                    <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl p-8 md:p-12 paper-page text-slate-800" id="editor-pagina-notebook" contenteditable="true" oninput="guardarContenidoPaginaActual()"></div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- MODAL PLANTILLA -->
-    <div id="modal-plantilla" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[600]">
-        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-left animate-fade-in">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <i class="ph ph-file-arrow-down text-blue-600 text-lg"></i> Cargar Plantilla
-                </h3>
-                <button onclick="cerrarModalPlantilla()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i class="ph ph-x text-lg"></i></button>
-            </div>
-            <p class="text-xs text-slate-500 mb-4">Ingrese el cÃ³digo de la plantilla para aplicarla a su cuaderno de notas.</p>
-            <input type="text" id="input-codigo-plantilla" placeholder="CÃ³digo de plantilla..." class="w-full bg-slate-50 border border-slate-300 text-sm text-slate-800 rounded-xl p-3 mb-4 focus:outline-none focus:border-blue-500 transition-all">
-            <div class="flex gap-2 justify-end">
-                <button onclick="cerrarModalPlantilla()" class="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
-                <button onclick="procesarCodigoPlantilla()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all">Cargar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- INTERFAZ SECRETA WASAPEDRO -->
+    <!-- INTERFAZ WASA-PEDRO -->
     <div id="pantalla-ban" class="fixed inset-0 bg-dark-900 z-[9999] flex flex-col items-center justify-center p-6 text-center hidden">
         <div class="w-24 h-24 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full flex items-center justify-center text-5xl mb-6 animate-pulse">
             <i class="ph ph-prohibit-bold"></i>
@@ -1092,147 +992,6 @@
             // Un tag por chat: las notificaciones de chats distintos no se reemplazan entre sÃ­
             mostrarNotificacionSW(titulo, texto, './', 'wasapedro-chat-' + idChat);
         }
-
-        // LÃ“GICA DE Wasapedro
-        let paginasNotebook = leerJSONLocal("notebook_pg_pages", []);
-        let idPaginaActiva = null;
-
-        function renderizarNotebook() {
-            const emptyState = document.getElementById("notebook-empty-state");
-            const workspace = document.getElementById("notebook-workspace");
-
-            if (paginasNotebook.length === 0) {
-                emptyState.classList.remove("hidden");
-                workspace.classList.add("hidden");
-                idPaginaActiva = null;
-            } else {
-                emptyState.classList.add("hidden");
-                workspace.classList.remove("hidden");
-
-                if (!idPaginaActiva || !paginasNotebook.some(p => p.id === idPaginaActiva)) {
-                    idPaginaActiva = paginasNotebook[0].id;
-                }
-                actualizarListaSidebarPaginas();
-                cargarPaginaEnEditor(idPaginaActiva);
-            }
-        }
-
-        function crearNuevaPagina() {
-            const numeroNuevaPagina = paginasNotebook.length + 1;
-            const nuevaPag = {
-                id: "pag_" + Date.now(),
-                titulo: "PÃ¡gina " + numeroNuevaPagina,
-                contenido: ""
-            };
-            paginasNotebook.push(nuevaPag);
-            localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
-            idPaginaActiva = nuevaPag.id;
-            renderizarNotebook();
-        }
-
-        function actualizarListaSidebarPaginas() {
-            const contenedor = document.getElementById("lista-paginas-notebook");
-            if (!contenedor) return;
-            contenedor.innerHTML = "";
-
-            paginasNotebook.forEach(pag => {
-                const esActiva = pag.id === idPaginaActiva;
-                const div = document.createElement("div");
-                div.className = `p-2.5 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-all ${
-                    esActiva ? 'bg-blue-50 text-blue-600 font-bold border border-blue-200 shadow-sm' : 'hover:bg-slate-50 text-slate-600 font-medium'
-                }`;
-                
-                div.innerHTML = `
-                    <div class="flex items-center gap-2 min-w-0 flex-1" onclick="seleccionarPagina('${escaparJS(pag.id)}')">
-                        <i class="ph ph-file-text text-base flex-shrink-0"></i>
-                        <span class="truncate">${escaparHTML(pag.titulo)}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="renombrarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-blue-700 rounded" title="Modificar nombre"><i class="ph ph-pencil-simple"></i></button>
-                        <button onclick="eliminarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-red-600 rounded" title="Eliminar pÃ¡gina"><i class="ph ph-trash"></i></button>
-                    </div>
-                `;
-                contenedor.appendChild(div);
-            });
-        }
-
-        function seleccionarPagina(id) {
-            idPaginaActiva = id;
-            actualizarListaSidebarPaginas();
-            cargarPaginaEnEditor(id);
-        }
-
-        function cargarPaginaEnEditor(id) {
-            const pag = paginasNotebook.find(p => p.id === id);
-            const editor = document.getElementById("editor-pagina-notebook");
-            if (pag && editor) {
-                editor.innerHTML = sanitizarContenidoNota(pag.contenido || "");
-            }
-        }
-
-        function guardarContenidoPaginaActual() {
-            if (!idPaginaActiva) return;
-            const editor = document.getElementById("editor-pagina-notebook");
-            const pag = paginasNotebook.find(p => p.id === idPaginaActiva);
-            if (pag && editor) {
-                pag.contenido = sanitizarContenidoNota(editor.innerHTML);
-                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
-            }
-        }
-
-        function renombrarPagina(e, id) {
-            e.stopPropagation();
-            const pag = paginasNotebook.find(p => p.id === id);
-            if (!pag) return;
-            const nuevoTitulo = prompt("Ingresa el nuevo nombre de la pÃ¡gina:", pag.titulo);
-            if (nuevoTitulo && nuevoTitulo.trim() !== "") {
-                pag.titulo = nuevoTitulo.trim();
-                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
-                actualizarListaSidebarPaginas();
-            }
-        }
-
-        function eliminarPagina(e, id) {
-            e.stopPropagation();
-            if (confirm("Â¿Deseas eliminar esta pÃ¡gina?")) {
-                paginasNotebook = paginasNotebook.filter(p => p.id !== id);
-                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
-                renderizarNotebook();
-            }
-        }
-
-        function ejecutarFormatoWord(comando, valor = null) {
-            document.execCommand(comando, false, valor);
-            guardarContenidoPaginaActual();
-        }
-
-        function abrirModalPlantilla() {
-            document.getElementById("modal-plantilla").classList.remove("hidden");
-            document.getElementById("input-codigo-plantilla").focus();
-        }
-
-        function cerrarModalPlantilla() {
-            document.getElementById("modal-plantilla").classList.add("hidden");
-            document.getElementById("input-codigo-plantilla").value = "";
-        }
-
-        function procesarCodigoPlantilla() {
-            const input = document.getElementById("input-codigo-plantilla");
-            const codigo = input.value.trim();
-            if (codigo === "00101") {
-                cerrarModalPlantilla();
-                document.getElementById("app-wasapedro").style.display = "none";
-                document.getElementById("contenedor-wasapedro").classList.remove("hidden");
-                document.body.className = "h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]";
-                aplicarPersonalizacion();
-                inicializarUI(); prepararNotificacionesSW(true);
-            } else {
-                alert("El cÃ³digo de plantilla no es vÃ¡lido o no existe.");
-            }
-        }
-
-        renderizarNotebook();
-        prepararNotificacionesSW();
 
         // LÃ“GICA DE WASAPEDRO
         let estatusDeBanLocal = leerJSONLocal("wasapedro_ban_status", null);
@@ -2961,8 +2720,6 @@ setTimeout(() => {
                 });
             })();
 
-            const appWasapedro = document.getElementById('app-wasapedro');
-            if (appWasapedro) appWasapedro.style.display = 'none';
             const cont = document.getElementById('contenedor-wasapedro');
             if (cont) cont.classList.remove('hidden');
             document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
@@ -4692,7 +4449,6 @@ setTimeout(() => {
             const respaldo = {
                 version: 1,
                 exportadoEn: new Date().toISOString(),
-                notebook: paginasNotebook,
                 wasapedro: {
                     nombre: miNombre,
                     avatar: miFotoB64,
@@ -4710,7 +4466,7 @@ setTimeout(() => {
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement("a");
             enlace.href = url;
-            enlace.download = `Wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            enlace.download = `wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
             enlace.click();
             URL.revokeObjectURL(url);
             if (status) {
@@ -5115,6 +4871,16 @@ setTimeout(() => {
             });
         }
         garantizarCuentaAdmin();
+
+        // ARRANQUE: WASA-PEDRO ES LA ÃšNICA INTERFAZ
+        (function arrancarInterfaz() {
+            const contenedor = document.getElementById('contenedor-wasapedro');
+            if (contenedor) contenedor.classList.remove('hidden');
+            document.body.className = "h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]";
+            try { aplicarPersonalizacion(); } catch(e) {}
+            try { inicializarUI(); } catch(e) {}
+            prepararNotificacionesSW(true);
+        })();
     </script>
 </body>
 </html>
