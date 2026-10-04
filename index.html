@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NotebookPG</title>
+    <title>Wasapedro</title>
     <link rel="manifest" href="manifest.json"> 
     <meta name="theme-color" id="meta-theme" content="#ffffff">
     
-    <!-- Librerías Externas -->
+    <!-- LibrerÃ­as Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -17,10 +17,10 @@
     <!-- PeerJS para Videollamadas y Emoji Picker -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-    <!-- EmailJS para enviar correos (código de recuperación). Keys: ver EMAILJS_* en el código -->
+    <!-- EmailJS para enviar correos (cÃ³digo de recuperaciÃ³n). Keys: ver EMAILJS_* en el cÃ³digo -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
-    <!-- Configuración Tailwind Custom -->
+    <!-- ConfiguraciÃ³n Tailwind Custom -->
     <script>
         tailwind.config = {
             theme: {
@@ -73,7 +73,7 @@
         
         .glass-panel { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
 
-        /* Personalización: fondo y modo claro */
+        /* PersonalizaciÃ³n: fondo y modo claro */
         #contenedor-wasapedro { background-size: auto; background-position: top left; background-repeat: repeat; }
         body.modo-claro { color: #0f172a; }
         body.modo-claro .bg-dark-900 { background-color: #f1f5f9 !important; }
@@ -221,14 +221,14 @@
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden select-none relative bg-slate-100 text-slate-800">
 
-    <!-- INTERFAZ PRINCIPAL: NOTEBOOKPG -->
-    <div id="app-notebook-pg" class="fixed inset-0 flex flex-col bg-slate-100 z-[500]">
+    <!-- INTERFAZ PRINCIPAL: Wasapedro -->
+    <div id="app-wasapedro" class="fixed inset-0 flex flex-col bg-slate-100 z-[500]">
         <header class="h-14 bg-white border-b border-slate-200 px-6 flex justify-between items-center shadow-sm flex-shrink-0">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
                     <i class="ph ph-notebook"></i>
                 </div>
-                <h1 class="font-bold text-slate-800 text-lg tracking-tight">NotebookPG</h1>
+                <h1 class="font-bold text-slate-800 text-lg tracking-tight">Wasapedro</h1>
             </div>
             
             <button onclick="abrirModalPlantilla()" class="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3.5 py-2 rounded-xl transition-all border border-slate-200">
@@ -241,19 +241,19 @@
             <div class="w-20 h-20 bg-blue-50 border border-blue-100 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mb-4 shadow-sm">
                 <i class="ph ph-notebook"></i>
             </div>
-            <h2 class="text-xl font-bold text-slate-800 mb-1">No hay páginas</h2>
-            <p class="text-xs text-slate-500 max-w-sm mb-6">Aún no has creado ninguna página de anotaciones. Empieza agregando una nueva página a tu libreta.</p>
+            <h2 class="text-xl font-bold text-slate-800 mb-1">No hay pÃ¡ginas</h2>
+            <p class="text-xs text-slate-500 max-w-sm mb-6">AÃºn no has creado ninguna pÃ¡gina de anotaciones. Empieza agregando una nueva pÃ¡gina a tu libreta.</p>
             <button onclick="crearNuevaPagina()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2 transition-all active:scale-[0.98]">
                 <i class="ph ph-plus-circle text-lg"></i>
-                <span>Agregar página</span>
+                <span>Agregar pÃ¡gina</span>
             </button>
         </div>
 
         <div id="notebook-workspace" class="flex-1 flex overflow-hidden hidden">
             <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
                 <div class="p-3 border-b border-slate-100 flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Mis Páginas</span>
-                    <button onclick="crearNuevaPagina()" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Agregar Página">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Mis PÃ¡ginas</span>
+                    <button onclick="crearNuevaPagina()" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Agregar PÃ¡gina">
                         <i class="ph ph-plus-bold text-base"></i>
                     </button>
                 </div>
@@ -269,13 +269,13 @@
                     
                     <div class="h-5 w-px bg-slate-200 mx-1"></div>
                     
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<h1>')" title="Título" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H1</button>
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<h2>')" title="Subtítulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H2</button>
-                    <button onclick="ejecutarFormatoWord('formatBlock', '<p>')" title="Párrafo normal" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg text-xs font-semibold">P</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h1>')" title="TÃ­tulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H1</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h2>')" title="SubtÃ­tulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H2</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<p>')" title="PÃ¡rrafo normal" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg text-xs font-semibold">P</button>
                     
                     <div class="h-5 w-px bg-slate-200 mx-1"></div>
 
-                    <button onclick="ejecutarFormatoWord('insertUnorderedList')" title="Lista de viñetas" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-bullets text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('insertUnorderedList')" title="Lista de viÃ±etas" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-bullets text-lg"></i></button>
                     <button onclick="ejecutarFormatoWord('insertOrderedList')" title="Lista numerada" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-numbers text-lg"></i></button>
                     
                     <div class="h-5 w-px bg-slate-200 mx-1"></div>
@@ -305,8 +305,8 @@
                 </h3>
                 <button onclick="cerrarModalPlantilla()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i class="ph ph-x text-lg"></i></button>
             </div>
-            <p class="text-xs text-slate-500 mb-4">Ingrese el código de la plantilla para aplicarla a su cuaderno de notas.</p>
-            <input type="text" id="input-codigo-plantilla" placeholder="Código de plantilla..." class="w-full bg-slate-50 border border-slate-300 text-sm text-slate-800 rounded-xl p-3 mb-4 focus:outline-none focus:border-blue-500 transition-all">
+            <p class="text-xs text-slate-500 mb-4">Ingrese el cÃ³digo de la plantilla para aplicarla a su cuaderno de notas.</p>
+            <input type="text" id="input-codigo-plantilla" placeholder="CÃ³digo de plantilla..." class="w-full bg-slate-50 border border-slate-300 text-sm text-slate-800 rounded-xl p-3 mb-4 focus:outline-none focus:border-blue-500 transition-all">
             <div class="flex gap-2 justify-end">
                 <button onclick="cerrarModalPlantilla()" class="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
                 <button onclick="procesarCodigoPlantilla()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all">Cargar</button>
@@ -332,8 +332,8 @@
         <div id="contenedor-candado" class="w-28 h-28 bg-red-500/10 border border-red-500/30 text-red-500 rounded-full flex items-center justify-center text-6xl mb-6 transition-all duration-700">
             <i id="icono-candado" class="ph ph-lock-key-fill transition-all duration-500"></i>
         </div>
-        <h2 class="text-3xl font-extrabold text-white mb-2">¡Cuenta Desbaneada!</h2>
-        <p class="text-gray-400 text-sm">Redirigiendo al menú principal...</p>
+        <h2 class="text-3xl font-extrabold text-white mb-2">Â¡Cuenta Desbaneada!</h2>
+        <p class="text-gray-400 text-sm">Redirigiendo al menÃº principal...</p>
     </div>
 
     <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0 hidden">
@@ -347,11 +347,11 @@
                 </div>
             </div>
             <h1 class="text-4xl font-extrabold text-white mb-1 tracking-tight">Wasa<span class="text-brand-500 theme-text">Pedro</span></h1>
-            <p class="text-gray-400 text-sm mb-7">Conexión en tiempo real ultra-rápida</p>
+            <p class="text-gray-400 text-sm mb-7">ConexiÃ³n en tiempo real ultra-rÃ¡pida</p>
 
             <div id="auth-vista-inicio" class="space-y-3">
                 <button onclick="mostrarVistaAuth('login')" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
-                    <i class="ph ph-sign-in"></i> Iniciar Sesión
+                    <i class="ph ph-sign-in"></i> Iniciar SesiÃ³n
                 </button>
                 <button onclick="mostrarVistaAuth('registro')" class="w-full bg-dark-700 hover:bg-dark-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
                     <i class="ph ph-user-plus"></i> Registrarse
@@ -361,99 +361,99 @@
             <div id="auth-vista-login" class="hidden text-left space-y-3">
                 <input type="text" id="input-login-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
                 <div class="relative">
-                    <input type="password" id="input-login-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                    <button type="button" onclick="alternarVisibilidadPass('input-login-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                    <input type="password" id="input-login-pass" placeholder="ContraseÃ±a" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-login-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseÃ±a" tabindex="-1">
                         <i class="ph ph-eye text-lg pointer-events-none"></i>
                     </button>
                 </div>
-                <button type="button" onclick="mostrarVistaAuth('recuperar')" id="btn-olvidado" class="w-full text-right text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2 transition-all -mt-1 py-1">¿Has olvidado tu contraseña?</button>
-                <p id="error-login" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Usuario o contraseña incorrectos.</p>
+                <button type="button" onclick="mostrarVistaAuth('recuperar')" id="btn-olvidado" class="w-full text-right text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2 transition-all -mt-1 py-1">Â¿Has olvidado tu contraseÃ±a?</button>
+                <p id="error-login" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ Usuario o contraseÃ±a incorrectos.</p>
                 <button id="btn-login" onclick="procesarLogin()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
                     <i class="ph ph-sign-in"></i> Entrar
                 </button>
-                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver</button>
             </div>
 
             <div id="auth-vista-registro" class="hidden text-left space-y-3">
                 <input type="text" id="input-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                <p id="error-registro" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este nombre ya está en uso.</p>
-                <input type="email" id="input-recuperar-email" placeholder="Correo electrónico (Obligatorio)" required class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                <p id="error-email" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este correo ya está registrado en otra cuenta.</p>
+                <p id="error-registro" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ Este nombre ya estÃ¡ en uso.</p>
+                <input type="email" id="input-recuperar-email" placeholder="Correo electrÃ³nico (Obligatorio)" required class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-email" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ Este correo ya estÃ¡ registrado en otra cuenta.</p>
                 <div class="relative">
-                    <input type="password" id="input-registro-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                    <button type="button" onclick="alternarVisibilidadPass('input-registro-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                    <input type="password" id="input-registro-pass" placeholder="ContraseÃ±a" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-registro-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseÃ±a" tabindex="-1">
                         <i class="ph ph-eye text-lg pointer-events-none"></i>
                     </button>
                 </div>
-                <p id="error-registro-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ La contraseña debe tener al menos 4 caracteres.</p>
+                <p id="error-registro-pass" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ La contraseÃ±a debe tener al menos 4 caracteres.</p>
                 <button id="btn-guardar" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
                     <i class="ph ph-user-plus"></i> Crear Cuenta
                 </button>
-                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+                <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver</button>
             </div>
 
             <div id="auth-vista-recuperar" class="hidden text-left space-y-3">
-                <h3 class="text-white font-bold text-lg text-center">Recuperar contraseña <i class="ph ph-password text-brand-500 align-middle"></i></h3>
-                <p class="text-gray-400 text-xs text-center -mt-1">Ingresa tu nombre de usuario y el correo con el que te registraste. Te enviaremos un código para verificar que la cuenta es tuya.</p>
+                <h3 class="text-white font-bold text-lg text-center">Recuperar contraseÃ±a <i class="ph ph-password text-brand-500 align-middle"></i></h3>
+                <p class="text-gray-400 text-xs text-center -mt-1">Ingresa tu nombre de usuario y el correo con el que te registraste. Te enviaremos un cÃ³digo para verificar que la cuenta es tuya.</p>
                 <input type="text" id="input-recuperar-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                <input type="email" id="input-recuperar-correo" placeholder="Correo electrónico registrado" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                <p id="error-recuperar" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ El nombre y el correo no coinciden.</p>
+                <input type="email" id="input-recuperar-correo" placeholder="Correo electrÃ³nico registrado" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-recuperar" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ El nombre y el correo no coinciden.</p>
                 <button id="btn-enviar-codigo" onclick="enviarCodigoRecuperacion()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
-                    <i class="ph ph-envelope-simple"></i> Enviar código al correo
+                    <i class="ph ph-envelope-simple"></i> Enviar cÃ³digo al correo
                 </button>
-                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver</button>
             </div>
 
             <div id="auth-vista-codigo" class="hidden text-left space-y-3">
-                <h3 class="text-white font-bold text-lg text-center">Código de verificación</h3>
-                <p id="texto-codigo-enviado" class="text-gray-400 text-xs text-center -mt-1">Enviamos un código a tu correo.</p>
-                <input type="text" id="input-recuperar-codigo" placeholder="Código de 6 dígitos" maxlength="6" inputmode="numeric" autocomplete="one-time-code" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 text-center text-lg tracking-[0.5em] font-bold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-500">
-                <p id="error-codigo" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Código incorrecto.</p>
+                <h3 class="text-white font-bold text-lg text-center">CÃ³digo de verificaciÃ³n</h3>
+                <p id="texto-codigo-enviado" class="text-gray-400 text-xs text-center -mt-1">Enviamos un cÃ³digo a tu correo.</p>
+                <input type="text" id="input-recuperar-codigo" placeholder="CÃ³digo de 6 dÃ­gitos" maxlength="6" inputmode="numeric" autocomplete="one-time-code" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 text-center text-lg tracking-[0.5em] font-bold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-500">
+                <p id="error-codigo" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ CÃ³digo incorrecto.</p>
                 <button id="btn-verificar-codigo" onclick="verificarCodigoRecuperacion()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
-                    <i class="ph ph-check-circle"></i> Verificar código
+                    <i class="ph ph-check-circle"></i> Verificar cÃ³digo
                 </button>
                 <div id="buzon-codigo" class="hidden bg-dark-800/60 border border-dark-700 rounded-xl p-3 text-xs">
-                    <p class="text-gray-400 mb-1 flex items-center gap-1"><i class="ph ph-inbox text-brand-500"></i> ¿No te llegó el correo? Revisa el buzón del colegio o el modo demo:</p>
+                    <p class="text-gray-400 mb-1 flex items-center gap-1"><i class="ph ph-inbox text-brand-500"></i> Â¿No te llegÃ³ el correo? Revisa el buzÃ³n del colegio o el modo demo:</p>
                     <div class="bg-dark-900 border border-dark-800 rounded-lg p-2 text-center">
-                        <button type="button" onclick="leerCodigoBuzon()" class="text-brand-400 underline hover:text-brand-300 transition-colors">Ver código en el buzón</button>
+                        <button type="button" onclick="leerCodigoBuzon()" class="text-brand-400 underline hover:text-brand-300 transition-colors">Ver cÃ³digo en el buzÃ³n</button>
                     </div>
                 </div>
-                <button onclick="mostrarVistaAuth('recuperar')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+                <button onclick="mostrarVistaAuth('recuperar')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver</button>
             </div>
 
             <div id="auth-vista-acciones" class="hidden text-left space-y-3 text-center">
                 <div class="w-16 h-16 mx-auto bg-green-500/10 text-green-400 rounded-full flex items-center justify-center text-3xl animar-latido"><i class="ph ph-shield-check"></i></div>
-                <h3 class="text-white font-bold text-lg">¡Correo verificado!</h3>
-                <p class="text-gray-400 text-xs -mt-1">Confirmamos que la cuenta es tuya. Elige qué quieres hacer.</p>
+                <h3 class="text-white font-bold text-lg">Â¡Correo verificado!</h3>
+                <p class="text-gray-400 text-xs -mt-1">Confirmamos que la cuenta es tuya. Elige quÃ© quieres hacer.</p>
                 <button onclick="cambiarContrasenaRecuperada()" class="w-full bg-dark-700 hover:bg-dark-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                    <i class="ph ph-key"></i> Cambiar contraseña
+                    <i class="ph ph-key"></i> Cambiar contraseÃ±a
                 </button>
                 <button onclick="ingresarSinContrasena()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
                     <i class="ph ph-sign-in"></i> Ingresar al Wasapedro
                 </button>
-                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver al inicio</button>
+                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver al inicio</button>
             </div>
 
             <div id="auth-vista-nueva-pass" class="hidden text-left space-y-3">
-                <h3 class="text-white font-bold text-lg text-center">Nueva contraseña <i class="ph ph-lock text-brand-500 align-middle"></i></h3>
-                <p class="text-gray-400 text-xs text-center -mt-1">Elige una contraseña nueva (mínimo 4 caracteres).</p>
+                <h3 class="text-white font-bold text-lg text-center">Nueva contraseÃ±a <i class="ph ph-lock text-brand-500 align-middle"></i></h3>
+                <p class="text-gray-400 text-xs text-center -mt-1">Elige una contraseÃ±a nueva (mÃ­nimo 4 caracteres).</p>
                 <div class="relative">
-                    <input type="password" id="input-nueva-pass" placeholder="Contraseña nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                    <input type="password" id="input-nueva-pass" placeholder="ContraseÃ±a nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseÃ±a" tabindex="-1">
                         <i class="ph ph-eye text-lg pointer-events-none"></i>
                     </button>
                 </div>
                 <div class="relative">
-                    <input type="password" id="input-nueva-pass2" placeholder="Repetir contraseña nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass2', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                    <input type="password" id="input-nueva-pass2" placeholder="Repetir contraseÃ±a nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass2', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseÃ±a" tabindex="-1">
                         <i class="ph ph-eye text-lg pointer-events-none"></i>
                     </button>
                 </div>
-                <p id="error-nueva-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Las contraseñas no coinciden.</p>
+                <p id="error-nueva-pass" class="text-xs text-red-400 pl-2 hidden transition-all">âš ï¸ Las contraseÃ±as no coinciden.</p>
                 <button id="btn-guardar-nueva-pass" onclick="guardarNuevaContrasena()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
-                    <i class="ph ph-key"></i> Guardar contraseña
+                    <i class="ph ph-key"></i> Guardar contraseÃ±a
                 </button>
-                <button onclick="cambiarContrasenaRecuperada()" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+                <button onclick="cambiarContrasenaRecuperada()" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">â† Volver</button>
             </div>
         </main>
 
@@ -612,10 +612,10 @@
 
             <div id="panel-permiso-camara" class="absolute inset-0 z-40 bg-dark-900/95 flex flex-col items-center justify-center gap-4 p-6 hidden">
                 <i class="ph ph-video-camera-slash text-5xl text-brand-500"></i>
-                <h3 class="text-white text-lg font-bold text-center">Necesitamos tu cámara y micrófono</h3>
-                <p class="text-gray-400 text-sm text-center max-w-xs">El navegador bloqueó el acceso automático al abrir esta ventana. Toca el botón para activar cámara y micrófono.</p>
+                <h3 class="text-white text-lg font-bold text-center">Necesitamos tu cÃ¡mara y micrÃ³fono</h3>
+                <p class="text-gray-400 text-sm text-center max-w-xs">El navegador bloqueÃ³ el acceso automÃ¡tico al abrir esta ventana. Toca el botÃ³n para activar cÃ¡mara y micrÃ³fono.</p>
                 <button id="btn-reintentar-camara" class="bg-brand-600 hover:bg-brand-500 text-white font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
-                    <i class="ph ph-camera text-lg"></i> Activar cámara y micrófono
+                    <i class="ph ph-camera text-lg"></i> Activar cÃ¡mara y micrÃ³fono
                 </button>
                 <button onclick="finalizarLlamada(false)" class="text-gray-300 underline text-sm hover:text-white">Cancelar llamada</button>
             </div>
@@ -625,7 +625,7 @@
                 <div id="fallback-foto-remoto" class="absolute inset-0 bg-dark-800 flex flex-col items-center justify-center gap-2 hidden z-10">
                     <img id="img-fallback-remoto" src="" class="w-28 h-28 rounded-full object-cover border-2 border-dark-600 hidden">
                     <div id="txt-fallback-remoto" class="w-28 h-28 bg-dark-700 text-brand-500 font-bold text-3xl rounded-full flex items-center justify-center border border-dark-600 hidden">?</div>
-                    <span id="label-fallback-remoto" class="text-gray-300 text-xs font-semibold">Cámara apagada</span>
+                    <span id="label-fallback-remoto" class="text-gray-300 text-xs font-semibold">CÃ¡mara apagada</span>
                 </div>
             </div>
 
@@ -641,10 +641,10 @@
         </div>
 
         <div class="p-6 bg-dark-800/90 border-t border-dark-700 flex justify-center items-center gap-4 md:gap-6 z-30">
-            <button id="btn-toggle-mic" onclick="toggleMicrofonoLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Micrófono">
+            <button id="btn-toggle-mic" onclick="toggleMicrofonoLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="MicrÃ³fono">
                 <i id="icono-mic" class="ph ph-microphone text-xl"></i>
             </button>
-            <button id="btn-toggle-cam" onclick="toggleCamaraLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Cámara">
+            <button id="btn-toggle-cam" onclick="toggleCamaraLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="CÃ¡mara">
                 <i id="icono-cam" class="flex items-center justify-center">
                     <svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="56" y="84" width="80" height="88" rx="24"/>
@@ -652,7 +652,7 @@
                     </svg>
                 </i>
             </button>
-            <button id="btn-flip-camara" onclick="voltearCamaraLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Voltear cámara">
+            <button id="btn-flip-camara" onclick="voltearCamaraLlamada()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Voltear cÃ¡mara">
                 <i class="ph ph-arrows-clockwise text-xl"></i>
             </button>
             <button id="btn-toggle-screen" onclick="toggleCompartirPantalla()" class="w-12 h-12 rounded-full bg-dark-700 text-white flex items-center justify-center hover:bg-dark-600 transition-all" title="Compartir Pantalla">
@@ -697,7 +697,7 @@
     <div id="modal-compartir-pantalla" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[130]">
         <div class="bg-dark-800 border border-dark-700 w-full max-w-sm rounded-3xl p-5 shadow-2xl animar-entrada">
             <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="ph ph-presentation-chart text-brand-500 theme-text text-lg"></i> Compartir pantalla</h2>
-            <p class="text-[11px] text-gray-400 mt-1 mb-4">Luego podrás elegir una pestaña, una ventana o todo el escritorio.</p>
+            <p class="text-[11px] text-gray-400 mt-1 mb-4">Luego podrÃ¡s elegir una pestaÃ±a, una ventana o todo el escritorio.</p>
             <label class="flex items-center justify-between bg-dark-900 border border-dark-700 rounded-xl px-3 py-3 cursor-pointer">
                 <span class="flex items-center gap-2 text-xs text-white font-medium"><i class="ph ph-speaker-high text-base text-brand-400"></i> Compartir sonido del sistema</span>
                 <input type="checkbox" id="switch-audio-pantalla" class="accent-brand-500 w-4 h-4">
@@ -725,7 +725,7 @@
     <div id="modal-grupo" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-dark-800 border border-dark-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl animar-entrada">
             <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-users-three text-brand-500 theme-text text-xl"></i> Crear Nuevo Grupo</h2>
-            <p class="text-xs text-gray-400 mb-5">Como creador tendrás control administrativo total sobre la foto y los miembros.</p>
+            <p class="text-xs text-gray-400 mb-5">Como creador tendrÃ¡s control administrativo total sobre la foto y los miembros.</p>
             <input type="text" id="input-nombre-grupo" placeholder="Nombre del grupo..." class="w-full bg-dark-900 border border-dark-700 text-sm text-white rounded-xl p-3 mb-5 focus:outline-none focus:border-brand-500">
             <div class="flex gap-2 justify-end">
                 <button onclick="cerrarModalGrupo()" class="px-4 py-2 text-xs text-gray-400 hover:text-white rounded-lg hover:bg-dark-700 transition-all">Cancelar</button>
@@ -737,7 +737,7 @@
     <div id="modal-agregar-miembros" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-dark-800 border border-dark-700 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col max-h-[80vh] animar-entrada">
             <h2 class="text-sm font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-user-plus text-brand-500 theme-text"></i> Agregar Miembros al Grupo</h2>
-            <p class="text-[11px] text-gray-400 mb-3">Añade a tus contactos guardados.</p>
+            <p class="text-[11px] text-gray-400 mb-3">AÃ±ade a tus contactos guardados.</p>
             <div class="flex-1 overflow-y-auto space-y-2" id="lista-contactos-para-grupo"></div>
             <div class="flex justify-end pt-3 border-t border-dark-700 mt-2">
                 <button onclick="document.getElementById('modal-agregar-miembros').classList.add('hidden')" class="px-4 py-2 text-xs text-gray-400 hover:text-white bg-dark-700 rounded-lg">Finalizar</button>
@@ -806,7 +806,7 @@
                             <span id="contador-reportes" class="hidden px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9px] font-bold"></span>
                         </button>
                         <button onclick="cerrarSesionLimpiar()" class="col-span-2 bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-all">
-                            Cerrar Sesión
+                            Cerrar SesiÃ³n
                         </button>
                     </div>
                     <p id="status-cloud" class="text-[10px] italic text-brand-400 theme-text text-center h-3"></p>
@@ -836,7 +836,7 @@
                 <div>
                     <span class="text-[10px] text-gray-400 block mb-2">Fondo</span>
                     <div class="grid grid-cols-3 gap-2 mb-2">
-                        <button id="btn-fondo-patron" onclick="cambiarFondoTipo('patron')" class="py-2 rounded-lg text-xs border transition-all">Patrón</button>
+                        <button id="btn-fondo-patron" onclick="cambiarFondoTipo('patron')" class="py-2 rounded-lg text-xs border transition-all">PatrÃ³n</button>
                         <button id="btn-fondo-color" onclick="cambiarFondoTipo('color')" class="py-2 rounded-lg text-xs border transition-all">Color</button>
                         <button id="btn-fondo-imagen" onclick="cambiarFondoTipo('imagen')" class="py-2 rounded-lg text-xs border transition-all">Imagen</button>
                     </div>
@@ -926,7 +926,7 @@
                 const valor = localStorage.getItem(clave);
                 return valor ? JSON.parse(valor) : valorPredeterminado;
             } catch (error) {
-                console.warn(`No se pudo leer ${clave}; se usará el valor predeterminado.`, error);
+                console.warn(`No se pudo leer ${clave}; se usarÃ¡ el valor predeterminado.`, error);
                 return valorPredeterminado;
             }
         }
@@ -1031,7 +1031,7 @@
             const listo = await prepararNotificacionesSW(false);
             const estado = document.getElementById('status-cloud');
             if (listo && estado) {
-                estado.textContent = '¡Notificaciones activadas!';
+                estado.textContent = 'Â¡Notificaciones activadas!';
                 setTimeout(() => { estado.textContent = ''; }, 3000);
             }
         }
@@ -1059,7 +1059,7 @@
                     renotify: true
                 });
             } catch (error) {
-                console.warn('No se pudo mostrar la notificación:', error);
+                console.warn('No se pudo mostrar la notificaciÃ³n:', error);
             }
         }
 
@@ -1072,28 +1072,28 @@
             if (data.texto && data.texto.trim()) {
                 texto = data.texto.trim();
             } else if (data.urlArchivo) {
-                texto = '📎 Te envió un archivo';
+                texto = 'ðŸ“Ž Te enviÃ³ un archivo';
             } else if (data.tipoMedia === 'gif') {
-                texto = '🎞️ Te envió un GIF';
+                texto = 'ðŸŽžï¸ Te enviÃ³ un GIF';
             } else if (data.tipoMedia === 'sticker') {
-                texto = '🪩 Te envió un sticker';
+                texto = 'ðŸª© Te enviÃ³ un sticker';
             } else if (data.tipoMedia === 'audio') {
-                texto = '🎤 Te envió una nota de voz';
+                texto = 'ðŸŽ¤ Te enviÃ³ una nota de voz';
             } else {
-                texto = '💬 Nuevo mensaje recibido';
+                texto = 'ðŸ’¬ Nuevo mensaje recibido';
             }
 
-            if (texto.length > 140) texto = texto.slice(0, 137) + '…';
+            if (texto.length > 140) texto = texto.slice(0, 137) + 'â€¦';
 
             const titulo = esGrupo
-                ? `${nombre} · ${(datosGrupos[idChat] && datosGrupos[idChat].nombre) || 'Grupo'}`
+                ? `${nombre} Â· ${(datosGrupos[idChat] && datosGrupos[idChat].nombre) || 'Grupo'}`
                 : nombre;
 
-            // Un tag por chat: las notificaciones de chats distintos no se reemplazan entre sí
+            // Un tag por chat: las notificaciones de chats distintos no se reemplazan entre sÃ­
             mostrarNotificacionSW(titulo, texto, './', 'wasapedro-chat-' + idChat);
         }
 
-        // LÓGICA DE NOTEBOOKPG
+        // LÃ“GICA DE Wasapedro
         let paginasNotebook = leerJSONLocal("notebook_pg_pages", []);
         let idPaginaActiva = null;
 
@@ -1121,7 +1121,7 @@
             const numeroNuevaPagina = paginasNotebook.length + 1;
             const nuevaPag = {
                 id: "pag_" + Date.now(),
-                titulo: "Página " + numeroNuevaPagina,
+                titulo: "PÃ¡gina " + numeroNuevaPagina,
                 contenido: ""
             };
             paginasNotebook.push(nuevaPag);
@@ -1149,7 +1149,7 @@
                     </div>
                     <div class="flex items-center gap-1">
                         <button onclick="renombrarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-blue-700 rounded" title="Modificar nombre"><i class="ph ph-pencil-simple"></i></button>
-                        <button onclick="eliminarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-red-600 rounded" title="Eliminar página"><i class="ph ph-trash"></i></button>
+                        <button onclick="eliminarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-red-600 rounded" title="Eliminar pÃ¡gina"><i class="ph ph-trash"></i></button>
                     </div>
                 `;
                 contenedor.appendChild(div);
@@ -1184,7 +1184,7 @@
             e.stopPropagation();
             const pag = paginasNotebook.find(p => p.id === id);
             if (!pag) return;
-            const nuevoTitulo = prompt("Ingresa el nuevo nombre de la página:", pag.titulo);
+            const nuevoTitulo = prompt("Ingresa el nuevo nombre de la pÃ¡gina:", pag.titulo);
             if (nuevoTitulo && nuevoTitulo.trim() !== "") {
                 pag.titulo = nuevoTitulo.trim();
                 localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
@@ -1194,7 +1194,7 @@
 
         function eliminarPagina(e, id) {
             e.stopPropagation();
-            if (confirm("¿Deseas eliminar esta página?")) {
+            if (confirm("Â¿Deseas eliminar esta pÃ¡gina?")) {
                 paginasNotebook = paginasNotebook.filter(p => p.id !== id);
                 localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
                 renderizarNotebook();
@@ -1221,20 +1221,20 @@
             const codigo = input.value.trim();
             if (codigo === "00101") {
                 cerrarModalPlantilla();
-                document.getElementById("app-notebook-pg").style.display = "none";
+                document.getElementById("app-wasapedro").style.display = "none";
                 document.getElementById("contenedor-wasapedro").classList.remove("hidden");
                 document.body.className = "h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]";
                 aplicarPersonalizacion();
                 inicializarUI(); prepararNotificacionesSW(true);
             } else {
-                alert("El código de plantilla no es válido o no existe.");
+                alert("El cÃ³digo de plantilla no es vÃ¡lido o no existe.");
             }
         }
 
         renderizarNotebook();
         prepararNotificacionesSW();
 
-        // LÓGICA DE WASAPEDRO
+        // LÃ“GICA DE WASAPEDRO
         let estatusDeBanLocal = leerJSONLocal("wasapedro_ban_status", null);
         if (estatusDeBanLocal) {
             if (estatusDeBanLocal.hasta && Date.now() >= estatusDeBanLocal.hasta) {
@@ -1277,7 +1277,7 @@
 
         const LOGO_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="35%" cy="30%" r="85%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient><linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><circle cx="50" cy="50" r="27" fill="url(#g)"/><path d="M24 50a27 27 0 0 1 52 0" fill="none" stroke="url(#h)" stroke-width="7" stroke-linecap="round" transform="rotate(20 50 50)"/><circle cx="75" cy="30" r="7" fill="#8b5cf6"/><circle cx="45" cy="44" r="6" fill="#bfdbfe" opacity="0.5"/></svg>');
 
-        // EmailJS: pega aquí tus claves de emailjs.com (nunca empiezan con "TU_")
+        // EmailJS: pega aquÃ­ tus claves de emailjs.com (nunca empiezan con "TU_")
         // Public Key (Account -> General), Service ID (Email Services) y Template ID (Email Templates).
         const EMAILJS_PUBLIC_KEY = "__GmjnxFujn2dWF5T";
         const EMAILJS_SERVICE_ID = "service_7qyxfx2";
@@ -1292,8 +1292,8 @@
             { nombre: 'Rosa', color: '#f43f5e' },
             { nombre: 'Naranja', color: '#f97316' },
             { nombre: 'Cian', color: '#06b6d4' },
-            { nombre: 'Ámbar', color: '#f59e0b' },
-            { nombre: 'Índigo', color: '#6366f1' },
+            { nombre: 'Ãmbar', color: '#f59e0b' },
+            { nombre: 'Ãndigo', color: '#6366f1' },
             { nombre: 'Rojo', color: '#ef4444' }
         ];
         let modoTema = localStorage.getItem("wasapedro_modo") || "oscuro";
@@ -1357,27 +1357,27 @@
         const SVG_VIDEOCAMARA_ON = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
         const SVG_VIDEOCAMARA_OFF = '<svg viewBox="0 0 256 256" width="24" height="24" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><line x1="44" y1="40" x2="212" y2="216"/><rect x="56" y="84" width="80" height="88" rx="24"/><polygon points="136,107 212,84 212,172 136,149"/></svg>';
 
-        const IMG_PLACEHOLDER_MEDIA = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="100%" height="100%" rx="12" fill="#27272a"/><text x="50%" y="46%" font-size="26" text-anchor="middle">' + '🎞️' + '</text><text x="50%" y="70%" font-size="11" fill="#a1a1aa" text-anchor="middle">Contenido no disponible</text></svg>');
+        const IMG_PLACEHOLDER_MEDIA = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="100%" height="100%" rx="12" fill="#27272a"/><text x="50%" y="46%" font-size="26" text-anchor="middle">' + 'ðŸŽžï¸' + '</text><text x="50%" y="70%" font-size="11" fill="#a1a1aa" text-anchor="middle">Contenido no disponible</text></svg>');
 
         function svgData(svgInterno) {
             return 'data:image/svg+xml;charset=utf8,' + encodeURIComponent(svgInterno);
         }
 
         const MOCK_GIFS = [
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g1)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -30;0 0" dur="0.8s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">🎉</text></g></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dc2626"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g2)"/><g><animate attributeName="opacity" values="1;0.45;1" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">❤️</text></g></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g3)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;8 0;-8 0;0 0" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">👍</text></g></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ea580c"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g4)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;-10 0;10 0;0 0" dur="0.7s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">🤣</text></g></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#db2777"/><stop offset="1" stop-color="#f9a8d4"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g5)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -16;0 0" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.7;1" dur="1s" repeatCount="indefinite"/><text x="240" y="230" font-size="180" text-anchor="middle">😍</text></g></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g6)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -34;0 0" dur="0.6s" repeatCount="indefinite"/><text x="240" y="230" font-size="170" text-anchor="middle">🚀</text></g></svg>')
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g1)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -30;0 0" dur="0.8s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">ðŸŽ‰</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dc2626"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g2)"/><g><animate attributeName="opacity" values="1;0.45;1" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">â¤ï¸</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g3)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;8 0;-8 0;0 0" dur="0.9s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">ðŸ‘</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ea580c"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g4)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;-10 0;10 0;0 0" dur="0.7s" repeatCount="indefinite"/><text x="240" y="225" font-size="180" text-anchor="middle">ðŸ¤£</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#db2777"/><stop offset="1" stop-color="#f9a8d4"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g5)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -16;0 0" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.7;1" dur="1s" repeatCount="indefinite"/><text x="240" y="230" font-size="180" text-anchor="middle">ðŸ˜</text></g></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320"><defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs><rect width="480" height="320" rx="30" fill="url(#g6)"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -34;0 0" dur="0.6s" repeatCount="indefinite"/><text x="240" y="230" font-size="170" text-anchor="middle">ðŸš€</text></g></svg>')
         ];
         const MOCK_STICKERS = [
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fde68a"/><text x="120" y="160" font-size="140" text-anchor="middle">😎</text></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fed7aa"/><text x="120" y="160" font-size="140" text-anchor="middle">🐻</text></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fbcfe8"/><text x="120" y="160" font-size="140" text-anchor="middle">🎂</text></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#e9d5ff"/><text x="120" y="160" font-size="140" text-anchor="middle">👑</text></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fef3c7"/><text x="120" y="160" font-size="140" text-anchor="middle">💡</text></svg>'),
-            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#bae6fd"/><text x="120" y="160" font-size="140" text-anchor="middle">🌈</text></svg>')
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fde68a"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸ˜Ž</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fed7aa"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸ»</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fbcfe8"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸŽ‚</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#e9d5ff"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸ‘‘</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#fef3c7"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸ’¡</text></svg>'),
+            svgData('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect width="240" height="240" rx="40" fill="#bae6fd"/><text x="120" y="160" font-size="140" text-anchor="middle">ðŸŒˆ</text></svg>')
         ];
 
         let clienteValidacion = null;
@@ -1385,7 +1385,7 @@
             if (clienteValidacion) { try { clienteValidacion.end(true); } catch(e){} }
             const broker = LISTA_SERVIDORES_MQTT[idxValidacion];
             idxValidacion = (idxValidacion + 1) % LISTA_SERVIDORES_MQTT.length;
-            clienteValidacion = mqtt.connect(broker.url, { clean: true, reconnectPeriod: 0, connectTimeout: 6000 });
+            clienteValidacion = mqtt.connect(broker.url, { clean: true, reconnectPeriod: 0, connectTimeout: 12000 });
             const cvPropio = clienteValidacion;
             clienteValidacion.on('connect', () => {
                 if (clienteValidacion !== cvPropio) return;
@@ -1409,7 +1409,7 @@
                     try { clienteValidacion.end(true); } catch(e) {}
                     setTimeout(conectarValidacion, 300);
                 }
-            }, 5000);
+            }, 10000);
         })();
 
         function mostrarPantallaBanAbsoluto(tipo, razon, hasta) {
@@ -1419,7 +1419,7 @@
             const elTiempo = document.getElementById("pantalla-ban-tiempo");
             if (elTiempo) {
                 if (hasta) {
-                    elTiempo.textContent = "Se eliminará automáticamente en " + formatearTiempoRestante(Math.max(0, hasta - Date.now()));
+                    elTiempo.textContent = "Se eliminarÃ¡ automÃ¡ticamente en " + formatearTiempoRestante(Math.max(0, hasta - Date.now()));
                     elTiempo.classList.remove("hidden");
                 } else {
                     elTiempo.classList.add("hidden");
@@ -1475,7 +1475,7 @@
             if (propio && propio.hasta) {
                 const elTiempo = document.getElementById("pantalla-ban-tiempo");
                 if (elTiempo) {
-                    elTiempo.textContent = "Se eliminará automáticamente en " + formatearTiempoRestante(Math.max(0, propio.hasta - Date.now()));
+                    elTiempo.textContent = "Se eliminarÃ¡ automÃ¡ticamente en " + formatearTiempoRestante(Math.max(0, propio.hasta - Date.now()));
                 }
             }
             if (esAdmin) {
@@ -1611,7 +1611,7 @@ setTimeout(() => {
                     mediaRecorder.start();
                     estaGrabandoAudio = true;
                     document.getElementById("icono-audio").className = "ph ph-stop text-red-500 animate-pulse text-lg";
-                }).catch(() => alert("No se pudo acceder al micrófono."));
+                }).catch(() => alert("No se pudo acceder al micrÃ³fono."));
             } else {
                 mediaRecorder.stop();
                 estaGrabandoAudio = false;
@@ -1661,7 +1661,7 @@ setTimeout(() => {
         function enviarMediaEspecial(contenido, tipoMedia) {
             if (!chatActivo) return;
             if (typeof contenido === 'string' && contenido.length > MAX_TAMANO_ARCHIVO * 1.4) {
-                alert("El contenido multimedia supera el límite de 5 MB.");
+                alert("El contenido multimedia supera el lÃ­mite de 5 MB.");
                 return;
             }
             const idUnicoMsg = "msg_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
@@ -1678,7 +1678,7 @@ setTimeout(() => {
             const esGrupo = datosGrupos[chatActivo];
             if (esGrupo) payload.nombreGrupo = datosGrupos[chatActivo].nombre;
 
-            // Aviso de multimedia para el destinatario (persiste aunque esté offline)
+            // Aviso de multimedia para el destinatario (persiste aunque estÃ© offline)
             if (esGrupo) {
                 publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false, tipoMedia, payload);
             } else {
@@ -1758,8 +1758,8 @@ setTimeout(() => {
             tipo.textContent = esGrupo ? 'Videollamada grupal entrante' : 'Videollamada entrante';
             nombre.textContent = obtenerNombreLlamada(emisor);
             sub.textContent = esGrupo
-                ? `${datosGrupos[data.idChat]?.nombre || 'Grupo'} · Te está llamando ${emisor}`
-                : 'Te está llamando por videollamada';
+                ? `${datosGrupos[data.idChat]?.nombre || 'Grupo'} Â· Te estÃ¡ llamando ${emisor}`
+                : 'Te estÃ¡ llamando por videollamada';
 
             if (foto) {
                 txt.classList.add('hidden');
@@ -1848,7 +1848,7 @@ setTimeout(() => {
             } catch (e) {
                 llamadaEnCurso = false;
                 finalizarLlamada(false);
-                alert('No se pudo acceder a la cámara o al micrófono.');
+                alert('No se pudo acceder a la cÃ¡mara o al micrÃ³fono.');
             }
         }
 
@@ -1937,7 +1937,7 @@ setTimeout(() => {
                         ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">`
                         : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`)}
                     <div class="participante-overlay">
-                        <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}${esYo ? ' (Tú)' : ''}</div>
+                        <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}${esYo ? ' (TÃº)' : ''}</div>
                         <div class="estado-participante">${esYo ? 'Conectado' : (conectado ? 'En llamada' : 'Esperando...')}</div>
                     </div>
                     ${presentadorActual === usuario ? '<div class="pantalla-badge"><i class="ph ph-presentation-chart text-[10px]"></i> Pantalla</div>' : ''}
@@ -1997,7 +1997,7 @@ setTimeout(() => {
             const card = document.getElementById(`participante-llamada-${CSS.escape(usuario)}`);
             if (card) {
                 const estado = card.querySelector('.estado-participante');
-                if (estado) estado.textContent = 'Salió de la llamada';
+                if (estado) estado.textContent = 'SaliÃ³ de la llamada';
                 card.querySelectorAll('video').forEach(v => { try { v.srcObject = null; } catch(e) {} });
                 const video = card.querySelector('video');
                 if (video) video.remove();
@@ -2018,7 +2018,7 @@ setTimeout(() => {
                 try {
                     peerInstance.once('open', (id) => { console.info('[wasapedro] peer conectado:', id); fin(); });
                 } catch(e) { fin(); }
-                setTimeout(() => { console.warn('[wasapedro] el peer tardó más de 6s en abrir:', miPeerId); fin(); }, 6000);
+                setTimeout(() => { console.warn('[wasapedro] el peer tardÃ³ mÃ¡s de 6s en abrir:', miPeerId); fin(); }, 6000);
             });
         }
 
@@ -2077,7 +2077,7 @@ setTimeout(() => {
                     return;
                 }
 
-                // Nunca abrimos una llamada automáticamente: solo aceptamos después del botón verde.
+                // Nunca abrimos una llamada automÃ¡ticamente: solo aceptamos despuÃ©s del botÃ³n verde.
                 if (!llamadaEnCurso) {
                     llamadaPendientePorPeer = call;
                     const datosEntrada = {
@@ -2170,7 +2170,7 @@ setTimeout(() => {
             setTimeout(() => {
                 if (!llamadaEnCurso || esLlamadaGrupal || llamadasStreams[participante] || llamadasPeers[participante]) return;
                 const textoEstado = document.getElementById('texto-estado-llamada');
-                if (textoEstado) textoEstado.textContent = 'Conectando por nuestra cuenta…';
+                if (textoEstado) textoEstado.textContent = 'Conectando por nuestra cuentaâ€¦';
                 console.info('[wasapedro] marcado inverso hacia', participante, peerId || ('wasapedro_peer_' + participante));
                 establecerLlamada(participante, { peerId: peerId || ('wasapedro_peer_' + participante), idChat: chatActivo });
             }, 6000);
@@ -2247,7 +2247,7 @@ setTimeout(() => {
                     }
                     return;
                 }
-                if (textoEstado) textoEstado.textContent = 'Intentando conexión segura… (' + reintentos + ')';
+                if (textoEstado) textoEstado.textContent = 'Intentando conexiÃ³n seguraâ€¦ (' + reintentos + ')';
                 llamar();
             }, 4000);
         }
@@ -2337,10 +2337,10 @@ setTimeout(() => {
                 const topico = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${chatActivo}`;
                 clienteMqtt.publish(topico, JSON.stringify(payloadInv), { qos: 1 });
 
-                // La llamada WebRTC se inicia cuando el destinatario acepta la invitación
-                // MQTT. Así no quedan conexiones entrantes pendientes sin responder.
+                // La llamada WebRTC se inicia cuando el destinatario acepta la invitaciÃ³n
+                // MQTT. AsÃ­ no quedan conexiones entrantes pendientes sin responder.
             } catch (e) {
-                alert('Permiso de cámara o micrófono denegado.');
+                alert('Permiso de cÃ¡mara o micrÃ³fono denegado.');
                 finalizarLlamada(false);
             }
         }
@@ -2348,7 +2348,7 @@ setTimeout(() => {
         function toggleCompartirPantalla() {
             if (!llamadaEnCurso) return;
             if (presentadorActual && presentadorActual !== miNombre) {
-                alert('Otro participante ya está compartiendo pantalla en este momento.');
+                alert('Otro participante ya estÃ¡ compartiendo pantalla en este momento.');
                 return;
             }
             if (typeof navigator !== 'undefined' && (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function')) {
@@ -2475,8 +2475,8 @@ setTimeout(() => {
             if (!stage || !panel) return;
 
             label.textContent = esLocalSelf
-                ? (obtenerNombreLlamada(emisor) + ' está compartiendo su pantalla (Tú)')
-                : (obtenerNombreLlamada(emisor) + ' está compartiendo su pantalla');
+                ? (obtenerNombreLlamada(emisor) + ' estÃ¡ compartiendo su pantalla (TÃº)')
+                : (obtenerNombreLlamada(emisor) + ' estÃ¡ compartiendo su pantalla');
 
             stage.classList.add('mostrar');
             if (boxPrincipal) boxPrincipal.classList.add('hidden');
@@ -2555,7 +2555,7 @@ setTimeout(() => {
                     ${fotoSegura ? `<img src="${escaparHTML(fotoSegura)}" class="avatar-participante" alt="">` : `<div class="inicial-participante" ${estiloAvatarInicial(usuario)}>${escaparHTML(inicialDe(nombre))}</div>`}
                     <div class="participante-overlay">
                         <div class="text-white text-xs font-bold truncate">${escaparHTML(nombre)}</div>
-                        <div class="estado-participante">Cámara apagada</div>
+                        <div class="estado-participante">CÃ¡mara apagada</div>
                     </div>
                     ${badge}
                 `;
@@ -2626,13 +2626,13 @@ setTimeout(() => {
             const videoTrack = streamLocal.getVideoTracks()[0];
             if (!videoTrack) return;
             if (typeof videoTrack.applyConstraints !== 'function') {
-                alert('Este dispositivo no permite voltear la cámara.');
+                alert('Este dispositivo no permite voltear la cÃ¡mara.');
                 return;
             }
             miFacingMode = miFacingMode === 'user' ? 'environment' : 'user';
             videoTrack.applyConstraints({ facingMode: miFacingMode }).catch(() => {
                 miFacingMode = miFacingMode === 'environment' ? 'user' : 'environment';
-                alert('No se pudo voltear la cámara en este dispositivo.');
+                alert('No se pudo voltear la cÃ¡mara en este dispositivo.');
             });
         }
 
@@ -2705,7 +2705,7 @@ setTimeout(() => {
         function adquirirMediosPopup(continuar) {
             const intentar = () => {
                 if (typeof navigator === 'undefined' || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-                    alert('Tu navegador no permite acceder a la cámara en este dispositivo.');
+                    alert('Tu navegador no permite acceder a la cÃ¡mara en este dispositivo.');
                     return;
                 }
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(continuar).catch(() => {
@@ -2961,8 +2961,8 @@ setTimeout(() => {
                 });
             })();
 
-            const appNotebook = document.getElementById('app-notebook-pg');
-            if (appNotebook) appNotebook.style.display = 'none';
+            const appWasapedro = document.getElementById('app-wasapedro');
+            if (appWasapedro) appWasapedro.style.display = 'none';
             const cont = document.getElementById('contenedor-wasapedro');
             if (cont) cont.classList.remove('hidden');
             document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
@@ -3023,7 +3023,7 @@ setTimeout(() => {
 
         function iniciarProcesoRecorte(archivo) {
             if (!archivo) return;
-            if (!archivo.type.match('image.*')) return alert("Imagen no válida.");
+            if (!archivo.type.match('image.*')) return alert("Imagen no vÃ¡lida.");
             document.getElementById("modal-crop").classList.remove("hidden");
             if (instanciaCroppie) instanciaCroppie.destroy();
             instanciaCroppie = new Croppie(document.getElementById("contenedor-croppie"), {
@@ -3060,7 +3060,7 @@ setTimeout(() => {
                             clienteMqtt.publish(`wasapedro/v3/grupo/${chatActivo}`, JSON.stringify({
                                 idMsg: "sys_" + Date.now(),
                                 emisor: miNombre,
-                                texto: "📸 El administrador cambió la foto de perfil del grupo.",
+                                texto: "ðŸ“¸ El administrador cambiÃ³ la foto de perfil del grupo.",
                                 fotoGrupoNueva: base64Recortada,
                                 esCambioFoto: true,
                                 timestamp: Date.now()
@@ -3166,7 +3166,7 @@ setTimeout(() => {
             const item = items.find(i => i.codigo === r.codigo && i.expira > Date.now()) || items[0] || null;
             const contenedor = document.getElementById('buzon-codigo-valor');
             if (!contenedor) return;
-            contenedor.textContent = item && item.codigo ? ('Tu código es: ' + item.codigo) : 'Sin códigos recientes. Solicita uno de nuevo.';
+            contenedor.textContent = item && item.codigo ? ('Tu cÃ³digo es: ' + item.codigo) : 'Sin cÃ³digos recientes. Solicita uno de nuevo.';
             contenedor.classList.remove('hidden');
         }
 
@@ -3177,13 +3177,13 @@ setTimeout(() => {
             const btn = document.getElementById('btn-enviar-codigo');
             err.classList.add('hidden');
             if (!REGEX_IDENTIFICADOR.test(nombre)) {
-                err.textContent = '⚠️ Ingresa un nombre de usuario válido (2-32 caracteres, sin espacios).';
+                err.textContent = 'âš ï¸ Ingresa un nombre de usuario vÃ¡lido (2-32 caracteres, sin espacios).';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
             }
             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                err.textContent = '⚠️ Ingresa un correo válido (ej. nombre@dominio.com).';
+                err.textContent = 'âš ï¸ Ingresa un correo vÃ¡lido (ej. nombre@dominio.com).';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
@@ -3200,10 +3200,10 @@ setTimeout(() => {
                     if (remota && String(remota.email || '').toLowerCase() === email) cuenta = remota;
                 }
                 btn.disabled = false;
-                btn.innerHTML = '<i class="ph ph-envelope-simple"></i> Enviar código al correo';
+                btn.innerHTML = '<i class="ph ph-envelope-simple"></i> Enviar cÃ³digo al correo';
 
                 if (!cuenta) {
-                    err.textContent = '⚠️ El nombre y el correo no coinciden, o ese correo no está registrado.';
+                    err.textContent = 'âš ï¸ El nombre y el correo no coinciden, o ese correo no estÃ¡ registrado.';
                     err.classList.remove('hidden');
                     animarSacudida('pantalla-registro');
                     return;
@@ -3244,13 +3244,13 @@ setTimeout(() => {
                 const buzon = document.getElementById('buzon-codigo');
                 enviarCorreo().then(ok => {
                     if (ok) {
-                        if (txt) txt.textContent = 'Enviamos un código de 6 dígitos a ' + email + ' (revisa también el spam).';
+                        if (txt) txt.textContent = 'Enviamos un cÃ³digo de 6 dÃ­gitos a ' + email + ' (revisa tambiÃ©n el spam).';
                         if (buzon) buzon.classList.add('hidden');
                     } else if (configurado) {
-                        if (txt) txt.textContent = 'No se pudo enviar el correo. Usá el buzón de abajo con tu código:';
+                        if (txt) txt.textContent = 'No se pudo enviar el correo. UsÃ¡ el buzÃ³n de abajo con tu cÃ³digo:';
                         if (buzon) buzon.classList.remove('hidden');
                     } else {
-                        if (txt) txt.textContent = 'Modo prueba: pega tus claves de EmailJS (EMAILJS_*) para enviarlo. Tu código está en el buzón:';
+                        if (txt) txt.textContent = 'Modo prueba: pega tus claves de EmailJS (EMAILJS_*) para enviarlo. Tu cÃ³digo estÃ¡ en el buzÃ³n:';
                         if (buzon) buzon.classList.remove('hidden');
                     }
                     animarCambioVista('auth-vista-recuperar', 'auth-vista-codigo');
@@ -3264,19 +3264,19 @@ setTimeout(() => {
             const err = document.getElementById('error-codigo');
             err.classList.add('hidden');
             if (!recuperacionActual) {
-                err.textContent = '⚠️ Primero solicita un código de recuperación.';
+                err.textContent = 'âš ï¸ Primero solicita un cÃ³digo de recuperaciÃ³n.';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
             }
             if (Date.now() > recuperacionActual.expira) {
-                err.textContent = '⚠️ El código venció. Solicita uno nuevo.';
+                err.textContent = 'âš ï¸ El cÃ³digo venciÃ³. Solicita uno nuevo.';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
             }
             if (val !== recuperacionActual.codigo) {
-                err.textContent = '⚠️ Código incorrecto. Revisa e intenta de nuevo.';
+                err.textContent = 'âš ï¸ CÃ³digo incorrecto. Revisa e intenta de nuevo.';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
@@ -3302,13 +3302,13 @@ setTimeout(() => {
                 return;
             }
             if (!p1 || p1.length < 4) {
-                err.textContent = '⚠️ La contraseña debe tener al menos 4 caracteres.';
+                err.textContent = 'âš ï¸ La contraseÃ±a debe tener al menos 4 caracteres.';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
             }
             if (p1 !== p2) {
-                err.textContent = '⚠️ Las contraseñas no coinciden.';
+                err.textContent = 'âš ï¸ Las contraseÃ±as no coinciden.';
                 err.classList.remove('hidden');
                 animarSacudida('pantalla-registro');
                 return;
@@ -3320,12 +3320,12 @@ setTimeout(() => {
             err.classList.add('hidden');
             const btn = document.getElementById('btn-guardar-nueva-pass');
             btn.disabled = true;
-            btn.innerHTML = '<i class="ph ph-check-circle"></i> ¡Contraseña actualizada!';
+            btn.innerHTML = '<i class="ph ph-check-circle"></i> Â¡ContraseÃ±a actualizada!';
             document.getElementById('input-nueva-pass').value = "";
             document.getElementById('input-nueva-pass2').value = "";
             setTimeout(() => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="ph ph-key"></i> Guardar contraseña';
+                btn.innerHTML = '<i class="ph ph-key"></i> Guardar contraseÃ±a';
                 const inpNombre = document.getElementById('input-login-nombre');
                 const inpPass = document.getElementById('input-login-pass');
                 if (inpNombre) inpNombre.value = r.nombre;
@@ -3359,7 +3359,7 @@ setTimeout(() => {
         }
 
         function hashPassword(pass) {
-            // Hash simple (no criptográficamente seguro): evita guardar la contraseña en texto plano.
+            // Hash simple (no criptogrÃ¡ficamente seguro): evita guardar la contraseÃ±a en texto plano.
             let h = 0x811c9dc5;
             const s = "wasapedro::" + pass;
             for (let i = 0; i < s.length; i++) {
@@ -3428,7 +3428,7 @@ setTimeout(() => {
             const err = document.getElementById('error-login');
             err.classList.add('hidden');
             if (!REGEX_IDENTIFICADOR.test(nombre)) {
-                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+                return alert("Usa entre 2 y 32 caracteres: letras, nÃºmeros, guion o guion bajo. Sin espacios.");
             }
             const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
             const local = registroGlobal[nombre];
@@ -3466,7 +3466,7 @@ setTimeout(() => {
             const txtErrorPass = document.getElementById("error-registro-pass");
 
             if (!REGEX_IDENTIFICADOR.test(nombreIngresado)) {
-                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+                return alert("Usa entre 2 y 32 caracteres: letras, nÃºmeros, guion o guion bajo. Sin espacios.");
             }
             txtErrorPass.classList.add("hidden");
             if (!passIngresada || passIngresada.length < 4) {
@@ -3475,17 +3475,17 @@ setTimeout(() => {
             }
             const txtErrorEmail = document.getElementById("error-email");
             if (!emailRecuperar || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailRecuperar)) {
-                txtErrorEmail.textContent = "⚠️ El correo es obligatorio y debe tener un formato válido (ej. nombre@dominio.com).";
+                txtErrorEmail.textContent = "âš ï¸ El correo es obligatorio y debe tener un formato vÃ¡lido (ej. nombre@dominio.com).";
                 txtErrorEmail.classList.remove("hidden");
                 return;
             }
             btn.disabled = true;
             btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-xl"></i> Verificando...';
             txtError.classList.add("hidden");
-            txtErrorEmail.textContent = "⚠️ Este correo ya está registrado en otra cuenta.";
+            txtErrorEmail.textContent = "âš ï¸ Este correo ya estÃ¡ registrado en otra cuenta.";
             txtErrorEmail.classList.add("hidden");
 
-            // Verificación local instantánea contra el registro global
+            // VerificaciÃ³n local instantÃ¡nea contra el registro global
             const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
             const nombreExisteLocal = !!registroGlobal[nombreIngresado];
             let correoExisteLocal = false;
@@ -3508,7 +3508,7 @@ setTimeout(() => {
                 return;
             }
 
-// Si el cliente MQTT no está conectado, intentar verificar en segundo plano con el otro cliente
+// Si el cliente MQTT no estÃ¡ conectado, intentar verificar en segundo plano con el otro cliente
             if (!clienteValidacion || !clienteValidacion.connected) {
                 if (clienteMqtt && clienteMqtt.connected) {
                     consultarCuenta(nombreIngresado, 1200).then(cuentaRemota => {
@@ -3526,7 +3526,7 @@ setTimeout(() => {
                 return;
             }
 
-            // Verificación MQTT rápida en background (máx 600ms)
+            // VerificaciÃ³n MQTT rÃ¡pida en background (mÃ¡x 600ms)
             let nombreOcupado = false;
             const subCanal = "wasapedro/v3/verificar/" + nombreIngresado;
             try {
@@ -3569,7 +3569,7 @@ setTimeout(() => {
         function registrarUsuario(nombre, email, pass, btn) {
             const emailFinal = String(email || "").trim().toLowerCase();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailFinal)) {
-                alert("El correo es obligatorio y debe tener un formato válido.");
+                alert("El correo es obligatorio y debe tener un formato vÃ¡lido.");
                 return false;
             }
             miNombre = nombre;
@@ -3612,14 +3612,14 @@ setTimeout(() => {
 
             const broker = LISTA_SERVIDORES_MQTT[brokerConectandoIdx];
             brokerConectandoIdx = (brokerConectandoIdx + 1) % LISTA_SERVIDORES_MQTT.length;
-            actualizarPildoraConexion("conectando", "Conectando (" + broker.etiqueta + ")...");
+            actualizarPildoraConexion("conectando", "Conectando...");
 
             const clientId = "wasapedro_sess_" + (miNombre || "user") + "_" + Math.random().toString(16).substring(2, 8);
 
             clienteMqtt = mqtt.connect(broker.url, {
                 clientId: clientId,
                 reconnectPeriod: 0,
-                connectTimeout: 6000,
+                connectTimeout: 12000,
                 clean: true
             });
             const clientePropio = clienteMqtt;
@@ -3632,7 +3632,7 @@ setTimeout(() => {
 
             clienteMqtt.on('error', () => {
                 if (intentoToken !== token) return;
-                actualizarPildoraConexion("conectando", "Conectando (" + broker.etiqueta + ")...");
+                actualizarPildoraConexion("conectando", "Conectando...");
             });
 
             clienteMqtt.on('close', () => {
@@ -3671,18 +3671,18 @@ setTimeout(() => {
                 procesarColaDeEnvios();
             });
 
-            // Vigilante: si a los 5s no conectó (p.ej. handshake WebSocket bloqueado sin aviso), forzamos el siguiente broker
+            // Vigilante: si a los 10s no conectÃ³ (p.ej. handshake WebSocket lento/bloqueado), forzamos el siguiente broker
             setTimeout(() => {
                 if (intentoToken !== token) return;
                 if (clienteMqtt === clientePropio && !clienteMqtt.connected) {
                     try { clienteMqtt.end(true); } catch(e) {}
                     setTimeout(avanzar, 300);
                 }
-            }, 5000);
+            }, 10000);
 
             clienteMqtt.on('message', (topico, mensaje) => {
                 try {
-                    // Avisos "te escribió" (retained): llegan al abrir la app aunque se haya estado offline
+                    // Avisos "te escribiÃ³" (retained): llegan al abrir la app aunque se haya estado offline
                     const prefijoAvisos = `wasapedro/v3/avisos/${miNombre}/`;
                     if (topico.startsWith(prefijoAvisos)) {
                         const emisorAviso = topico.slice(prefijoAvisos.length);
@@ -3794,7 +3794,7 @@ setTimeout(() => {
                         if (!data.videoActivo) {
                             fallbackRemoto.classList.remove("hidden");
                             let fotoRemoto = fotosAmigos[data.emisor];
-                            labelFallback.textContent = `${data.emisor} apagó la cámara`;
+                            labelFallback.textContent = `${data.emisor} apagÃ³ la cÃ¡mara`;
                             if (fotoRemoto) {
                                 txtFallback.classList.add("hidden");
                                 imgFallback.src = urlSegura(fotoRemoto, ['image']);
@@ -3823,7 +3823,7 @@ setTimeout(() => {
                                 delete llamadasPeers[saliente];
                             }
 
-                            // En una grupal no se cierra toda la llamada porque uno de los miembros salió.
+                            // En una grupal no se cierra toda la llamada porque uno de los miembros saliÃ³.
                             if (saliente === chatActivo && Object.keys(llamadasPeers).length === 0 && !data.esGrupo) {
                                 finalizarLlamada(false);
                             }
@@ -3838,7 +3838,7 @@ setTimeout(() => {
                         return;
                     }
 
-                    // Recepción de reportes (se almacenan si quien ve es un admin)
+                    // RecepciÃ³n de reportes (se almacenan si quien ve es un admin)
                     if (topico === "wasapedro/v3/sistema/reportes" && data.denunciado) {
                         if (esAdmin) {
                             almacenarReporte(data);
@@ -3851,7 +3851,7 @@ setTimeout(() => {
                         return;
                     }
 
-                    // Recepción de lecturas
+                    // RecepciÃ³n de lecturas
                     if (topico.startsWith("wasapedro/v3/read/")) {
                         if (data.emisor && data.emisor !== miNombre && data.visto) {
                             const chatId = topico.replace("wasapedro/v3/read/grupo/", "").replace("wasapedro/v3/read/", "");
@@ -3910,7 +3910,7 @@ setTimeout(() => {
                         moverChatAlPrincipio(idG);
                         actualizarListaAmigosUI();
                         if (data.tipoSist === "agregar_miembro_admin") {
-                            mostrarNotificacionSW(`Agregado a ${data.nombreGrupo}`, `Un administrador te agregó al grupo.`, './');
+                            mostrarNotificacionSW(`Agregado a ${data.nombreGrupo}`, `Un administrador te agregÃ³ al grupo.`, './');
                         }
                         return;
                     }
@@ -3954,7 +3954,7 @@ setTimeout(() => {
 
                     moverChatAlPrincipio(idChat);
 
-                    // El mensaje real llegó estando conectado: el aviso ya cumplió su función
+                    // El mensaje real llegÃ³ estando conectado: el aviso ya cumpliÃ³ su funciÃ³n
                     const avisoActual = avisosPendientes[data.emisor];
                     if (avisoActual && (esGrupo ? avisoActual.idGrupo === idChat : !avisoActual.idGrupo)) {
                         limpiarAvisoPendiente(data.emisor);
@@ -3963,7 +3963,7 @@ setTimeout(() => {
                     if (chatActivo === idChat) {
                         renderizarMensajes();
                     } else if (mensajeNuevo) {
-                        // Solo contar/notificar si de verdad es nuevo y no lo recuperó ya el aviso
+                        // Solo contar/notificar si de verdad es nuevo y no lo recuperÃ³ ya el aviso
                         notificacionesPendientes[idChat] = (notificacionesPendientes[idChat] || 0) + 1;
                         localStorage.setItem("wasapedro_notif_pendientes", JSON.stringify(notificacionesPendientes));
                         actualizarBuzonNotificacionesUI();
@@ -4019,7 +4019,7 @@ setTimeout(() => {
             const nom = document.getElementById("input-buscar").value.trim().toLowerCase();
             if (!nom || nom === miNombre) return;
             if (!REGEX_IDENTIFICADOR.test(nom)) {
-                return alert("El ID solo puede contener letras, números, guion o guion bajo.");
+                return alert("El ID solo puede contener letras, nÃºmeros, guion o guion bajo.");
             }
             if (!listaAmigosActivos.includes(nom)) {
                 listaAmigosActivos.push(nom);
@@ -4033,8 +4033,8 @@ setTimeout(() => {
         function publicarAvisoEnvio(destinatarios, tipo, idGrupo, nombreGrupo, esArchivo, tipoMedia, mensaje) {
             if (!clienteMqtt || !clienteMqtt.connected || !miNombre) return;
             const aviso = { de: miNombre, tipo: tipo, esArchivo: !!esArchivo, tipoMedia: tipoMedia || '', idGrupo: idGrupo || '', nombreGrupo: nombreGrupo || '', ts: Date.now() };
-            // El mensaje real no se retiene en el tópico del chat, así que lo adjuntamos
-            // al aviso (que sí es retained) para poder recuperarlo al reconectar estando offline.
+            // El mensaje real no se retiene en el tÃ³pico del chat, asÃ­ que lo adjuntamos
+            // al aviso (que sÃ­ es retained) para poder recuperarlo al reconectar estando offline.
             if (mensaje && typeof mensaje === 'object' && mensaje.idMsg) {
                 const copia = { ...mensaje };
                 const esDataGrande = v => typeof v === 'string' && v.startsWith('data:') && v.length > LIMITE_AVISO_EMBEBIDO;
@@ -4052,7 +4052,7 @@ setTimeout(() => {
         }
 
         // Reconstruye el mensaje que viaja embebido en el aviso retained.
-        // Sin esto, al reconectar tras estar offline solo se veía "te escribió" con el chat vacío.
+        // Sin esto, al reconectar tras estar offline solo se veÃ­a "te escribiÃ³" con el chat vacÃ­o.
         function recuperarMensajeDesdeAviso(aviso, emisorAviso) {
             const msg = aviso && aviso.msg;
             if (!msg || !msg.idMsg) return;
@@ -4073,13 +4073,13 @@ setTimeout(() => {
             }
 
             if (!historialesDeChats[idChat]) historialesDeChats[idChat] = [];
-            // Dedupe: el aviso retained se re-entrega en cada reconexión
+            // Dedupe: el aviso retained se re-entrega en cada reconexiÃ³n
             if (historialesDeChats[idChat].some(m => m.idMsg === msg.idMsg)) return;
 
             const recuperado = { ...msg, emisor: emisor, enviado: true };
             if (msg.contenidoPerdido) {
                 const que = aviso.tipoMedia === 'audio' ? 'una nota de voz' : aviso.tipoMedia === 'gif' ? 'un GIF' : aviso.tipoMedia === 'sticker' ? 'un sticker' : 'un archivo';
-                recuperado.texto = "⚠️ Recibiste " + que + " mientras estabas desconectado, pero el contenido ya no está disponible.";
+                recuperado.texto = "âš ï¸ Recibiste " + que + " mientras estabas desconectado, pero el contenido ya no estÃ¡ disponible.";
                 delete recuperado.urlMedia;
                 delete recuperado.urlArchivo;
             }
@@ -4152,7 +4152,7 @@ setTimeout(() => {
             localStorage.setItem("wasapedro_notif_pendientes", JSON.stringify(notificacionesPendientes));
             actualizarBuzonNotificacionesUI();
 
-            // Limpiar avisos "te escribió" del chat que se acaba de abrir
+            // Limpiar avisos "te escribiÃ³" del chat que se acaba de abrir
             const esGrpChat = !!datosGrupos[id];
             Object.keys(avisosPendientes).forEach(de => {
                 const av = avisosPendientes[de] || {};
@@ -4341,7 +4341,7 @@ setTimeout(() => {
             const esGrupo = !!datosGrupos[chatActivo];
             if (esGrupo) payload.nombreGrupo = datosGrupos[chatActivo].nombre;
 
-            // Aviso "te escribió" para el destinatario (persiste aunque esté offline)
+            // Aviso "te escribiÃ³" para el destinatario (persiste aunque estÃ© offline)
             if (esGrupo) {
                 publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, false, '', payload);
             } else {
@@ -4370,7 +4370,7 @@ setTimeout(() => {
         function procesarArchivoAdjunto(file) {
             if (!file || !chatActivo) return;
             if (file.size > MAX_TAMANO_ARCHIVO) {
-                alert("El archivo supera el límite de 5 MB.");
+                alert("El archivo supera el lÃ­mite de 5 MB.");
                 return;
             }
             const reader = new FileReader();
@@ -4389,7 +4389,7 @@ setTimeout(() => {
                 const esGrupo = !!datosGrupos[chatActivo];
                 if (esGrupo) payload.nombreGrupo = datosGrupos[chatActivo].nombre;
 
-                // Aviso de archivo para el destinatario (persiste aunque esté offline)
+                // Aviso de archivo para el destinatario (persiste aunque estÃ© offline)
                 if (esGrupo) {
                     publicarAvisoEnvio(datosGrupos[chatActivo].miembros || [], 'grupo', chatActivo, datosGrupos[chatActivo].nombre, true, '', payload);
                 } else {
@@ -4476,14 +4476,14 @@ setTimeout(() => {
                 badge.classList.toggle("hidden", totalAvisos === 0);
             }
 
-            // Avisos "te escribió" (incluyen mensajes recibidos estando offline)
+            // Avisos "te escribiÃ³" (incluyen mensajes recibidos estando offline)
             Object.keys(avisosPendientes).forEach(de => {
                 const av = avisosPendientes[de] || {};
                 const nombre = apodosContactos[de] || de;
-                let texto = `${nombre} te escribió`;
-                if (av.tipo === 'archivo') texto = `${nombre} te envió un archivo`;
-                else if (av.tipo === 'media') texto = `${nombre} te envió ${av.tipoMedia === 'audio' ? 'una nota de voz' : av.tipoMedia === 'gif' ? 'un GIF' : 'un sticker'}`;
-                else if (av.tipo === 'grupo') texto = av.esArchivo ? `${nombre} te envió un archivo en ${av.nombreGrupo}` : `${nombre} te escribió en ${av.nombreGrupo}`;
+                let texto = `${nombre} te escribiÃ³`;
+                if (av.tipo === 'archivo') texto = `${nombre} te enviÃ³ un archivo`;
+                else if (av.tipo === 'media') texto = `${nombre} te enviÃ³ ${av.tipoMedia === 'audio' ? 'una nota de voz' : av.tipoMedia === 'gif' ? 'un GIF' : 'un sticker'}`;
+                else if (av.tipo === 'grupo') texto = av.esArchivo ? `${nombre} te enviÃ³ un archivo en ${av.nombreGrupo}` : `${nombre} te escribiÃ³ en ${av.nombreGrupo}`;
                 const chatDestino = av.idGrupo || de;
                 cont.innerHTML += `<div onclick="abrirChat('${escaparJS(chatDestino)}')" class="text-[11px] text-amber-300 hover:underline cursor-pointer truncate flex items-center gap-1.5"><i class="ph ph-bell-ring text-[10px]"></i><span class="truncate">${escaparHTML(texto)}</span></div>`;
             });
@@ -4611,7 +4611,7 @@ setTimeout(() => {
         function subirFondoImagen(archivo) {
             if (!archivo) return;
             if (!archivo.type.match('image/(png|jpe?g)')) {
-                return alert("Solo se permiten imágenes .png o .jpg");
+                return alert("Solo se permiten imÃ¡genes .png o .jpg");
             }
             if (archivo.size > 3 * 1024 * 1024) {
                 return alert("La imagen de fondo no debe superar 3 MB.");
@@ -4623,7 +4623,7 @@ setTimeout(() => {
                     localStorage.setItem('wasapedro_fondo_tipo', 'imagen');
                     aplicarFondo();
                 } catch(err) {
-                    alert("La imagen es demasiado grande para guardarla. Prueba con una más liviana.");
+                    alert("La imagen es demasiado grande para guardarla. Prueba con una mÃ¡s liviana.");
                 }
             };
             lector.readAsDataURL(archivo);
@@ -4694,7 +4694,7 @@ setTimeout(() => {
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement("a");
             enlace.href = url;
-            enlace.download = `notebookpg-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            enlace.download = `Wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
             enlace.click();
             URL.revokeObjectURL(url);
             if (status) {
@@ -4704,7 +4704,7 @@ setTimeout(() => {
         }
 
         function cerrarSesionLimpiar() {
-            if (confirm("¿Estás seguro de cerrar sesión?")) {
+            if (confirm("Â¿EstÃ¡s seguro de cerrar sesiÃ³n?")) {
                 localStorage.removeItem("wasapedro_mqtt_name");
                 location.reload();
             }
@@ -4732,7 +4732,7 @@ setTimeout(() => {
         function menuBorrarChat() {
             if (!chatActivo) return;
             toggleMenuOpcionesChat();
-            if (confirm("¿Deseas eliminar todo el historial de este chat?")) {
+            if (confirm("Â¿Deseas eliminar todo el historial de este chat?")) {
                 historialesDeChats[chatActivo] = [];
                 localStorage.setItem("wasapedro_historiales", JSON.stringify(historialesDeChats));
                 renderizarMensajes();
@@ -4772,7 +4772,7 @@ setTimeout(() => {
                     clienteMqtt.publish("wasapedro/v3/sistema/reportes", JSON.stringify(reporte), { qos: 1 });
                 } catch(e) {}
             }
-            alert("Reporte enviado. Un administrador lo revisará.");
+            alert("Reporte enviado. Un administrador lo revisarÃ¡.");
             cerrarModalReporte();
         }
 
@@ -4854,7 +4854,7 @@ setTimeout(() => {
         }
 
         function vaciarReportesAdmin() {
-            if (!confirm("¿Eliminar todos los reportes?")) return;
+            if (!confirm("Â¿Eliminar todos los reportes?")) return;
             localStorage.setItem("wasapedro_reportes", JSON.stringify([]));
             renderizarReportesAdmin();
         }
@@ -4884,7 +4884,7 @@ setTimeout(() => {
             contGlobal.innerHTML = "";
             const claves = Object.keys(registroGlobal).sort();
             if (claves.length === 0) {
-                contGlobal.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">Aún no hay usuarios registrados</span>`;
+                contGlobal.innerHTML = `<span class="text-[11px] text-gray-500 italic block text-center">AÃºn no hay usuarios registrados</span>`;
             }
             claves.forEach(u => {
                 const esYo = u === miNombre;
@@ -4968,7 +4968,7 @@ setTimeout(() => {
         function formatearDuracion(min) {
             const d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
             const partes = [];
-            if (d) partes.push(`${d} día${d > 1 ? "s" : ""}`);
+            if (d) partes.push(`${d} dÃ­a${d > 1 ? "s" : ""}`);
             if (h) partes.push(`${h} hora${h > 1 ? "s" : ""}`);
             if (m) partes.push(`${m} min`);
             return partes.join(" ");
@@ -4979,11 +4979,11 @@ setTimeout(() => {
             if (u === miNombre) return alert("No puedes banear tu propio usuario.");
             const razonPrompt = prompt("Motivo del ban:", "Incumplimiento de normas");
             if (razonPrompt === null) return;
-            const textoDuracion = prompt("Duración del ban:\n\n- Escribe un tiempo como: 1d (días), 3h (horas), 30m (minutos) o combina: 2d 4h 15m\n- Déjalo vacío para un baneo PERMANENTE.", "");
+            const textoDuracion = prompt("DuraciÃ³n del ban:\n\n- Escribe un tiempo como: 1d (dÃ­as), 3h (horas), 30m (minutos) o combina: 2d 4h 15m\n- DÃ©jalo vacÃ­o para un baneo PERMANENTE.", "");
             if (textoDuracion === null) return;
             const tiempoMinutos = parsearDuracionMinutos(textoDuracion);
             if (textoDuracion.trim() && tiempoMinutos === null) {
-                return alert("Formato de duración no válido. Usa números con d, h o m, por ejemplo: 2d 4h 15m.");
+                return alert("Formato de duraciÃ³n no vÃ¡lido. Usa nÃºmeros con d, h o m, por ejemplo: 2d 4h 15m.");
             }
             const razon = (razonPrompt || "").trim() || "Sin motivo";
             const payload = { tipo: "Baneado", razon: razon, admin: miNombre };
@@ -5069,7 +5069,7 @@ setTimeout(() => {
             if (!Array.isArray(datosGrupos[chatActivo].miembros)) datosGrupos[chatActivo].miembros = [datosGrupos[chatActivo].creador || miNombre];
             if (!datosGrupos[chatActivo].miembros.includes(usuario)) datosGrupos[chatActivo].miembros.push(usuario);
             localStorage.setItem("wasapedro_datos_grupos", JSON.stringify(datosGrupos));
-            alert(`${usuario} ha sido añadido al grupo.`);
+            alert(`${usuario} ha sido aÃ±adido al grupo.`);
         }
 
         function inicializarEventosArrastrarArchivos() {
