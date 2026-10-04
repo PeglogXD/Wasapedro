@@ -1143,7 +1143,10 @@
         ];
 
         let clienteValidacion = null;
-        (function conectarValidacion() {
+        let validacionIniciada = false;
+        function conectarValidacion() {
+            if (validacionIniciada) return;
+            validacionIniciada = true;
             if (clienteValidacion) { try { clienteValidacion.end(true); } catch(e){} }
             const broker = LISTA_SERVIDORES_MQTT[idxValidacion];
             idxValidacion = (idxValidacion + 1) % LISTA_SERVIDORES_MQTT.length;
@@ -1163,16 +1166,20 @@
             });
             clienteValidacion.on('close', () => {
                 if (clienteValidacion !== cvPropio) return;
-                setTimeout(conectarValidacion, 400);
+                setTimeout(conectarValidacion, 2000);
             });
             clienteValidacion.on('error', () => {});
             setTimeout(() => {
                 if (clienteValidacion === cvPropio && !clienteValidacion.connected) {
                     try { clienteValidacion.end(true); } catch(e) {}
-                    setTimeout(conectarValidacion, 300);
+                    setTimeout(conectarValidacion, 2000);
                 }
-            }, 10000);
-        })();
+            }, 9000);
+        }
+        // El cliente de verificación arranca más tarde para no competir con la conexión principal
+        if (miNombre || localStorage.getItem("wasapedro_mqtt_name")) {
+            setTimeout(conectarValidacion, 1500);
+        }
 
         function mostrarPantallaBanAbsoluto(tipo, razon, hasta) {
             document.getElementById("pantalla-ban").classList.remove("hidden");
@@ -1335,6 +1342,7 @@ setTimeout(() => {
                 inicializarEventosArrastrarArchivos();
                 inicializarPeerJS();
                 inicializarEmojiPicker();
+                if (!clienteValidacion) setTimeout(conectarValidacion, 300);
             } else {
                 interfazPrincipal.classList.add("hidden");
                 pantallaRegistro.classList.remove("hidden");
@@ -3419,7 +3427,7 @@ setTimeout(() => {
                 const cl = mqtt.connect(broker.url, {
                     clientId: clientId,
                     reconnectPeriod: 0,
-                    connectTimeout: 12000,
+                    connectTimeout: 9000,
                     clean: true
                 });
                 activos.push(cl);
@@ -3428,7 +3436,7 @@ setTimeout(() => {
                     if (intentoToken !== token || ganador) return;
                     if (activos.every(c => !c.connected)) {
                         actualizarPildoraConexion("conectando", "Reconectando...");
-                        setTimeout(() => { if (intentoToken === token && !ganador) conectarServidorCloud(); }, 4000);
+                        setTimeout(() => { if (intentoToken === token && !ganador) conectarServidorCloud(); }, 3000);
                     }
                 });
                 cl.on('connect', () => adoptar(cl, broker));
@@ -3439,22 +3447,16 @@ setTimeout(() => {
                 return cl;
             };
 
-            // 1) Primero el broker preferido (rápido y consistente si responde)
-            lanzar(preferidos[0]);
+            // Lanzamos TODOS los brokers en paralelo de inmediato: gana el primero que responda
+            preferidos.forEach(lanzar);
 
-            // 2) Si en 1,5s aún no conectó, lanzamos TODOS en paralelo: gana el primero que responda
-            setTimeout(() => {
-                if (intentoToken !== token || ganador) return;
-                preferidos.slice(1).forEach(lanzar);
-            }, 1500);
-
-            // 3) Vigía: si nadie conectó en 13s, mostramos Desconectado y reintentamos
+            // Vigía: si nadie conectó en 10s, mostramos Desconectado y reintentamos rápido
             setTimeout(() => {
                 if (intentoToken !== token || ganador) return;
                 activos.forEach(c => { try { c.end(true); } catch(e){} });
                 actualizarPildoraConexion("desconectado");
-                setTimeout(() => { if (intentoToken === token) conectarServidorCloud(); }, 8000);
-            }, 13000);
+                setTimeout(() => { if (intentoToken === token) conectarServidorCloud(); }, 5000);
+            }, 10000);
 
             function manejarMensajeMqtt(topico, mensaje) {
                 try {
