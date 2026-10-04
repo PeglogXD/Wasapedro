@@ -1085,6 +1085,13 @@
             return 0;
         })();
         let intentoToken = 0;
+        let reconexionProgramada = false;
+        window.addEventListener('online', () => {
+            if (miNombre && (!clienteMqtt || !clienteMqtt.connected)) {
+                reconexionProgramada = false;
+                conectarServidorCloud();
+            }
+        });
 
         let peerInstance = null;
         let peerOpenResolve = null;
@@ -3370,6 +3377,7 @@ setTimeout(() => {
         }
 
         function conectarServidorCloud() {
+            reconexionProgramada = false;
             if (clienteMqtt) { try { clienteMqtt.end(true); } catch(e){} }
             intentoToken++;
             const token = intentoToken;
@@ -3433,10 +3441,15 @@ setTimeout(() => {
                 activos.push(cl);
                 cl.on('error', () => {});
                 cl.on('close', () => {
-                    if (intentoToken !== token || ganador) return;
-                    if (activos.every(c => !c.connected)) {
+                    if (intentoToken !== token || reconexionProgramada) return;
+                    const fueGanador = (ganador === cl);
+                    if (fueGanador || activos.every(c => !c.connected)) {
+                        reconexionProgramada = true;
                         actualizarPildoraConexion("conectando", "Reconectando...");
-                        setTimeout(() => { if (intentoToken === token && !ganador) conectarServidorCloud(); }, 3000);
+                        setTimeout(() => {
+                            reconexionProgramada = false;
+                            if (intentoToken === token) conectarServidorCloud();
+                        }, 800);
                     }
                 });
                 cl.on('connect', () => adoptar(cl, broker));
@@ -3450,13 +3463,13 @@ setTimeout(() => {
             // Lanzamos TODOS los brokers en paralelo de inmediato: gana el primero que responda
             preferidos.forEach(lanzar);
 
-            // Vigía: si nadie conectó en 10s, mostramos Desconectado y reintentamos rápido
+            // Vigía: si nadie conectó en 9s, mostramos Desconectado y reintentamos rápido
             setTimeout(() => {
                 if (intentoToken !== token || ganador) return;
                 activos.forEach(c => { try { c.end(true); } catch(e){} });
                 actualizarPildoraConexion("desconectado");
-                setTimeout(() => { if (intentoToken === token) conectarServidorCloud(); }, 5000);
-            }, 10000);
+                setTimeout(() => { if (intentoToken === token) conectarServidorCloud(); }, 3000);
+            }, 9000);
 
             function manejarMensajeMqtt(topico, mensaje) {
                 try {
