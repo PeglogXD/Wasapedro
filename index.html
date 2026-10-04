@@ -241,7 +241,7 @@
         <main id="pantalla-registro" class="glass-panel p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-purple-500"></div>
             <div class="w-20 h-20 mx-auto mb-5 flex items-center justify-center">
-                <img id="logo-auth" src="" alt="Logo" loading="eager" decoding="async" class="w-20 h-20 object-contain rounded-2xl hidden border border-dark-700 bg-dark-800">
+                <img id="logo-auth" src="" alt="Logo" onerror="const _f=document.getElementById('logo-auth-fallback'); if(_f){this.classList.add('hidden'); _f.classList.remove('hidden');}" loading="eager" decoding="async" class="w-20 h-20 object-contain rounded-2xl hidden border border-dark-700 bg-dark-800">
                 <div id="logo-auth-fallback" class="w-20 h-20 bg-dark-800 text-brand-500 rounded-2xl flex items-center justify-center text-4xl border border-dark-700 shadow-inner">
                     <i class="ph ph-planet"></i>
                 </div>
@@ -692,9 +692,6 @@
                         </div>
                     </div>
                     <div class="pt-1 grid grid-cols-2 gap-2">
-                        <button onclick="subirCopiaNube()" class="col-span-2 bg-brand-600 theme-bg text-white font-medium py-2 rounded-lg text-xs hover:opacity-90 flex items-center justify-center gap-1 shadow-lg">
-                            <i class="ph ph-cloud-arrow-up"></i> Exportar Respaldo
-                        </button>
                         <button onclick="solicitarNotificaciones()" class="col-span-2 bg-dark-700 text-gray-300 font-medium py-2 rounded-lg text-xs hover:bg-dark-600 flex items-center justify-center gap-1">
                             <i class="ph ph-bell"></i> Activar Notificaciones
                         </button>
@@ -1034,7 +1031,7 @@
         // Lecturas / Read receipts
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
-        const LOGO_URL = "";
+        const LOGO_URL = "./logo.jpg";
 
         // EmailJS: pega aquí tus claves de emailjs.com (nunca empiezan con "TU_")
         // Public Key (Account -> General), Service ID (Email Services) y Template ID (Email Templates).
@@ -4460,37 +4457,6 @@ setTimeout(() => {
             gmailVinculado = mail;
             localStorage.setItem("wasapedro_gmail_link", mail);
             alert("Correo de respaldo guardado.");
-        }
-
-        function subirCopiaNube() {
-            const status = document.getElementById("status-cloud");
-            const respaldo = {
-                version: 1,
-                exportadoEn: new Date().toISOString(),
-                wasapedro: {
-                    nombre: miNombre,
-                    avatar: miFotoB64,
-                    amigos: listaAmigosActivos,
-                    historiales: historialesDeChats,
-                    apodos: apodosContactos,
-                    bloqueados: listaBloqueados,
-                    grupos: datosGrupos,
-                    fotos: fotosAmigos,
-                    pendientes: notificacionesPendientes,
-                    tema: temaActual
-                }
-            };
-            const blob = new Blob([JSON.stringify(respaldo, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const enlace = document.createElement("a");
-            enlace.href = url;
-            enlace.download = `wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
-            enlace.click();
-            URL.revokeObjectURL(url);
-            if (status) {
-                status.textContent = "Respaldo descargado en este dispositivo.";
-                setTimeout(() => { status.textContent = ""; }, 4000);
-            }
         }
 
         function cerrarSesionLimpiar() {
