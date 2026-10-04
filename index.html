@@ -60,8 +60,14 @@
 
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 50% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); } }
+        @keyframes agitar { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(6px); } }
+        @keyframes deslizarArriba { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
         
         .animar-entrada, .animate-fade-in { animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animar-agitar { animation: agitar 0.4s ease; }
+        .animar-deslizar { animation: deslizarArriba 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animar-latido { animation: latido 1.6s ease-in-out infinite; }
         .pulso-estado { animation: pulseGlow 2s infinite ease-in-out; }
         
         .glass-panel { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
@@ -241,7 +247,7 @@
         <main id="pantalla-registro" class="glass-panel p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-purple-500"></div>
             <div class="w-20 h-20 mx-auto mb-5 flex items-center justify-center">
-                <img id="logo-auth" src="" alt="Logo" class="w-20 h-20 object-contain rounded-2xl hidden border border-dark-700 bg-dark-800">
+                <img id="logo-auth" src="" alt="Logo" loading="eager" decoding="async" class="w-20 h-20 object-contain rounded-2xl hidden border border-dark-700 bg-dark-800">
                 <div id="logo-auth-fallback" class="w-20 h-20 bg-dark-800 text-brand-500 rounded-2xl flex items-center justify-center text-4xl border border-dark-700 shadow-inner">
                     <i class="ph ph-planet"></i>
                 </div>
@@ -260,7 +266,13 @@
 
             <div id="auth-vista-login" class="hidden text-left space-y-3">
                 <input type="text" id="input-login-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
-                <input type="password" id="input-login-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <div class="relative">
+                    <input type="password" id="input-login-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-login-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                        <i class="ph ph-eye text-lg pointer-events-none"></i>
+                    </button>
+                </div>
+                <button type="button" onclick="mostrarVistaAuth('recuperar')" id="btn-olvidado" class="w-full text-right text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2 transition-all -mt-1 py-1">¿Has olvidado tu contraseña?</button>
                 <p id="error-login" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Usuario o contraseña incorrectos.</p>
                 <button id="btn-login" onclick="procesarLogin()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
                     <i class="ph ph-sign-in"></i> Entrar
@@ -273,12 +285,81 @@
                 <p id="error-registro" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este nombre ya está en uso.</p>
                 <input type="email" id="input-recuperar-email" placeholder="Correo electrónico (Obligatorio)" required class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
                 <p id="error-email" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Este correo ya está registrado en otra cuenta.</p>
-                <input type="password" id="input-registro-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <div class="relative">
+                    <input type="password" id="input-registro-pass" placeholder="Contraseña" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-registro-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                        <i class="ph ph-eye text-lg pointer-events-none"></i>
+                    </button>
+                </div>
                 <p id="error-registro-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ La contraseña debe tener al menos 4 caracteres.</p>
                 <button id="btn-guardar" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
                     <i class="ph ph-user-plus"></i> Crear Cuenta
                 </button>
                 <button onclick="mostrarVistaAuth('inicio')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+            </div>
+
+            <div id="auth-vista-recuperar" class="hidden text-left space-y-3">
+                <h3 class="text-white font-bold text-lg text-center">Recuperar contraseña <i class="ph ph-password text-brand-500 align-middle"></i></h3>
+                <p class="text-gray-400 text-xs text-center -mt-1">Ingresa tu nombre de usuario y el correo con el que te registraste. Te enviaremos un código para verificar que la cuenta es tuya.</p>
+                <input type="text" id="input-recuperar-nombre" placeholder="Nombre de usuario" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <input type="email" id="input-recuperar-correo" placeholder="Correo electrónico registrado" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                <p id="error-recuperar" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ El nombre y el correo no coinciden.</p>
+                <button id="btn-enviar-codigo" onclick="enviarCodigoRecuperacion()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
+                    <i class="ph ph-envelope-simple"></i> Enviar código al correo
+                </button>
+                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+            </div>
+
+            <div id="auth-vista-codigo" class="hidden text-left space-y-3">
+                <h3 class="text-white font-bold text-lg text-center">Código de verificación</h3>
+                <p id="texto-codigo-enviado" class="text-gray-400 text-xs text-center -mt-1">Enviamos un código a tu correo.</p>
+                <input type="text" id="input-recuperar-codigo" placeholder="Código de 6 dígitos" maxlength="6" inputmode="numeric" autocomplete="one-time-code" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 px-4 text-center text-lg tracking-[0.5em] font-bold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-500">
+                <p id="error-codigo" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Código incorrecto.</p>
+                <button id="btn-verificar-codigo" onclick="verificarCodigoRecuperacion()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-check-circle"></i> Verificar código
+                </button>
+                <div id="buzon-codigo" class="hidden bg-dark-800/60 border border-dark-700 rounded-xl p-3 text-xs">
+                    <p class="text-gray-400 mb-1 flex items-center gap-1"><i class="ph ph-inbox text-brand-500"></i> ¿No te llegó el correo? Revisa el buzón del colegio o el modo demo:</p>
+                    <div class="bg-dark-900 border border-dark-800 rounded-lg p-2 text-center">
+                        <button type="button" onclick="leerCodigoBuzon()" class="text-brand-400 underline hover:text-brand-300 transition-colors">Ver código en el buzón</button>
+                    </div>
+                </div>
+                <button onclick="mostrarVistaAuth('recuperar')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
+            </div>
+
+            <div id="auth-vista-acciones" class="hidden text-left space-y-3 text-center">
+                <div class="w-16 h-16 mx-auto bg-green-500/10 text-green-400 rounded-full flex items-center justify-center text-3xl animar-latido"><i class="ph ph-shield-check"></i></div>
+                <h3 class="text-white font-bold text-lg">¡Correo verificado!</h3>
+                <p class="text-gray-400 text-xs -mt-1">Confirmamos que la cuenta es tuya. Elige qué quieres hacer.</p>
+                <button onclick="cambiarContrasenaRecuperada()" class="w-full bg-dark-700 hover:bg-dark-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-key"></i> Cambiar contraseña
+                </button>
+                <button onclick="ingresarSinContrasena()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] flex justify-center items-center gap-2">
+                    <i class="ph ph-sign-in"></i> Ingresar al Wasapedro
+                </button>
+                <button onclick="mostrarVistaAuth('login')" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver al inicio</button>
+            </div>
+
+            <div id="auth-vista-nueva-pass" class="hidden text-left space-y-3">
+                <h3 class="text-white font-bold text-lg text-center">Nueva contraseña <i class="ph ph-lock text-brand-500 align-middle"></i></h3>
+                <p class="text-gray-400 text-xs text-center -mt-1">Elige una contraseña nueva (mínimo 4 caracteres).</p>
+                <div class="relative">
+                    <input type="password" id="input-nueva-pass" placeholder="Contraseña nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                        <i class="ph ph-eye text-lg pointer-events-none"></i>
+                    </button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="input-nueva-pass2" placeholder="Repetir contraseña nueva" class="w-full bg-dark-800/50 border border-dark-700 text-white rounded-xl py-3.5 pl-4 pr-12 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-sm placeholder-gray-500">
+                    <button type="button" onclick="alternarVisibilidadPass('input-nueva-pass2', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-400 transition-colors p-2" title="Mostrar u ocultar contraseña" tabindex="-1">
+                        <i class="ph ph-eye text-lg pointer-events-none"></i>
+                    </button>
+                </div>
+                <p id="error-nueva-pass" class="text-xs text-red-400 pl-2 hidden transition-all">⚠️ Las contraseñas no coinciden.</p>
+                <button id="btn-guardar-nueva-pass" onclick="guardarNuevaContrasena()" class="w-full bg-brand-600 theme-bg hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2">
+                    <i class="ph ph-key"></i> Guardar contraseña
+                </button>
+                <button onclick="cambiarContrasenaRecuperada()" class="w-full text-gray-400 hover:text-white text-xs py-2 transition-all">← Volver</button>
             </div>
         </main>
 
@@ -939,7 +1020,7 @@
         // Lecturas / Read receipts
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
-        const LOGO_URL = "https://cdn.phototourl.com/free/2026-09-17-33bd464a-d2fa-4d62-b1dd-61288b88ca7b.png";
+        const LOGO_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="35%" cy="30%" r="85%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient><linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><circle cx="50" cy="50" r="27" fill="url(#g)"/><path d="M24 50a27 27 0 0 1 52 0" fill="none" stroke="url(#h)" stroke-width="7" stroke-linecap="round" transform="rotate(20 50 50)"/><circle cx="75" cy="30" r="7" fill="#8b5cf6"/><circle cx="45" cy="44" r="6" fill="#bfdbfe" opacity="0.5"/></svg>');
         const USUARIOS_ADMIN = ['pedro'];
 
         const TEMAS_COLOR = [
@@ -1638,7 +1719,22 @@
             });
             peerOpenPromise = null;
             registrarPromesaPeerAbierto();
-            peerInstance.on('error', (e) => { console.warn('[wasapedro] PeerJS:', e && (e.type || e.message || e)); });
+            peerInstance.on('error', (e) => {
+                const tipo = e && (e.type || '');
+                console.warn('[wasapedro] PeerJS:', tipo, e && (e.type || e.message || e));
+                if (tipo === 'unavailable-id') {
+                    const viejo = peerInstance;
+                    peerInstance = null;
+                    try { viejo.destroy(); } catch(_) {}
+                    if (ES_VENTANA_LLAMADA) miPeerId = 'wasapedro_peer_' + miNombre + '_' + Math.random().toString(36).slice(2, 8);
+                    inicializarPeerJS();
+                    reintentarDialActivo();
+                    return;
+                }
+                if (tipo === 'peer-unavailable' || tipo === 'network' || tipo === 'disconnected' || tipo === 'server-error') {
+                    setTimeout(reintentarDialActivo, 1200);
+                }
+            });
 
             peerInstance.on('call', async (call) => {
                 const emisor = call.metadata?.emisor || call.peer.replace('wasapedro_peer_', '');
@@ -1672,7 +1768,10 @@
                     return;
                 }
 
-                if (!streamLocal) return;
+                if (!streamLocal) {
+                    llamadaPendientePorPeer = call;
+                    return;
+                }
                 if (esGrupo && chatActivo !== idChat) return;
 
                 delete llamadasPendientesEntrantes[emisor];
@@ -1716,6 +1815,13 @@
                 }
             });
 
+            call.on('error', (err) => {
+                console.warn('[wasapedro] error en llamada:', participante, err && (err.type || err.message || err));
+                if (llamadaEnCurso && !llamadasStreams[usuario] && !(err && err._enReintento)) {
+                    setTimeout(() => { if (llamadaEnCurso && !llamadasStreams[usuario]) reintentarDialActivo(); }, 1500);
+                }
+            });
+
             call.on('close', () => {
                 delete llamadasStreams[usuario];
                 if (esLlamadaGrupal) {
@@ -1733,13 +1839,30 @@
             });
         }
 
+        let ultimaRespuestaData = {};
+
+        function reintentarDialActivo() {
+            if (!llamadaEnCurso || esLlamadaGrupal || !streamLocal) return;
+            const pendiente = participantesLlamada.find(p => p !== miNombre && !llamadasStreams[p]);
+            if (pendiente && ultimaRespuestaData[pendiente]) {
+                establecerLlamada(pendiente, ultimaRespuestaData[pendiente]);
+            }
+        }
+
         function establecerLlamada(usuario, data) {
-            if (!(streamLocal && peerInstance && !peerInstance.destroyed)) return;
+            const guardOk = () => !!(streamLocal && peerInstance && !peerInstance.destroyed);
+            if (!guardOk()) return;
             const peerDestino = data.peerId || ('wasapedro_peer_' + usuario);
+            ultimaRespuestaData[usuario] = data;
             let reintentos = 0;
+            const textoEstado = document.getElementById('texto-estado-llamada');
 
             const llamar = () => {
-                if (!llamadaEnCurso || !peerInstance || peerInstance.destroyed) return;
+                if (!llamadaEnCurso) return;
+                if (!guardOk()) {
+                    inicializarPeerJS();
+                    if (!guardOk()) return;
+                }
                 try {
                     const previo = llamadasPeers[usuario];
                     if (previo) {
@@ -1748,34 +1871,49 @@
                     }
                 } catch(e) {}
 
-                const call = peerInstance.call(peerDestino, streamLocal, {
-                    metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo }
-                });
-                llamadasPeers[usuario] = call;
-                llamadasPeers[usuario].peer = peerDestino;
-                if (!esLlamadaGrupal) llamadaPeer = call;
-                vincularEventosLlamadaPeer(call, usuario);
+                try {
+                    const call = peerInstance.call(peerDestino, streamLocal, {
+                        metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo }
+                    });
+                    llamadasPeers[usuario] = call;
+                    llamadasPeers[usuario].peer = peerDestino;
+                    if (!esLlamadaGrupal) llamadaPeer = call;
+                    vincularEventosLlamadaPeer(call, usuario);
 
-                if (enPantallaCompartida && streamPantalla) {
-                    try {
-                        const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
-                            metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo, esPantalla: true, ts: Date.now() }
-                        });
-                        llamadasPantallaPeers[usuario] = callPantalla;
-                    } catch(e) {}
+                    if (enPantallaCompartida && streamPantalla) {
+                        try {
+                            const callPantalla = peerInstance.call(peerDestino, streamPantalla, {
+                                metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo, esPantalla: true, ts: Date.now() }
+                            });
+                            llamadasPantallaPeers[usuario] = callPantalla;
+                        } catch(e) {}
+                    }
+                } catch (e) {
+                    console.warn('[wasapedro] no se pudo marcar:', e);
+                    setTimeout(() => { if (llamadaEnCurso && !llamadasStreams[usuario]) reintentarDialActivo(); }, 1500);
                 }
             };
 
             llamar();
 
             const vigilante = setInterval(() => {
-                if (!llamadaEnCurso || llamadasStreams[usuario] || reintentos >= 3) {
+                if (!llamadaEnCurso || llamadasStreams[usuario]) {
                     clearInterval(vigilante);
                     return;
                 }
                 reintentos++;
+                if (reintentos >= 8) {
+                    clearInterval(vigilante);
+                    if (textoEstado) {
+                        textoEstado.classList.remove('animate-pulse');
+                        textoEstado.classList.add('text-red-400');
+                        textoEstado.textContent = 'No se pudo conectar. Cuelga y vuelve a intentarlo.';
+                    }
+                    return;
+                }
+                if (textoEstado) textoEstado.textContent = 'Intentando conexión segura… (' + reintentos + ')';
                 llamar();
-            }, 6000);
+            }, 4000);
         }
 
         function iniciarTimerLlamada() {
@@ -1818,7 +1956,7 @@
             llamadasPeers = {};
             participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, chatActivo];
 
-            prepararInterfazLlamada(esGrupo, chatActivo, esGrupo ? '' : chatActivo);
+            prepararInterfazLlamada(esGrupo, chatActivo, '');
 
             if (!esGrupo) {
                 const nombreTarget = obtenerNombreLlamada(chatActivo);
@@ -2170,6 +2308,7 @@
             });
             llamadasPantallaPeers = {};
             llamadasStreams = {};
+            ultimaRespuestaData = {};
             presentadorActual = '';
             ocultarPantallaPresentacion();
 
@@ -2322,7 +2461,7 @@
             llamadasPeers = {};
             participantesLlamada = esGrupo ? obtenerMiembrosLlamada(chatActivo) : [miNombre, chatActivo];
 
-            prepararInterfazLlamada(esGrupo, chatActivo, esGrupo ? '' : chatActivo);
+            prepararInterfazLlamada(esGrupo, chatActivo, '');
 
             if (!esGrupo) {
                 const nombreTarget = obtenerNombreLlamada(chatActivo);
@@ -2399,6 +2538,16 @@
                 miMicActivo = true;
                 document.getElementById('fallback-foto-local').classList.add('hidden');
 
+                if (llamadaPendientePorPeer) {
+                    const pend = llamadaPendientePorPeer;
+                    llamadaPendientePorPeer = null;
+                    const pendEmisor = (pend.metadata && pend.metadata.emisor) || pend.peer.replace('wasapedro_peer_', '');
+                    if (pendEmisor === emisor) {
+                        llamarYResponderPeer(pend, pendEmisor);
+                        return;
+                    }
+                }
+
                 const respuesta = {
                     tipoSist: 'respuesta_llamada',
                     emisor: miNombre,
@@ -2410,13 +2559,31 @@
                     timestamp: Date.now()
                 };
                 const topicoResp = esGrupo ? `wasapedro/v3/grupo/${chatActivo}` : `wasapedro/v3/chat/${emisor}`;
-                if (clienteMqtt && clienteMqtt.connected) {
-                    clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
-                } else {
-                    setTimeout(() => {
-                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
-                    }, 1200);
-                }
+                const publishResp = () => {
+                    if (clienteMqtt && clienteMqtt.connected) {
+                        try { clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 }); } catch(e) {}
+                    } else {
+                        setTimeout(() => {
+                            if (clienteMqtt && clienteMqtt.connected) {
+                                try { clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 }); } catch(e) {}
+                            }
+                        }, 1200);
+                    }
+                };
+                publishResp();
+                let rePub = 0;
+                const rePublicar = setInterval(() => {
+                    if (!llamadaEnCurso || llamadasStreams[emisor] || llamadasPeers[emisor]) {
+                        clearInterval(rePublicar);
+                        return;
+                    }
+                    rePub++;
+                    if (rePub > 4) {
+                        clearInterval(rePublicar);
+                        return;
+                    }
+                    publishResp();
+                }, 8000);
             };
 
             adquirirMediosPopup(async (streamCapturado) => {
@@ -2701,13 +2868,238 @@
             }
         }
 
+        let recuperacionActual = null;
+
+        function animarCambioVista(desdeId, haciaId) {
+            const desde = document.getElementById(desdeId);
+            const hacia = document.getElementById(haciaId);
+            if (desde) desde.classList.add('hidden');
+            if (hacia) {
+                hacia.classList.remove('hidden');
+                hacia.classList.remove('animar-entrada');
+                void hacia.offsetWidth;
+                hacia.classList.add('animar-entrada');
+            }
+        }
+
+        function animarSacudida(idElemento) {
+            const el = document.getElementById(idElemento);
+            if (!el) return;
+            el.classList.remove('animar-agitar');
+            void el.offsetWidth;
+            el.classList.add('animar-agitar');
+        }
+
+        function alternarVisibilidadPass(idInput, btn) {
+            const inp = document.getElementById(idInput);
+            if (!inp) return;
+            const visible = inp.type === 'text';
+            inp.type = visible ? 'password' : 'text';
+            inp.focus();
+            const icono = btn ? btn.querySelector('i') : null;
+            if (icono) icono.className = (visible ? 'ph ph-eye' : 'ph ph-eye-slash') + ' text-lg pointer-events-none';
+        }
+
         function mostrarVistaAuth(vista) {
-            ['inicio', 'login', 'registro'].forEach(v => {
+            ['inicio', 'login', 'registro', 'recuperar', 'codigo', 'acciones', 'nueva-pass'].forEach(v => {
                 const el = document.getElementById('auth-vista-' + v);
                 if (el) el.classList.toggle('hidden', v !== vista);
             });
             const errLogin = document.getElementById('error-login');
             if (errLogin) errLogin.classList.add('hidden');
+            const errRecup = document.getElementById('error-recuperar');
+            if (errRecup) errRecup.classList.add('hidden');
+            const errCod = document.getElementById('error-codigo');
+            if (errCod) errCod.classList.add('hidden');
+            if (vista === 'login' && recuperacionActual && recuperacionActual.nombre) {
+                const inpNombre = document.getElementById('input-login-nombre');
+                if (inpNombre && !inpNombre.value) inpNombre.value = recuperacionActual.nombre;
+            }
+        }
+
+        function guardarCodigoEnBuzon(email, item) {
+            try {
+                let buzon = leerJSONLocal("wasapedro_buzon", {});
+                const clave = String(email || '').toLowerCase();
+                if (!buzon[clave]) buzon[clave] = [];
+                buzon[clave].unshift(item);
+                buzon[clave] = buzon[clave].slice(0, 3);
+                localStorage.setItem("wasapedro_buzon", JSON.stringify(buzon));
+            } catch(e) {}
+        }
+
+        function leerCodigoBuzon() {
+            const r = recuperacionActual;
+            if (!r) return;
+            const buzon = leerJSONLocal("wasapedro_buzon", {});
+            const items = buzon[r.email] || [];
+            const item = items.find(i => i.codigo === r.codigo && i.expira > Date.now()) || items[0] || null;
+            const contenedor = document.getElementById('buzon-codigo-valor');
+            if (!contenedor) return;
+            contenedor.textContent = item && item.codigo ? ('Tu código es: ' + item.codigo) : 'Sin códigos recientes. Solicita uno de nuevo.';
+            contenedor.classList.remove('hidden');
+        }
+
+        function enviarCodigoRecuperacion() {
+            const nombre = String(document.getElementById('input-recuperar-nombre').value || '').trim().toLowerCase();
+            const email = String(document.getElementById('input-recuperar-correo').value || '').trim().toLowerCase();
+            const err = document.getElementById('error-recuperar');
+            const btn = document.getElementById('btn-enviar-codigo');
+            err.classList.add('hidden');
+            if (!REGEX_IDENTIFICADOR.test(nombre)) {
+                err.textContent = '⚠️ Ingresa un nombre de usuario válido (2-32 caracteres, sin espacios).';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                err.textContent = '⚠️ Ingresa un correo válido (ej. nombre@dominio.com).';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+
+            const verificacion = async () => {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-xl"></i> Verificando...';
+                let cuenta = null;
+                const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+                if (registroGlobal[nombre]) cuenta = registroGlobal[nombre];
+                if (!cuenta || String(cuenta.email || '').toLowerCase() !== email) {
+                    const remota = await consultarCuenta(nombre, 1500);
+                    if (remota && String(remota.email || '').toLowerCase() === email) cuenta = remota;
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-envelope-simple"></i> Enviar código al correo';
+
+                if (!cuenta) {
+                    err.textContent = '⚠️ El nombre y el correo no coinciden, o ese correo no está registrado.';
+                    err.classList.remove('hidden');
+                    animarSacudida('pantalla-registro');
+                    return;
+                }
+
+                const codigo = String(Math.floor(100000 + Math.random() * 900000));
+                const expira = Date.now() + 10 * 60 * 1000;
+                recuperacionActual = { nombre, email, codigo, expira };
+
+                guardarCodigoEnBuzon(email, { codigo, nombre, expira });
+
+                try {
+                    const cliente = (clienteValidacion && clienteValidacion.connected)
+                        ? clienteValidacion
+                        : (clienteMqtt && clienteMqtt.connected ? clienteMqtt : null);
+                    if (cliente) cliente.publish('wasapedro/v3/recuperar/' + nombre, JSON.stringify({
+                        accion: 'codigo_recuperacion', codigo, email, expira
+                    }), { qos: 1, retain: true });
+                } catch(e) {}
+
+                const txt = document.getElementById('texto-codigo-enviado');
+                if (txt) txt.textContent = 'Enviamos un código de 6 dígitos a ' + email;
+                const buzon = document.getElementById('buzon-codigo');
+                if (buzon) buzon.classList.remove('hidden');
+                animarCambioVista('auth-vista-recuperar', 'auth-vista-codigo');
+            };
+            verificacion();
+        }
+
+        function verificarCodigoRecuperacion() {
+            const val = String(document.getElementById('input-recuperar-codigo').value || '').trim();
+            const err = document.getElementById('error-codigo');
+            err.classList.add('hidden');
+            if (!recuperacionActual) {
+                err.textContent = '⚠️ Primero solicita un código de recuperación.';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            if (Date.now() > recuperacionActual.expira) {
+                err.textContent = '⚠️ El código venció. Solicita uno nuevo.';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            if (val !== recuperacionActual.codigo) {
+                err.textContent = '⚠️ Código incorrecto. Revisa e intenta de nuevo.';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            err.classList.add('hidden');
+            document.getElementById('input-recuperar-codigo').value = "";
+            animarCambioVista('auth-vista-codigo', 'auth-vista-acciones');
+        }
+
+        function cambiarContrasenaRecuperada() {
+            if (!recuperacionActual) return;
+            animarCambioVista('auth-vista-acciones', 'auth-vista-nueva-pass');
+        }
+
+        function guardarNuevaContrasena() {
+            const r = recuperacionActual;
+            const p1 = document.getElementById('input-nueva-pass').value;
+            const p2 = document.getElementById('input-nueva-pass2').value;
+            const err = document.getElementById('error-nueva-pass');
+            err.classList.add('hidden');
+            if (r === null) {
+                mostrarVistaAuth('login');
+                return;
+            }
+            if (!p1 || p1.length < 4) {
+                err.textContent = '⚠️ La contraseña debe tener al menos 4 caracteres.';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            if (p1 !== p2) {
+                err.textContent = '⚠️ Las contraseñas no coinciden.';
+                err.classList.remove('hidden');
+                animarSacudida('pantalla-registro');
+                return;
+            }
+            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            registroGlobal[r.nombre] = { usuario: r.nombre, foto: (registroGlobal[r.nombre] && registroGlobal[r.nombre].foto) || '', email: r.email, pass: hashPassword(p1) };
+            localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            publicarCuenta(r.nombre, p1, r.email);
+            err.classList.add('hidden');
+            const btn = document.getElementById('btn-guardar-nueva-pass');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-check-circle"></i> ¡Contraseña actualizada!';
+            document.getElementById('input-nueva-pass').value = "";
+            document.getElementById('input-nueva-pass2').value = "";
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-key"></i> Guardar contraseña';
+                const inpNombre = document.getElementById('input-login-nombre');
+                const inpPass = document.getElementById('input-login-pass');
+                if (inpNombre) inpNombre.value = r.nombre;
+                if (inpPass) inpPass.value = "";
+                recuperacionActual = null;
+                mostrarVistaAuth('login');
+            }, 1400);
+        }
+
+        function ingresarSinContrasena() {
+            const r = recuperacionActual;
+            if (!r) return;
+            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const local = registroGlobal[r.nombre] || {};
+            miNombre = r.nombre;
+            localStorage.setItem("wasapedro_mqtt_name", miNombre);
+            gmailVinculado = r.email;
+            localStorage.setItem("wasapedro_gmail_link", r.email);
+            if (!local.pass) {
+                local.usuario = r.nombre;
+                local.foto = local.foto || '';
+                local.email = r.email;
+                local.pass = hashPassword("");
+                registroGlobal[r.nombre] = local;
+                localStorage.setItem("wasapedro_registro_global", JSON.stringify(registroGlobal));
+            }
+            if (local.pass && local.pass !== hashPassword("")) publicarCuenta(r.nombre, "", r.email, local.pass);
+            recuperacionActual = null;
+            inicializarUI();
+            prepararNotificacionesSW(true);
         }
 
         function hashPassword(pass) {
@@ -2752,14 +3144,14 @@
             });
         }
 
-        function publicarCuenta(nombre, pass, email) {
+        function publicarCuenta(nombre, pass, email, passYaHasheada) {
             try {
                 const cliente = (clienteValidacion && clienteValidacion.connected)
                     ? clienteValidacion
                     : (clienteMqtt && clienteMqtt.connected ? clienteMqtt : null);
                 if (!cliente || !cliente.publish) return;
                 cliente.publish(topicoCuenta(nombre), JSON.stringify({
-                    accion: 'cuenta', usuario: nombre, pass: hashPassword(pass || ''),
+                    accion: 'cuenta', usuario: nombre, pass: passYaHasheada || hashPassword(pass || ''),
                     email: String(email || '').toLowerCase(), creado: Date.now()
                 }), { qos: 1, retain: true });
             } catch(e) {}
@@ -2949,6 +3341,7 @@
                         if (!llamadaEnCurso) return;
 
                         const usuario = data.emisor;
+                        ultimaRespuestaData[usuario] = data;
                         if (!participantesLlamada.includes(usuario)) participantesLlamada.push(usuario);
 
                         if (esLlamadaGrupal) {
