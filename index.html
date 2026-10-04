@@ -18,6 +18,8 @@
     <!-- PeerJS para Videollamadas y Emoji Picker -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <!-- EmailJS para enviar correos (código de recuperación). Keys: ver EMAILJS_* en el código -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <!-- Configuración Tailwind Custom -->
     <script>
@@ -1021,6 +1023,12 @@
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
         const LOGO_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="35%" cy="30%" r="85%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient><linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><circle cx="50" cy="50" r="27" fill="url(#g)"/><path d="M24 50a27 27 0 0 1 52 0" fill="none" stroke="url(#h)" stroke-width="7" stroke-linecap="round" transform="rotate(20 50 50)"/><circle cx="75" cy="30" r="7" fill="#8b5cf6"/><circle cx="45" cy="44" r="6" fill="#bfdbfe" opacity="0.5"/></svg>');
+
+        // EmailJS: pega aquí tus claves de emailjs.com (nunca empiezan con "TU_")
+        // Public Key (Account -> General), Service ID (Email Services) y Template ID (Email Templates).
+        const EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY";
+        const EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
         const USUARIOS_ADMIN = ['pedro'];
 
         const TEMAS_COLOR = [
@@ -2994,11 +3002,37 @@
                     }), { qos: 1, retain: true });
                 } catch(e) {}
 
+                const configurado = EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY.indexOf('TU_') !== 0 &&
+                    !!(EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID);
+                const enviarCorreo = () => new Promise((resolver) => {
+                    if (!configurado || typeof emailjs === 'undefined') { resolver(false); return; }
+                    try {
+                        emailjs.init(EMAILJS_PUBLIC_KEY);
+                        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                            to_email: email,
+                            to_name: nombre,
+                            nombre: nombre,
+                            codigo: codigo,
+                            mensaje: 'Tu codigo de recuperacion de Wasapedro es: ' + codigo
+                        }).then(() => resolver(true)).catch(() => resolver(false));
+                    } catch (e) { resolver(false); }
+                });
+
                 const txt = document.getElementById('texto-codigo-enviado');
-                if (txt) txt.textContent = 'Enviamos un código de 6 dígitos a ' + email;
                 const buzon = document.getElementById('buzon-codigo');
-                if (buzon) buzon.classList.remove('hidden');
-                animarCambioVista('auth-vista-recuperar', 'auth-vista-codigo');
+                enviarCorreo().then(ok => {
+                    if (ok) {
+                        if (txt) txt.textContent = 'Enviamos un código de 6 dígitos a ' + email + ' (revisa también el spam).';
+                        if (buzon) buzon.classList.add('hidden');
+                    } else if (configurado) {
+                        if (txt) txt.textContent = 'No se pudo enviar el correo. Usá el buzón de abajo con tu código:';
+                        if (buzon) buzon.classList.remove('hidden');
+                    } else {
+                        if (txt) txt.textContent = 'Modo prueba: pega tus claves de EmailJS (EMAILJS_*) para enviarlo. Tu código está en el buzón:';
+                        if (buzon) buzon.classList.remove('hidden');
+                    }
+                    animarCambioVista('auth-vista-recuperar', 'auth-vista-codigo');
+                });
             };
             verificacion();
         }
