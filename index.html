@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1275,7 +1275,7 @@
         // Lecturas / Read receipts
         let lecturas = leerJSONLocal("wasapedro_lecturas", {});
 
-        const LOGO_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="35%" cy="30%" r="85%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient><linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><circle cx="50" cy="50" r="27" fill="url(#g)"/><path d="M24 50a27 27 0 0 1 52 0" fill="none" stroke="url(#h)" stroke-width="7" stroke-linecap="round" transform="rotate(20 50 50)"/><circle cx="75" cy="30" r="7" fill="#8b5cf6"/><circle cx="45" cy="44" r="6" fill="#bfdbfe" opacity="0.5"/></svg>');
+        const LOGO_URL = "";
 
         // EmailJS: pega aquÃ­ tus claves de emailjs.com (nunca empiezan con "TU_")
         // Public Key (Account -> General), Service ID (Email Services) y Template ID (Email Templates).
@@ -3603,84 +3603,100 @@ setTimeout(() => {
 
         function conectarServidorCloud() {
             if (clienteMqtt) { try { clienteMqtt.end(true); } catch(e){} }
-            intentarConectar();
-        }
-
-        function intentarConectar() {
             intentoToken++;
             const token = intentoToken;
-
-            const broker = LISTA_SERVIDORES_MQTT[brokerConectandoIdx];
-            brokerConectandoIdx = (brokerConectandoIdx + 1) % LISTA_SERVIDORES_MQTT.length;
             actualizarPildoraConexion("conectando", "Conectando...");
 
             const clientId = "wasapedro_sess_" + (miNombre || "user") + "_" + Math.random().toString(16).substring(2, 8);
+            let ganador = null;
+            const activos = [];
 
-            clienteMqtt = mqtt.connect(broker.url, {
-                clientId: clientId,
-                reconnectPeriod: 0,
-                connectTimeout: 12000,
-                clean: true
-            });
-            const clientePropio = clienteMqtt;
+            // Preferimos el broker que funcionÃ³ la Ãºltima vez (y EMQX si no hay registro) para que todos los equipos coincidan
+            const preferidos = (function() {
+                const guardado = localStorage.getItem('wasapedro_broker_ok') || '';
+                return LISTA_SERVIDORES_MQTT.slice().sort((a, b) => {
+                    const p = (x) => x.url === guardado ? 0 : (x.url.includes('emqx') ? 1 : 2);
+                    return p(a) - p(b);
+                });
+            })();
 
-            const avanzar = () => {
-                if (intentoToken !== token) return;
-                intentoToken++;
-                setTimeout(intentarConectar, 400);
-            };
-
-            clienteMqtt.on('error', () => {
-                if (intentoToken !== token) return;
-                actualizarPildoraConexion("conectando", "Conectando...");
-            });
-
-            clienteMqtt.on('close', () => {
-                if (intentoToken !== token) return;
-                actualizarPildoraConexion("conectando", "Reconectando...");
-                avanzar();
-            });
-
-            clienteMqtt.on('connect', () => {
-                if (intentoToken !== token) return;
-                localStorage.setItem('wasapedro_broker_ok', broker.url);
-                actualizarPildoraConexion("conectado");
-
-                clienteMqtt.subscribe(`wasapedro/v3/chat/${miNombre}`, { qos: 1 });
-                clienteMqtt.subscribe(`wasapedro/v3/sistema/bans/${miNombre}`, { qos: 1 });
-                clienteMqtt.subscribe(`wasapedro/v3/sistema/reportes`, { qos: 1 }); 
-                clienteMqtt.subscribe(`wasapedro/v3/status/fotos`); 
-                clienteMqtt.subscribe(`wasapedro/v3/status/presencia`); 
-                clienteMqtt.subscribe(`wasapedro/v3/registry/announce`, { qos: 1 });
-                clienteMqtt.subscribe(`wasapedro/v3/avisos/${miNombre}/+`);
+            const suscribir = (cl) => {
+                cl.subscribe(`wasapedro/v3/chat/${miNombre}`, { qos: 1 });
+                cl.subscribe(`wasapedro/v3/sistema/bans/${miNombre}`, { qos: 1 });
+                cl.subscribe(`wasapedro/v3/sistema/reportes`, { qos: 1 }); 
+                cl.subscribe(`wasapedro/v3/status/fotos`); 
+                cl.subscribe(`wasapedro/v3/status/presencia`); 
+                cl.subscribe(`wasapedro/v3/registry/announce`, { qos: 1 });
+                cl.subscribe(`wasapedro/v3/avisos/${miNombre}/+`);
                 
-                Object.keys(datosGrupos).forEach(id => clienteMqtt.subscribe(`wasapedro/v3/grupo/${id}`, { qos: 1 }));
+                Object.keys(datosGrupos).forEach(id => cl.subscribe(`wasapedro/v3/grupo/${id}`, { qos: 1 }));
 
-                // Suscribirse a lecturas de chats conocidos
                 listaAmigosActivos.forEach(id => {
                     try {
                         const esGrp = !!datosGrupos[id];
                         const topico = esGrp ? `wasapedro/v3/read/grupo/${id}` : `wasapedro/v3/read/${id}`;
-                        clienteMqtt.subscribe(topico, { qos: 1 });
+                        cl.subscribe(topico, { qos: 1 });
                     } catch(e) {}
                 });
 
-                clienteMqtt.publish(`wasapedro/v3/registry/announce`, JSON.stringify({ usuario: miNombre, foto: miFotoB64 }), { qos: 1, retain: true });
+                cl.publish(`wasapedro/v3/registry/announce`, JSON.stringify({ usuario: miNombre, foto: miFotoB64 }), { qos: 1, retain: true });
 
                 actualizarListaAmigosUI();
                 procesarColaDeEnvios();
-            });
+            };
 
-            // Vigilante: si a los 10s no conectÃ³ (p.ej. handshake WebSocket lento/bloqueado), forzamos el siguiente broker
+            const adoptar = (cl, broker) => {
+                if (intentoToken !== token || ganador) { try { cl.end(true); } catch(e){} return; }
+                ganador = cl;
+                clienteMqtt = cl;
+                localStorage.setItem('wasapedro_broker_ok', broker.url);
+                actualizarPildoraConexion("conectado");
+                activos.forEach(c => { if (c !== cl) { try { c.end(true); } catch(e){} } });
+                suscribir(cl);
+            };
+
+            const lanzar = (broker) => {
+                const cl = mqtt.connect(broker.url, {
+                    clientId: clientId,
+                    reconnectPeriod: 0,
+                    connectTimeout: 12000,
+                    clean: true
+                });
+                activos.push(cl);
+                cl.on('error', () => {});
+                cl.on('close', () => {
+                    if (intentoToken !== token || ganador) return;
+                    if (activos.every(c => !c.connected)) {
+                        actualizarPildoraConexion("conectando", "Reconectando...");
+                        setTimeout(() => { if (intentoToken === token && !ganador) conectarServidorCloud(); }, 4000);
+                    }
+                });
+                cl.on('connect', () => adoptar(cl, broker));
+                cl.on('message', (topico, mensaje) => {
+                    if (clienteMqtt !== cl) return;
+                    manejarMensajeMqtt(topico, mensaje);
+                });
+                return cl;
+            };
+
+            // 1) Primero el broker preferido (rÃ¡pido y consistente si responde)
+            lanzar(preferidos[0]);
+
+            // 2) Si en 1,5s aÃºn no conectÃ³, lanzamos TODOS en paralelo: gana el primero que responda
             setTimeout(() => {
-                if (intentoToken !== token) return;
-                if (clienteMqtt === clientePropio && !clienteMqtt.connected) {
-                    try { clienteMqtt.end(true); } catch(e) {}
-                    setTimeout(avanzar, 300);
-                }
-            }, 10000);
+                if (intentoToken !== token || ganador) return;
+                preferidos.slice(1).forEach(lanzar);
+            }, 1500);
 
-            clienteMqtt.on('message', (topico, mensaje) => {
+            // 3) VigÃ­a: si nadie conectÃ³ en 13s, mostramos Desconectado y reintentamos
+            setTimeout(() => {
+                if (intentoToken !== token || ganador) return;
+                activos.forEach(c => { try { c.end(true); } catch(e){} });
+                actualizarPildoraConexion("desconectado");
+                setTimeout(() => { if (intentoToken === token) conectarServidorCloud(); }, 8000);
+            }, 13000);
+
+            function manejarMensajeMqtt(topico, mensaje) {
                 try {
                     // Avisos "te escribiÃ³" (retained): llegan al abrir la app aunque se haya estado offline
                     const prefijoAvisos = `wasapedro/v3/avisos/${miNombre}/`;
@@ -3970,7 +3986,7 @@ setTimeout(() => {
                         notificarMensajeRecibido(data, idChat, esGrupo);
                     }
                 } catch(e){}
-            });
+            }
         }
 
         setInterval(() => {

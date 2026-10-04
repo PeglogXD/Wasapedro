@@ -18,4 +18,4 @@ Utilicé IAs como Gemini, ChatGPT, Freebuff y llaves API de NVIDIA. La llamé **
 2. En "Agregar ID" escribe el nombre de tu amigo para poder hablar.
 3. Instálala como PWA para recibir notificaciones.
 
-Esta versión es únicamente Wasapedro, sin la interfaz de cuaderno de NotebookPG.
+Esta versión es únicamente Wasapedro, sin la interfaz del cuaderno.
