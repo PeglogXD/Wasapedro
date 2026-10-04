@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>wasapedro</title>
+    <title>NotebookPG</title>
     <link rel="manifest" href="manifest.json"> 
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
-    <meta name="theme-color" id="meta-theme" content="#09090b">
+    <meta name="theme-color" id="meta-theme" content="#ffffff">
     
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -220,7 +219,100 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]">
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none relative bg-slate-100 text-slate-800">
+
+    <!-- INTERFAZ PRINCIPAL: NOTEBOOKPG -->
+    <div id="app-notebook-pg" class="fixed inset-0 flex flex-col bg-slate-100 z-[500]">
+        <header class="h-14 bg-white border-b border-slate-200 px-6 flex justify-between items-center shadow-sm flex-shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                    <i class="ph ph-notebook"></i>
+                </div>
+                <h1 class="font-bold text-slate-800 text-lg tracking-tight">NotebookPG</h1>
+            </div>
+            
+            <button onclick="abrirModalPlantilla()" class="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3.5 py-2 rounded-xl transition-all border border-slate-200">
+                <i class="ph ph-file-plus text-base"></i>
+                <span>Ingresar plantilla</span>
+            </button>
+        </header>
+
+        <div id="notebook-empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50">
+            <div class="w-20 h-20 bg-blue-50 border border-blue-100 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mb-4 shadow-sm">
+                <i class="ph ph-notebook"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-1">No hay páginas</h2>
+            <p class="text-xs text-slate-500 max-w-sm mb-6">Aún no has creado ninguna página de anotaciones. Empieza agregando una nueva página a tu libreta.</p>
+            <button onclick="crearNuevaPagina()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2 transition-all active:scale-[0.98]">
+                <i class="ph ph-plus-circle text-lg"></i>
+                <span>Agregar página</span>
+            </button>
+        </div>
+
+        <div id="notebook-workspace" class="flex-1 flex overflow-hidden hidden">
+            <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+                <div class="p-3 border-b border-slate-100 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Mis Páginas</span>
+                    <button onclick="crearNuevaPagina()" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Agregar Página">
+                        <i class="ph ph-plus-bold text-base"></i>
+                    </button>
+                </div>
+                <div id="lista-paginas-notebook" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+            </aside>
+
+            <main class="flex-1 flex flex-col bg-slate-100 overflow-hidden">
+                <div class="bg-white border-b border-slate-200 px-4 py-2 flex items-center gap-1.5 overflow-x-auto shadow-sm flex-shrink-0">
+                    <button onclick="ejecutarFormatoWord('bold')" title="Negrita" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-b text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('italic')" title="Cursiva" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-italic text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('underline')" title="Subrayado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-underline text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('strikeThrough')" title="Tachado" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-strikethrough text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+                    
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h1>')" title="Título" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H1</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<h2>')" title="Subtítulo" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg font-bold text-xs">H2</button>
+                    <button onclick="ejecutarFormatoWord('formatBlock', '<p>')" title="Párrafo normal" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg text-xs font-semibold">P</button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('insertUnorderedList')" title="Lista de viñetas" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-bullets text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('insertOrderedList')" title="Lista numerada" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-list-numbers text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('justifyLeft')" title="Alinear a la izquierda" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-left text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('justifyCenter')" title="Centrar" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-center text-lg"></i></button>
+                    <button onclick="ejecutarFormatoWord('justifyRight')" title="Alinear a la derecha" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-all"><i class="ph ph-text-align-right text-lg"></i></button>
+                    
+                    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+                    <button onclick="ejecutarFormatoWord('removeFormat')" title="Limpiar formato" class="p-2 text-slate-600 hover:bg-slate-100 hover:text-red-500 rounded-lg transition-all"><i class="ph ph-selection-slash text-lg"></i></button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center">
+                    <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl p-8 md:p-12 paper-page text-slate-800" id="editor-pagina-notebook" contenteditable="true" oninput="guardarContenidoPaginaActual()"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL PLANTILLA -->
+    <div id="modal-plantilla" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[600]">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-left animate-fade-in">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="ph ph-file-arrow-down text-blue-600 text-lg"></i> Cargar Plantilla
+                </h3>
+                <button onclick="cerrarModalPlantilla()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Ingrese el código de la plantilla para aplicarla a su cuaderno de notas.</p>
+            <input type="text" id="input-codigo-plantilla" placeholder="Código de plantilla..." class="w-full bg-slate-50 border border-slate-300 text-sm text-slate-800 rounded-xl p-3 mb-4 focus:outline-none focus:border-blue-500 transition-all">
+            <div class="flex gap-2 justify-end">
+                <button onclick="cerrarModalPlantilla()" class="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
+                <button onclick="procesarCodigoPlantilla()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all">Cargar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- INTERFAZ SECRETA WASAPEDRO -->
     <div id="pantalla-ban" class="fixed inset-0 bg-dark-900 z-[9999] flex flex-col items-center justify-center p-6 text-center hidden">
@@ -244,7 +336,7 @@
         <p class="text-gray-400 text-sm">Redirigiendo al menú principal...</p>
     </div>
 
-    <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0">
+    <div id="contenedor-wasapedro" class="flex-1 w-full h-full flex flex-col items-center justify-center absolute inset-0 hidden">
         
         <main id="pantalla-registro" class="glass-panel p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center hidden z-10 animar-entrada relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-purple-500"></div>
@@ -879,6 +971,26 @@
             return '';
         }
 
+        function sanitizarContenidoNota(html) {
+            const parser = new DOMParser();
+            const documento = parser.parseFromString(String(html ?? ''), 'text/html');
+            documento.querySelectorAll('script, iframe, object, embed, form, link, meta, style').forEach(elemento => elemento.remove());
+            documento.querySelectorAll('*').forEach(elemento => {
+                [...elemento.attributes].forEach(atributo => {
+                    const nombre = atributo.name.toLowerCase();
+                    if (nombre.startsWith('on') || nombre === 'srcdoc') {
+                        elemento.removeAttribute(atributo.name);
+                    }
+                    if (nombre === 'href' || nombre === 'src') {
+                        const seguro = urlSegura(atributo.value, ['image', 'audio', 'video', 'application/pdf', 'text/plain']);
+                        if (seguro) elemento.setAttribute(nombre, seguro);
+                        else elemento.removeAttribute(nombre);
+                    }
+                });
+            });
+            return documento.body.innerHTML;
+        }
+
         async function prepararNotificacionesSW(solicitarPermiso = false) {
             if (!('serviceWorker' in navigator)) return false;
 
@@ -980,6 +1092,147 @@
             // Un tag por chat: las notificaciones de chats distintos no se reemplazan entre sí
             mostrarNotificacionSW(titulo, texto, './', 'wasapedro-chat-' + idChat);
         }
+
+        // LÓGICA DE NOTEBOOKPG
+        let paginasNotebook = leerJSONLocal("notebook_pg_pages", []);
+        let idPaginaActiva = null;
+
+        function renderizarNotebook() {
+            const emptyState = document.getElementById("notebook-empty-state");
+            const workspace = document.getElementById("notebook-workspace");
+
+            if (paginasNotebook.length === 0) {
+                emptyState.classList.remove("hidden");
+                workspace.classList.add("hidden");
+                idPaginaActiva = null;
+            } else {
+                emptyState.classList.add("hidden");
+                workspace.classList.remove("hidden");
+
+                if (!idPaginaActiva || !paginasNotebook.some(p => p.id === idPaginaActiva)) {
+                    idPaginaActiva = paginasNotebook[0].id;
+                }
+                actualizarListaSidebarPaginas();
+                cargarPaginaEnEditor(idPaginaActiva);
+            }
+        }
+
+        function crearNuevaPagina() {
+            const numeroNuevaPagina = paginasNotebook.length + 1;
+            const nuevaPag = {
+                id: "pag_" + Date.now(),
+                titulo: "Página " + numeroNuevaPagina,
+                contenido: ""
+            };
+            paginasNotebook.push(nuevaPag);
+            localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+            idPaginaActiva = nuevaPag.id;
+            renderizarNotebook();
+        }
+
+        function actualizarListaSidebarPaginas() {
+            const contenedor = document.getElementById("lista-paginas-notebook");
+            if (!contenedor) return;
+            contenedor.innerHTML = "";
+
+            paginasNotebook.forEach(pag => {
+                const esActiva = pag.id === idPaginaActiva;
+                const div = document.createElement("div");
+                div.className = `p-2.5 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-all ${
+                    esActiva ? 'bg-blue-50 text-blue-600 font-bold border border-blue-200 shadow-sm' : 'hover:bg-slate-50 text-slate-600 font-medium'
+                }`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0 flex-1" onclick="seleccionarPagina('${escaparJS(pag.id)}')">
+                        <i class="ph ph-file-text text-base flex-shrink-0"></i>
+                        <span class="truncate">${escaparHTML(pag.titulo)}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="renombrarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-blue-700 rounded" title="Modificar nombre"><i class="ph ph-pencil-simple"></i></button>
+                        <button onclick="eliminarPagina(event, '${escaparJS(pag.id)}')" class="p-1 hover:text-red-600 rounded" title="Eliminar página"><i class="ph ph-trash"></i></button>
+                    </div>
+                `;
+                contenedor.appendChild(div);
+            });
+        }
+
+        function seleccionarPagina(id) {
+            idPaginaActiva = id;
+            actualizarListaSidebarPaginas();
+            cargarPaginaEnEditor(id);
+        }
+
+        function cargarPaginaEnEditor(id) {
+            const pag = paginasNotebook.find(p => p.id === id);
+            const editor = document.getElementById("editor-pagina-notebook");
+            if (pag && editor) {
+                editor.innerHTML = sanitizarContenidoNota(pag.contenido || "");
+            }
+        }
+
+        function guardarContenidoPaginaActual() {
+            if (!idPaginaActiva) return;
+            const editor = document.getElementById("editor-pagina-notebook");
+            const pag = paginasNotebook.find(p => p.id === idPaginaActiva);
+            if (pag && editor) {
+                pag.contenido = sanitizarContenidoNota(editor.innerHTML);
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+            }
+        }
+
+        function renombrarPagina(e, id) {
+            e.stopPropagation();
+            const pag = paginasNotebook.find(p => p.id === id);
+            if (!pag) return;
+            const nuevoTitulo = prompt("Ingresa el nuevo nombre de la página:", pag.titulo);
+            if (nuevoTitulo && nuevoTitulo.trim() !== "") {
+                pag.titulo = nuevoTitulo.trim();
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+                actualizarListaSidebarPaginas();
+            }
+        }
+
+        function eliminarPagina(e, id) {
+            e.stopPropagation();
+            if (confirm("¿Deseas eliminar esta página?")) {
+                paginasNotebook = paginasNotebook.filter(p => p.id !== id);
+                localStorage.setItem("notebook_pg_pages", JSON.stringify(paginasNotebook));
+                renderizarNotebook();
+            }
+        }
+
+        function ejecutarFormatoWord(comando, valor = null) {
+            document.execCommand(comando, false, valor);
+            guardarContenidoPaginaActual();
+        }
+
+        function abrirModalPlantilla() {
+            document.getElementById("modal-plantilla").classList.remove("hidden");
+            document.getElementById("input-codigo-plantilla").focus();
+        }
+
+        function cerrarModalPlantilla() {
+            document.getElementById("modal-plantilla").classList.add("hidden");
+            document.getElementById("input-codigo-plantilla").value = "";
+        }
+
+        function procesarCodigoPlantilla() {
+            const input = document.getElementById("input-codigo-plantilla");
+            const codigo = input.value.trim();
+            if (codigo === "00101") {
+                cerrarModalPlantilla();
+                document.getElementById("app-notebook-pg").style.display = "none";
+                document.getElementById("contenedor-wasapedro").classList.remove("hidden");
+                document.body.className = "h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]";
+                aplicarPersonalizacion();
+                inicializarUI(); prepararNotificacionesSW(true);
+            } else {
+                alert("El código de plantilla no es válido o no existe.");
+            }
+        }
+
+        renderizarNotebook();
+        prepararNotificacionesSW();
 
         // LÓGICA DE WASAPEDRO
         let estatusDeBanLocal = leerJSONLocal("wasapedro_ban_status", null);
@@ -1230,7 +1483,7 @@
                 cont.className = "w-28 h-28 bg-green-500/20 border border-green-500/50 text-green-400 rounded-full flex items-center justify-center text-6xl mb-6 transition-all duration-700 shadow-[0_0_30px_rgba(74,222,128,0.4)]";
             }, 800);
 
-            setTimeout(() => {
+setTimeout(() => {
                 overlay.classList.add("hidden");
                 inicializarUI();
             }, 2800);
@@ -1530,7 +1783,26 @@
                     timestamp: Date.now()
                 };
                 const topicoResp = esGrupo ? `wasapedro/v3/grupo/${idChatOrigen}` : `wasapedro/v3/chat/${emisor}`;
-                clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                const publishResp = () => {
+                    try {
+                        if (clienteMqtt && clienteMqtt.connected) clienteMqtt.publish(topicoResp, JSON.stringify(respuesta), { qos: 1 });
+                    } catch(e) {}
+                };
+                publishResp();
+                let rePub = 0;
+                const rePublicar = setInterval(() => {
+                    if (!llamadaEnCurso || llamadasStreams[emisor] || llamadasPeers[emisor]) {
+                        clearInterval(rePublicar);
+                        return;
+                    }
+                    rePub++;
+                    if (rePub > 4) {
+                        clearInterval(rePublicar);
+                        return;
+                    }
+                    publishResp();
+                }, 8000);
+                programarReverso(emisor, data.peerId || '');
             } catch (e) {
                 llamadaEnCurso = false;
                 finalizarLlamada(false);
@@ -1701,8 +1973,10 @@
             peerOpenPromise = new Promise((resolve) => {
                 let hecho = false;
                 const fin = () => { if (!hecho) { hecho = true; resolve(true); } };
-                try { peerInstance.once('open', fin); } catch(e) { fin(); }
-                setTimeout(fin, 6000);
+                try {
+                    peerInstance.once('open', (id) => { console.info('[wasapedro] peer conectado:', id); fin(); });
+                } catch(e) { fin(); }
+                setTimeout(() => { console.warn('[wasapedro] el peer tardó más de 6s en abrir:', miPeerId); fin(); }, 6000);
             });
         }
 
@@ -1748,6 +2022,7 @@
                 const emisor = call.metadata?.emisor || call.peer.replace('wasapedro_peer_', '');
                 const esGrupo = !!(call.metadata?.esGrupo);
                 const idChat = call.metadata?.idChat || (esGrupo ? chatActivo : emisor);
+                console.info('[wasapedro] llamada entrante de', emisor, call.metadata && call.metadata.esPantalla ? '(pantalla)' : '');
 
                 if (call.metadata?.esPantalla) {
                     if (!llamadaEnCurso || (esGrupo && chatActivo !== idChat)) {
@@ -1849,6 +2124,16 @@
 
         let ultimaRespuestaData = {};
 
+        function programarReverso(participante, peerId) {
+            setTimeout(() => {
+                if (!llamadaEnCurso || esLlamadaGrupal || llamadasStreams[participante] || llamadasPeers[participante]) return;
+                const textoEstado = document.getElementById('texto-estado-llamada');
+                if (textoEstado) textoEstado.textContent = 'Conectando por nuestra cuenta…';
+                console.info('[wasapedro] marcado inverso hacia', participante, peerId || ('wasapedro_peer_' + participante));
+                establecerLlamada(participante, { peerId: peerId || ('wasapedro_peer_' + participante), idChat: chatActivo });
+            }, 6000);
+        }
+
         function reintentarDialActivo() {
             if (!llamadaEnCurso || esLlamadaGrupal || !streamLocal) return;
             const pendiente = participantesLlamada.find(p => p !== miNombre && !llamadasStreams[p]);
@@ -1880,6 +2165,7 @@
                 } catch(e) {}
 
                 try {
+                    console.info('[wasapedro] marcando a', peerDestino, 'intento', reintentos);
                     const call = peerInstance.call(peerDestino, streamLocal, {
                         metadata: { emisor: miNombre, esGrupo: esLlamadaGrupal, idChat: data.idChat || chatActivo }
                     });
@@ -2579,6 +2865,7 @@
                     }
                 };
                 publishResp();
+                programarReverso(emisor, datos.peerId || '');
                 let rePub = 0;
                 const rePublicar = setInterval(() => {
                     if (!llamadaEnCurso || llamadasStreams[emisor] || llamadasPeers[emisor]) {
@@ -2632,6 +2919,8 @@
                 });
             })();
 
+            const appNotebook = document.getElementById('app-notebook-pg');
+            if (appNotebook) appNotebook.style.display = 'none';
             const cont = document.getElementById('contenedor-wasapedro');
             if (cont) cont.classList.remove('hidden');
             document.body.className = 'h-screen w-screen flex flex-col overflow-hidden select-none relative text-[#e4e4e7]';
@@ -2752,115 +3041,6 @@
             destinoRecorte = "grupo";
             document.getElementById("input-avatar-file").click();
         }
-
-        document.getElementById("btn-guardar").addEventListener("click", () => {
-            const nombreIngresado = document.getElementById("input-nombre").value.trim().toLowerCase();
-            const emailRecuperar = document.getElementById("input-recuperar-email").value.trim().toLowerCase();
-            const passIngresada = document.getElementById("input-registro-pass").value;
-            const btn = document.getElementById("btn-guardar");
-            const txtError = document.getElementById("error-registro");
-            const txtErrorPass = document.getElementById("error-registro-pass");
-
-            if (!REGEX_IDENTIFICADOR.test(nombreIngresado)) {
-                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
-            }
-            txtErrorPass.classList.add("hidden");
-            if (!passIngresada || passIngresada.length < 4) {
-                txtErrorPass.classList.remove("hidden");
-                return;
-            }
-            const txtErrorEmail = document.getElementById("error-email");
-            if (!emailRecuperar || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailRecuperar)) {
-                txtErrorEmail.textContent = "⚠️ El correo es obligatorio y debe tener un formato válido (ej. nombre@dominio.com).";
-                txtErrorEmail.classList.remove("hidden");
-                return;
-            }
-            btn.disabled = true;
-            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-xl"></i> Verificando...';
-            txtError.classList.add("hidden");
-            txtErrorEmail.textContent = "⚠️ Este correo ya está registrado en otra cuenta.";
-            txtErrorEmail.classList.add("hidden");
-
-            // Verificación local instantánea contra el registro global
-            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
-            const nombreExisteLocal = !!registroGlobal[nombreIngresado];
-            let correoExisteLocal = false;
-            if (emailRecuperar) {
-                for (const u of Object.values(registroGlobal)) {
-                    if (u.email && u.email === emailRecuperar) { correoExisteLocal = true; break; }
-                }
-            }
-
-            if (correoExisteLocal) {
-                btn.disabled = false;
-                btn.innerHTML = 'Crear Cuenta';
-                txtErrorEmail.classList.remove("hidden");
-                return;
-            }
-            if (nombreExisteLocal) {
-                btn.disabled = false;
-                btn.innerHTML = 'Crear Cuenta';
-                txtError.classList.remove("hidden");
-                return;
-            }
-
-// Si el cliente MQTT no está conectado, intentar verificar en segundo plano con el otro cliente
-            if (!clienteValidacion || !clienteValidacion.connected) {
-                if (clienteMqtt && clienteMqtt.connected) {
-                    consultarCuenta(nombreIngresado, 1200).then(cuentaRemota => {
-                        if (cuentaRemota) {
-                            btn.disabled = false;
-                            btn.innerHTML = 'Crear Cuenta';
-                            txtError.classList.remove('hidden');
-                            return;
-                        }
-                        registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
-                    });
-                } else {
-                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
-                }
-                return;
-            }
-
-            // Verificación MQTT rápida en background (máx 600ms)
-            let nombreOcupado = false;
-            const subCanal = "wasapedro/v3/verificar/" + nombreIngresado;
-            try {
-                clienteValidacion.subscribe(subCanal);
-            } catch(e) {}
-
-            const manejarVerificacion = (topico, mensaje) => {
-                try {
-                    const data = JSON.parse(mensaje.toString());
-                    if (topico === subCanal && data.accion === "respuesta_ocupado") nombreOcupado = true;
-                } catch(e){}
-            };
-            clienteValidacion.on('message', manejarVerificacion);
-            try {
-                clienteValidacion.publish(subCanal, JSON.stringify({ accion: "pregunta" }));
-            } catch(e) {}
-
-            setTimeout(async () => {
-                try {
-                    clienteValidacion.unsubscribe(subCanal);
-                    clienteValidacion.off('message', manejarVerificacion);
-                } catch(e) {}
-                const cuentaRemota = await consultarCuenta(nombreIngresado, 1000);
-                if (cuentaRemota) {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Crear Cuenta';
-                    txtError.classList.remove('hidden');
-                    return;
-                }
-                if (nombreOcupado) {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Crear Cuenta';
-                    txtError.classList.remove('hidden');
-                } else {
-                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
-                }
-            }, 600);
-        });
 
         function mostrarLogoAuth() {
             const img = document.getElementById("logo-auth");
@@ -3234,6 +3414,115 @@
             inicializarUI();
             prepararNotificacionesSW(true);
         }
+
+        document.getElementById("btn-guardar").addEventListener("click", () => {
+            const nombreIngresado = document.getElementById("input-nombre").value.trim().toLowerCase();
+            const emailRecuperar = document.getElementById("input-recuperar-email").value.trim().toLowerCase();
+            const passIngresada = document.getElementById("input-registro-pass").value;
+            const btn = document.getElementById("btn-guardar");
+            const txtError = document.getElementById("error-registro");
+            const txtErrorPass = document.getElementById("error-registro-pass");
+
+            if (!REGEX_IDENTIFICADOR.test(nombreIngresado)) {
+                return alert("Usa entre 2 y 32 caracteres: letras, números, guion o guion bajo. Sin espacios.");
+            }
+            txtErrorPass.classList.add("hidden");
+            if (!passIngresada || passIngresada.length < 4) {
+                txtErrorPass.classList.remove("hidden");
+                return;
+            }
+            const txtErrorEmail = document.getElementById("error-email");
+            if (!emailRecuperar || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailRecuperar)) {
+                txtErrorEmail.textContent = "⚠️ El correo es obligatorio y debe tener un formato válido (ej. nombre@dominio.com).";
+                txtErrorEmail.classList.remove("hidden");
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-xl"></i> Verificando...';
+            txtError.classList.add("hidden");
+            txtErrorEmail.textContent = "⚠️ Este correo ya está registrado en otra cuenta.";
+            txtErrorEmail.classList.add("hidden");
+
+            // Verificación local instantánea contra el registro global
+            const registroGlobal = leerJSONLocal("wasapedro_registro_global", {});
+            const nombreExisteLocal = !!registroGlobal[nombreIngresado];
+            let correoExisteLocal = false;
+            if (emailRecuperar) {
+                for (const u of Object.values(registroGlobal)) {
+                    if (u.email && u.email === emailRecuperar) { correoExisteLocal = true; break; }
+                }
+            }
+
+            if (correoExisteLocal) {
+                btn.disabled = false;
+                btn.innerHTML = 'Crear Cuenta';
+                txtErrorEmail.classList.remove("hidden");
+                return;
+            }
+            if (nombreExisteLocal) {
+                btn.disabled = false;
+                btn.innerHTML = 'Crear Cuenta';
+                txtError.classList.remove("hidden");
+                return;
+            }
+
+// Si el cliente MQTT no está conectado, intentar verificar en segundo plano con el otro cliente
+            if (!clienteValidacion || !clienteValidacion.connected) {
+                if (clienteMqtt && clienteMqtt.connected) {
+                    consultarCuenta(nombreIngresado, 1200).then(cuentaRemota => {
+                        if (cuentaRemota) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Crear Cuenta';
+                            txtError.classList.remove('hidden');
+                            return;
+                        }
+                        registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                    });
+                } else {
+                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                }
+                return;
+            }
+
+            // Verificación MQTT rápida en background (máx 600ms)
+            let nombreOcupado = false;
+            const subCanal = "wasapedro/v3/verificar/" + nombreIngresado;
+            try {
+                clienteValidacion.subscribe(subCanal);
+            } catch(e) {}
+
+            const manejarVerificacion = (topico, mensaje) => {
+                try {
+                    const data = JSON.parse(mensaje.toString());
+                    if (topico === subCanal && data.accion === "respuesta_ocupado") nombreOcupado = true;
+                } catch(e){}
+            };
+            clienteValidacion.on('message', manejarVerificacion);
+            try {
+                clienteValidacion.publish(subCanal, JSON.stringify({ accion: "pregunta" }));
+            } catch(e) {}
+
+            setTimeout(async () => {
+                try {
+                    clienteValidacion.unsubscribe(subCanal);
+                    clienteValidacion.off('message', manejarVerificacion);
+                } catch(e) {}
+                const cuentaRemota = await consultarCuenta(nombreIngresado, 1000);
+                if (cuentaRemota) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Crear Cuenta';
+                    txtError.classList.remove('hidden');
+                    return;
+                }
+                if (nombreOcupado) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Crear Cuenta';
+                    txtError.classList.remove('hidden');
+                } else {
+                    registrarUsuario(nombreIngresado, emailRecuperar, passIngresada, btn);
+                }
+            }, 600);
+        });
 
         function registrarUsuario(nombre, email, pass, btn) {
             const emailFinal = String(email || "").trim().toLowerCase();
@@ -4311,6 +4600,7 @@
             const respaldo = {
                 version: 1,
                 exportadoEn: new Date().toISOString(),
+                notebook: paginasNotebook,
                 wasapedro: {
                     nombre: miNombre,
                     avatar: miFotoB64,
@@ -4328,7 +4618,7 @@
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement("a");
             enlace.href = url;
-            enlace.download = `wasapedro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            enlace.download = `notebookpg-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
             enlace.click();
             URL.revokeObjectURL(url);
             if (status) {
@@ -4732,11 +5022,7 @@
                 }
             });
         }
-
-        // Arranque directo de WasaPedro (sin la interfaz de cuaderno)
         garantizarCuentaAdmin();
-        inicializarUI();
-        prepararNotificacionesSW(true);
     </script>
 </body>
 </html>
